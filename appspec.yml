@@ -3,7 +3,3 @@ os: linux
 files:
    - source: /
      destination: /var/www/html
-permissions:
-hooks:
-   BeforeInstall:
-   AfterInstall:
