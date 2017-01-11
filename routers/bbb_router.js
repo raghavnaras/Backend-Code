@@ -40,7 +40,6 @@ router.post("/bike", function(req, res){
 		timestamps = Object.keys(req.body)
 		for (idx in timestamps){
 			data.create({
-				id: timestamps[idx],
 				timestamp: parseFloat(timestamps[idx]),
 				x: json[timestamps[idx]].x,
         		y: json[timestamps[idx]].y,
