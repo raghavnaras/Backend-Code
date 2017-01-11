@@ -1,13 +1,13 @@
 var config = {};
 
 var db = {};
-db.user = 'Rice.Sensor@digital-gym-sql-server.database.windows.net';
-db.password = 'Ashu1234!';
-db.schema ="Digital-Gym-DB";
+db.user = 'digitalgym';
+db.password = 'ashu1234';
+db.schema ="DigitalGym";
 
 var opts = {
-    host: 'digital-gym-sql-server.database.windows.net',
-    dialect: 'mssql',
+    host: 'digitalgym.cq4d8vjo7uoe.us-west-2.rds.amazonaws.com',
+    dialect: 'mysql',
     pool: {
     max: 5,
     min: 0,

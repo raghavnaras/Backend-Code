@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var models = require('../models');
-var data = models.id117
+var data = models.BikeData
 var user = models.SessionData
 
 router.get("/users", function(req, res){
@@ -35,4 +35,26 @@ router.post("/addsession", function(req, res){
 				id: ''});
 	res.send("session created")
 });
+router.post("/bike", function(req, res){
+	if(req.body){
+		timestamps = Object.keys(req.body)
+		for (idx in timestamps){
+			data.create({
+				id: timestamps[idx],
+				timestamp: parseFloat(timestamps[idx]),
+				x: json[timestamps[idx]].x,
+        		y: json[timestamps[idx]].y,
+        		z: json[timestamps[idx]].z,
+        		xG: json[timestamps[idx]].xG,
+        		yG: json[timestamps[idx]].yG,
+        		zG: json[timestamps[idx]].zG,
+        		xM: json[timestamps[idx]].xM,
+        		yM: json[timestamps[idx]].yM,
+        		zM: json[timestamps[idx]].zM,
+				rpm: 0
+			})
+		}
+	}
+	res.send("Success")
+})
 module.exports = router; 

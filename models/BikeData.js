@@ -1,9 +1,8 @@
 "use strict";
 
 module.exports = function(sql, Sql) {
-var bikedata = sql.define("id117", {
-        id: {type: Sql.STRING, primaryKey: true},
-        stamp: {type: Sql.BIGINT},
+var bikedata = sql.define("BikeData", {
+        stamp: {type: Sql.BIGINT, primaryKey: true},
         x: {type: Sql.FLOAT},
         y: {type: Sql.FLOAT},
         z: {type: Sql.FLOAT},
@@ -13,9 +12,8 @@ var bikedata = sql.define("id117", {
         xM: {type: Sql.FLOAT},
         yM: {type: Sql.FLOAT},
         zM: {type: Sql.FLOAT},
-        rpm: {type: Sql.FLOAT}
-}, {timestamps: false,freezeTableName: true});
-        
-        
+        rpm: {type: Sql.FLOAT},
+        bikeId: {type: Sql.INTEGER}
+}, {timestamps: true,freezeTableName: true});
     return bikedata;
 };

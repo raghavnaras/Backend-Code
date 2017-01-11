@@ -1,6 +1,6 @@
 var express = require('express');
 var app = express()
-var router = require('./routers/api_router.js')
+var router = require('./routers/bbb_router.js')
 var models = require('./models')
 
 var bodyParser = require('body-parser');
@@ -17,7 +17,7 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.use("/api", router)
+app.use("/bbb", router)
 
 models.sql.sync().then(function () {
     app.listen(8000);

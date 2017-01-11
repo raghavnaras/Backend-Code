@@ -14,8 +14,6 @@ sql
     .catch(function (err) {
         console.log('Unable to connect to the database:', err);
     });
-
-
 var fs = require("fs");
 fs
   .readdirSync(__dirname)
