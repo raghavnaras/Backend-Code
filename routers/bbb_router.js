@@ -36,6 +36,7 @@ router.post("/addsession", function(req, res){
 	res.send("session created")
 });
 router.post("/bike", function(req, res){
+	json = req.body
 	if(req.body){
 		timestamps = Object.keys(req.body)
 		for (idx in timestamps){
