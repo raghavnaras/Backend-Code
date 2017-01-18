@@ -53,10 +53,11 @@ var json = require('json')
 
 	/*Once the stream is done (on 'end') we want to simply log the received data to the console.*/
 	py.stdout.on('end', function(){
-  		
 	json = req.body
 	if(req.body){
+
 		rpm = parseFloat(dataString)
+		dataString = ''
 		rpm_array = []
 		timestamps = Object.keys(req.body)
 		console.log(timestamps)
