@@ -56,10 +56,8 @@ var json = require('json')
   		
 	json = req.body
 	if(req.body){
-		string_rpm = dataString.replace("[","").replace("]", "").split(",")
+		rpm = parseFloat(dataString)
 		rpm_array = []
-		for (a in string_rpm)
-			rpm_array.push(parseFloat(string_rpm[a]))
 		timestamps = Object.keys(req.body)
 		console.log(timestamps)
 		for (idx in timestamps){
@@ -75,7 +73,7 @@ var json = require('json')
         		yM: json[timestamps[idx]][7],
         		zM: json[timestamps[idx]][8],
         		bikeId: json[timestamps[idx]][9],
-				rpm: rpm_array[idx]
+				rpm: rpm
 			})
 		}
 	}

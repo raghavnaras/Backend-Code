@@ -122,11 +122,9 @@ def read_in():
     return json.loads(lines[0])
 
 if __name__ == '__main__':
-	rpm_vals = []
-	the_dict = read_in()
-	for a in the_dict.keys():
-		rpm_vals.append(zeroCrossingsRPM({a:the_dict[a]}))
-	print rpm_vals
+
+	
+	print zeroCrossingsRPM(read_in())
 
 
 # FOR TESTING USING EXCEL FILES
