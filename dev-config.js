@@ -18,8 +18,10 @@ var opts = {
   }
    
 };
+
 config.db = db;
 config.opts = opts;
+
 
 
 module.exports = config;

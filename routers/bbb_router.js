@@ -3,6 +3,12 @@ var router = express.Router();
 var models = require('../models');
 var data = models.BikeData
 var user = models.SessionData
+var spawn = require("child_process").spawn
+
+
+
+
+
 
 router.get("/users", function(req, res){
 	user.findAll().then(function(list){
@@ -36,8 +42,24 @@ router.post("/addsession", function(req, res){
 	res.send("session created")
 });
 router.post("/bike", function(req, res){
+
+	var py = spawn('python', ['python/compute_rpm.py'])
+var dataString = ''
+var json = require('json')
+	/*Here we are saying that every time our node application receives data from the python process output stream(on 'data'), we want to convert that received data into a string and append it to the overall dataString.*/
+	py.stdout.on('data', function(data){
+  		dataString += data.toString();
+	});
+
+	/*Once the stream is done (on 'end') we want to simply log the received data to the console.*/
+	py.stdout.on('end', function(){
+  		
 	json = req.body
 	if(req.body){
+		string_rpm = dataString.replace("[","").replace("]", "").split(",")
+		rpm_array = []
+		for (a in string_rpm)
+			rpm_array.push(parseFloat(string_rpm[a]))
 		timestamps = Object.keys(req.body)
 		console.log(timestamps)
 		for (idx in timestamps){
@@ -53,10 +75,21 @@ router.post("/bike", function(req, res){
         		yM: json[timestamps[idx]][7],
         		zM: json[timestamps[idx]][8],
         		bikeId: json[timestamps[idx]][9],
-				rpm: 0
+				rpm: rpm_array[idx]
 			})
 		}
 	}
 	res.send("Success")
+	});
+	py.on('exit', function(code) {
+    	console.log("Exited with code " + code);
+	});
+	py.stderr.on('data', function(data) {
+    	console.error(data.toString());
+});
+	py.stdin.write(JSON.stringify(req.body));
+	 py.stdin.end();
+
+
 })
 module.exports = router; 
