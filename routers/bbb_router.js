@@ -5,11 +5,6 @@ var data = models.BikeData
 var user = models.SessionData
 var spawn = require("child_process").spawn
 
-
-
-
-
-
 router.get("/users", function(req, res){
 	user.findAll().then(function(list){
 		res.setHeader('Content-Type', 'application/json');
@@ -55,7 +50,8 @@ var json = require('json')
 	py.stdout.on('end', function(){
 	json = req.body
 	if(req.body){
-
+		console.log("dataString")
+		console.log(dataString)
 		rpm = parseFloat(dataString)
 		dataString = ''
 		rpm_array = []
@@ -86,6 +82,8 @@ var json = require('json')
 	py.stderr.on('data', function(data) {
     	console.error(data.toString());
 });
+	print("JSON_STRING")
+	print(JSON.stringify(req.body))
 	py.stdin.write(JSON.stringify(req.body));
 	 py.stdin.end();
 
