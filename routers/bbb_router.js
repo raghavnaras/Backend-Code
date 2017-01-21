@@ -82,8 +82,8 @@ var json = require('json')
 	py.stderr.on('data', function(data) {
     	console.error(data.toString());
 });
-	print("JSON_STRING")
-	print(JSON.stringify(req.body))
+	console.log("JSON_STRING")
+	console.log(JSON.stringify(req.body))
 	py.stdin.write(JSON.stringify(req.body));
 	 py.stdin.end();
 
