@@ -4,6 +4,7 @@ var models = require('../models');
 var data = models.BikeData
 var user = models.SessionData
 var spawn = require("child_process").spawn
+var sequelize = require('sequelize');
 
 router.get("/users", function(req, res){
 	user.findAll().then(function(list){
@@ -46,7 +47,7 @@ router.post("/addsession", function(req, res){
 });
 router.post("/bike", function(req, res){
 	data.create({
-		stamp:  'NOW()',
+		stamp:  sequelize.fn('NOW'),
 		rpm: req.body.rpm,
 		bikeId: req.body.bikeId
 	})
