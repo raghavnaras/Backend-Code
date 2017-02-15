@@ -47,7 +47,7 @@ router.post("/addsession", function(req, res){
 });
 router.post("/bike", function(req, res){
 	data.create({
-		stamp:  sequelize.fn('NOW'),
+		stamp:  new Date().getTime(),
 		rpm: req.body.rpm,
 		bikeId: req.body.bikeId
 	})
