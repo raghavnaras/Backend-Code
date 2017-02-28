@@ -55,9 +55,7 @@ router.get("/sessionlisten", function(req, res){
 router.post("/logout", function(req, res){
 	session.update({
   stampEnd: new Date().getTime(),
-},{
-
-		where:
+},{		where:
 			[{userId: req.body.userId}]
 	}).then(function(list){
         res.send({status: "success"});
@@ -84,11 +82,38 @@ router.post("/addsession", function(req, res){
 		else{
 			res.send({status: "old", user: list[0]})
 			session.create({
-				stampStart: new Date().getTime()
+				stampStart: new Date().getTime(),
+				userId: list[0].dataValues.id
 			})
 		}
 		
 		
+	})
+});
+router.post("/addname", function(req, res){
+
+	user.update({
+  name: req.body.name,
+},{
+		where:
+			[{id: req.body.userId}]
+	}).then(function(list){
+        res.send({status: "success"});
+	}).error(function(e){
+		res.send({status: "failure"})
+	})
+});
+router.post("/addemailgender", function(req, res){
+	user.update({
+ 	email: req.body.name,
+ 	gender: req.body.gender
+},{
+		where:
+			[{id: req.body.userId}]
+	}).then(function(list){
+        res.send({status: "success"});
+	}).error(function(e){
+		res.send({status: "failure"})
 	})
 });
 router.post("/bike", function(req, res){
