@@ -2,7 +2,7 @@ var express = require('express');
 var app = express()
 var router = require('./routers/bbb_router.js')
 var models = require('./models')
-var sequelize = require('sequelize');
+
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

@@ -2,7 +2,8 @@ var express = require('express');
 var router = express.Router();
 var models = require('../models');
 var data = models.BikeData
-var user = models.SessionData
+var user = models.User
+var session = models.SessionData
 var spawn = require("child_process").spawn
 var sequelize = require('sequelize');
 
@@ -36,14 +37,59 @@ router.get("/data/:t1/:t2", function(req, res){
         res.send(list);
 	})
 });
+router.get("/sessionlisten", function(req, res){
+	session.findOne({
+		where: {stampEnd: null}
+	}).then(function(list){
+		if(list){
+		user.findOne({
+			where: {id: list.dataValues.userId}
+		}).then(function(user){
+			res.send({status: "success", user: user})
+		})
+		}else{
+			res.send({status: "failure"})
+		}
+	})
+})
+router.post("/logout", function(req, res){
+	session.update({
+  stampEnd: new Date().getTime(),
+},{
+
+		where:
+			[{userId: req.body.userId}]
+	}).then(function(list){
+        res.send({status: "success"});
+	})
+})
 router.post("/addsession", function(req, res){
-	user.create({email: req.body.email, 
-				gender: req.body.gender, 
-				stampStart: req.body.stampStart, 
-				stampEnd: req.body.stampEnd,
-				name: req.body.name,
-				id: ''});
-	res.send("session created")
+	user.findAll({
+		where: [{rfid : req.body.tag}]
+	}).then(function(list){
+		if(list.length == 0){
+			user.create(
+				{rfid: req.body.tag}
+				).then(function(user){
+					console.log(user)
+					session.create({
+						stampStart: new Date().getTime(),
+						userId: user.dataValues.id
+					})
+					res.send({status: "new"})
+
+				})
+			
+		}
+		else{
+			res.send({status: "old", user: list[0]})
+			session.create({
+				stampStart: new Date().getTime()
+			})
+		}
+		
+		
+	})
 });
 router.post("/bike", function(req, res){
 	data.create({
