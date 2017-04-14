@@ -30,6 +30,9 @@ Object.keys(db).forEach(function(modelName) {
     db[modelName].associate(db);
   }
 });
+
+db.SessionData.hasMany(db.BikeData, {foreignKey: 'sessionId', as: 'data'})
+
 db.sql = sql;
 db.Sql = Sql;
 module.exports = db;

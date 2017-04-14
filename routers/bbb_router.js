@@ -7,6 +7,9 @@ var session = models.SessionData
 var spawn = require("child_process").spawn
 var sequelize = require('sequelize');
 
+
+
+
 router.get("/users", function(req, res){
 	user.findAll().then(function(list){
 		res.setHeader('Content-Type', 'application/json');
@@ -27,16 +30,6 @@ router.get("/data/last", function(req,res){
         res.send(list);
 	})
 })
-router.get("/data/:t1/:t2", function(req, res){
-	data.findAll({
-		where:
-			[{stamp: {gt: req.params.t1}},
-			{stamp: {lt: req.params.t2}}]
-	}).then(function(list){
-		res.setHeader('Content-Type', 'application/json');
-        res.send(list);
-	})
-});
 router.get("/sessionlisten", function(req, res){
 	session.findOne({
 		where: {stampEnd: null}
@@ -174,11 +167,54 @@ router.post("/addemailgender", function(req, res){
 	})
 });
 router.post("/bike", function(req, res){
-	data.create({
-		stamp:  new Date().getTime(),
-		rpm: req.body.rpm,
-		bikeId: req.body.bikeId
+	session.findOne({where:{
+		stampEnd: null
+	}
+	}).then(function(session){
+		console.log(session)
+		data.create({
+			stamp:  new Date().getTime(),
+			rpm: req.body.rpm,
+			bikeId: req.body.bikeId,
+			sessionId: session.dataValues.id
+		})
 	})
 	res.send("Upload Success")
 });
+
+router.post("/history", function(req,res){
+	session.findAll({
+		where: {
+			userId: req.body.userId,
+			stampEnd: {
+				$ne: null
+			}
+		},
+		include:[
+		{model: data, as: "data"}
+		]
+	}).then(function(history){
+
+		history_list = []
+		for(entry in history){
+			past_workout = history[entry].dataValues
+			if(past_workout != null){
+			var milli_to_minutes = (1/60000.0)
+			history_list.push({})
+
+			total = 0
+			//loop through all data values
+			for (point in past_workout.data){
+				total += past_workout.data[point].rpm
+			}
+
+			expectation = total/parseFloat(past_workout.data.length)
+			history_list[entry].average_rpm = expectation
+			history_list[entry].distance = 0.0044*(past_workout.stampEnd-past_workout.stampStart)*milli_to_minutes*expectation
+			history_list[entry].duration = String(past_workout.stampEnd-past_workout.stampStart).toHHMMSS()
+		}
+	}
+		res.send(history_list)
+	})
+})
 module.exports = router; 
