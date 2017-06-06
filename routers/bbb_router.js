@@ -116,25 +116,18 @@ router.get("/average_duration", function(req, res){
 				$ne: null
 			}
 		}}).then(function(sessions){
-		var total_dur = 0
-		var count = 0
-		for(inc in sessions){
-			var start = sessions[inc].stampStart
-			var end = sessions[inc].stampEnd
-			if(start!= null && end!= null){
-			count = count+1
-
-			console.log(end-start)
-			if(end-start>=337645142){
-				console.log("pk")
-				console.log(end)
-				console.log(start)
+			var total_dur = 0.00
+			var count = 0
+			for(inc in sessions){
+				var start = sessions[inc].stampStart
+				var end = sessions[inc].stampEnd
+				if (start != null && end != null) {
+					count = count + 1
+					total_dur = total_dur + parseFloat(end - start)
+				}
 			}
-			total_dur = total_dur + parseInt(end-start)
-			}
-		}
-		res.send({success: true, duration: String(total_dur/parseFloat(count*1000)).toHHMMSS()})
-	})
+			res.send({success: true, duration: String(total_dur / count).toHHMMSS()})
+		})
 })
 router.get("/workout_duration", function(req, res){
 	session.findOne(
@@ -162,7 +155,7 @@ router.get("/get_last_workout", function(req, res){
 				most_recent_date = date
 			}
 		}
-		if (most_recent_date != -1) {
+		if (most_recent_date > -1) {
 			res.send({date: String((new Date(most_recent_date)).toDateString())})
 		} else {
 			res.send({date: ""})
