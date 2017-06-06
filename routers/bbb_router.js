@@ -109,7 +109,13 @@ String.prototype.toHHMMSS = function () {
     return hours+':'+minutes+':'+seconds;
 }
 router.get("/average_duration", function(req, res){
-	session.findAll().then(function(sessions){
+	session.findAll(
+		{where: {
+			userId: req.body.userId,
+			stampEnd: {
+				$ne: null
+			}
+		}}).then(function(sessions){
 		var total_dur = 0
 		var count = 0
 		for(inc in sessions){
@@ -140,10 +146,32 @@ router.get("/workout_duration", function(req, res){
         	res.send({success: true, duration: String((end-start)/parseFloat(1000))})
         });
 })
+// the most recent workout is defined to be the one that was created most recently
+router.get("/get_last_workout", function(req, res){
+	session.findAll(
+		{where: {
+			userId: req.body.userId,
+			stampEnd: {
+				$ne: null
+			}
+		}}).then(function(sessions){
+		var most_recent_date = -1
+		for (inc in sessions) {
+			var date = Date.parse(sessions[inc].createdAt)
+			if (date > most_recent_date) {
+				most_recent_date = date
+			}
+		}
+		if (most_recent_date != -1) {
+			res.send({date: String((new Date(most_recent_date)).toDateString())})
+		} else {
+			res.send({date: ""})
+		}
+	})
+})
 router.post("/addname", function(req, res){
-
 	user.update({
-  name: req.body.name,
+  	name: req.body.name,
 },{
 		where:
 			[{id: req.body.userId}]
@@ -181,7 +209,6 @@ router.post("/bike", function(req, res){
 	})
 	res.send("Upload Success")
 });
-
 router.post("/history", function(req,res){
 	session.findAll({
 		where: {
@@ -212,6 +239,7 @@ router.post("/history", function(req,res){
 			history_list[entry].average_rpm = expectation
 			history_list[entry].distance = 0.0044*(past_workout.stampEnd-past_workout.stampStart)*milli_to_minutes*expectation
 			history_list[entry].duration = String(past_workout.stampEnd-past_workout.stampStart).toHHMMSS()
+			history_list[entry].date = new Date(Date.parse(past_workout.createdAt)).toDateString()
 		}
 	}
 		res.send(history_list)
