@@ -98,16 +98,25 @@ router.post("/addsession", function(req, res) {
     
 });
 String.prototype.toHHMMSS = function () {
-    var sec_num = parseInt(this, 10); // don't forget the second param
-    var hours   = Math.floor(sec_num / 3600);
-    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
-    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+	console.log(this)
+	// this should be in milliseconds, second parameter is the base (i.e., decimal)
+    var sec_num = parseInt(this, 10) / 1000
+    var hours   = Math.floor(sec_num / 3600)
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60)
+    var seconds = Math.floor(sec_num - (hours * 3600) - (minutes * 60))
 
-    if (hours   < 10) {hours   = "0"+hours;}
-    if (minutes < 10) {minutes = "0"+minutes;}
-    if (seconds < 10) {seconds = "0"+seconds;}
-    return hours+':'+minutes+':'+seconds;
+    // if (hours   < 10) {hours   = "0" + String(hours)}
+    // if (minutes < 10) {minutes = "0" + String(minutes)}
+    // if (seconds < 10) {seconds = "0" + String(seconds)}
+    return ((hours < 10) ? ("0" + String(hours)) : String(hours)) + ":" 
+		+ ((minutes < 10) ? ("0" + String(minutes)) : String(minutes)) + ":" 
+		+ ((seconds < 10) ? ("0" + String(seconds)) : String(seconds))
 }
+// Date.prototype.toHHMMSS = function () {
+// 	var hours = this.getHours()
+// 	var minutes = this.getMinutes()
+// 	var 
+// }
 router.get("/average_duration", function(req, res){
 	session.findAll(
 		{where: {
@@ -116,17 +125,24 @@ router.get("/average_duration", function(req, res){
 				$ne: null
 			}
 		}}).then(function(sessions){
-			var total_dur = 0.00
+			var total_dur = 0
 			var count = 0
 			for(inc in sessions){
 				var start = sessions[inc].stampStart
 				var end = sessions[inc].stampEnd
 				if (start != null && end != null) {
 					count = count + 1
-					total_dur = total_dur + parseFloat(end - start)
+					console.log(start)
+					console.log(end)
+					total_dur = total_dur + ((parseInt(end) - parseInt(start)))
 				}
 			}
-			res.send({success: true, duration: String(total_dur / count).toHHMMSS()})
+			if (count == 0) {
+				res.send({success: false, duration: ""})
+			}
+			else {
+				res.send({success: true, duration: (String(total_dur / count)).toHHMMSS()})
+			}
 		})
 })
 router.get("/workout_duration", function(req, res){
@@ -134,9 +150,9 @@ router.get("/workout_duration", function(req, res){
         {where: {
             stampEnd: null
         }}).then(function(ses) {
-        	var start = ses.stampStart
+        	var start = parseInt(ses.stampStart)
 			var end = new Date().getTime()
-        	res.send({success: true, duration: String((end-start)/parseFloat(1000))})
+        	res.send({success: true, duration: String((end - start)).toHHMMSS()})
         });
 })
 // the most recent workout is defined to be the one that was created most recently
@@ -231,7 +247,7 @@ router.post("/history", function(req,res){
 			expectation = total/parseFloat(past_workout.data.length)
 			history_list[entry].average_rpm = expectation
 			history_list[entry].distance = 0.0044*(past_workout.stampEnd-past_workout.stampStart)*milli_to_minutes*expectation
-			history_list[entry].duration = String(past_workout.stampEnd-past_workout.stampStart).toHHMMSS()
+			history_list[entry].duration = String(past_workout.stampEnd - past_workout.stampStart).toHHMMSS()
 			history_list[entry].date = new Date(Date.parse(past_workout.createdAt)).toDateString()
 		}
 	}
