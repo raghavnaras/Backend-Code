@@ -109,13 +109,17 @@ String.prototype.toHHMMSS = function () {
     return hours+':'+minutes+':'+seconds;
 }
 router.get("/average_duration", function(req, res){
-	session.findAll(
-		{where: {
+	session.findAll({
+		where: {
 			userId: req.body.userId,
 			stampEnd: {
 				$ne: null
 			}
-		}}).then(function(sessions){
+		},
+		include:[
+		{model: data, as: "data"}
+		]
+	}).then(function(sessions){
 		var total_dur = 0
 		var count = 0
 		for(inc in sessions){
