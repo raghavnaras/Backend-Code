@@ -124,7 +124,6 @@ router.get("/average_duration", function(req, res){
 			stampEnd: {
 				$ne: null
 			}
-
 		}}).then(function(sessions){
 			var total_dur = 0
 			var count = 0
