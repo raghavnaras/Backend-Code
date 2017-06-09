@@ -7,9 +7,6 @@ var session = models.SessionData
 var spawn = require("child_process").spawn
 var sequelize = require('sequelize');
 
-
-
-//Ayyyy it's a comment!
 router.get("/users", function(req, res){
 	user.findAll().then(function(list){
 		res.setHeader('Content-Type', 'application/json');
@@ -43,6 +40,19 @@ router.get("/sessionlisten", function(req, res){
 		}else{
 			res.send({status: "failure"})
 		}
+	})
+})
+
+router.post("/setup_account", function(req, res) {
+	user.update({
+		email: req.body.email,
+		pswd: req.body.password
+	}, {
+		where: [{id: req.body.userId}]
+	}).then(function(list){
+        res.send({status: "success"});
+	}).error(function(e){
+		res.send({status: "failure"})
 	})
 })
 router.post("/logout", function(req, res){
