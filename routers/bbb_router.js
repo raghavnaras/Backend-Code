@@ -45,6 +45,7 @@ router.get("/sessionlisten", function(req, res){
 
 router.post("/setup_account", function(req, res) {
 	user.update({
+		name: req.body.name,
 		email: req.body.email,
 		pswd: req.body.password
 	}, {
@@ -127,6 +128,21 @@ String.prototype.toHHMMSS = function () {
 // 	var minutes = this.getMinutes()
 // 	var 
 // }
+
+router.get("/login", function(req, res) {
+	user.findOne({
+		where: {
+			email: req.body.email
+		}
+	}).then(function(user) {
+		if (user) {
+			res.send({status: "success", user: user})			
+		}
+		else {
+			res.send({status: "failure"})
+		}
+	})
+})
 router.get("/average_duration", function(req, res){
 	session.findAll({
 		where: {
