@@ -136,7 +136,12 @@ router.get("/login", function(req, res) {
 		}
 	}).then(function(user) {
 		if (user) {
-			res.send({status: "success", user: user})			
+			if (req.body.password == user.pswd) {
+				res.send({status: "success", user: user})
+			}
+			else {
+				res.send({status: "failure"})
+			}			
 		}
 		else {
 			res.send({status: "failure"})
