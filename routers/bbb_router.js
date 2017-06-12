@@ -102,10 +102,29 @@ router.post("/addsession", function(req, res) {
     else{
     	res.send({status: "busy"})
     }
+})  
 })
-   
-    
+
+router.post("/login", function(req, res) {
+	user.findOne({
+		where: {
+			email: req.body.email
+		}
+	}).then(function(user) {
+		if (user) {
+			if (req.body.password === user.pswd) {
+				res.send({status: "success", user: user})
+			}
+			else {
+				res.send({status: "failure"})
+			}			
+		}
+		else {
+			res.send({status: "failure"})
+		}
+	})
 });
+
 String.prototype.toHHMMSS = function () {
 	console.log(this)
 	// this should be in milliseconds, second parameter is the base (i.e., decimal)
@@ -127,25 +146,7 @@ String.prototype.toHHMMSS = function () {
 // 	var 
 // }
 
-router.get("/login", function(req, res) {
-	user.findOne({
-		where: {
-			email: req.body.email
-		}
-	}).then(function(user) {
-		if (user) {
-			if (req.body.password.equals(user.pswd)) {
-				res.send({status: "success", user: user})
-			}
-			else {
-				res.send({status: "failure"})
-			}			
-		}
-		else {
-			res.send({status: "failure"})
-		}
-	})
-})
+
 router.get("/average_duration", function(req, res){
 	session.findAll({
 		where: {
