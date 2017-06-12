@@ -134,7 +134,7 @@ router.get("/login", function(req, res) {
 		}
 	}).then(function(user) {
 		if (user) {
-			if (req.body.password == user.pswd) {
+			if (req.body.password.equals(user.pswd)) {
 				res.send({status: "success", user: user})
 			}
 			else {
