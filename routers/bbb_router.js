@@ -44,12 +44,10 @@ router.get("/sessionlisten", function(req, res){
 })
 
 router.post("/setup_account", function(req, res) {
-	user.update({
+	user.create({
 		name: req.body.name,
 		email: req.body.email,
 		pswd: req.body.password
-	}, {
-		where: [{id: req.body.userId}]
 	}).then(function(list){
         res.send({status: "success"});
 	}).error(function(e){
@@ -73,11 +71,11 @@ router.post("/addsession", function(req, res) {
         	if(list.length == 0){
         user.findAll({
             where: [{
-                rfid: req.body.tag
+                userId: req.body.userId
             }]
         }).then(function(list) {
             if (list.length == 0) {
-                user.create({
+                user.update({
                     rfid: req.body.tag
                 }).then(function(user) {
                     console.log(user)
