@@ -3,7 +3,7 @@ var router = express.Router();
 var models = require('../models');
 var data = models.BikeData
 var user = models.User
-var tag = models.Tag
+var tags = models.Tag
 var session = models.SessionData
 var spawn = require("child_process").spawn
 var sequelize = require('sequelize');
@@ -84,7 +84,7 @@ router.post("/logout", function(req, res){
 	})
 })
 router.post("/process_tag", function(req, res) {
-	tag.findOne({
+	tags.findOne({
 		where: {
 			RFID: req.body.RFID
 		}
@@ -93,7 +93,7 @@ router.post("/process_tag", function(req, res) {
 			res.send({status: "success", tag: tag})
 		}
 		else {
-			tag.create({
+			tags.create({
 				RFID: req.body.RFID
 			})
 			res.send({status: "failure", tag: tag})
@@ -193,6 +193,20 @@ router.get("/workout_duration", function(req, res){
 			var end = new Date().getTime()
         	res.send({success: true, duration: String((end - start)).toHHMMSS()})
         });
+})
+router.get("/check_tag", function(req, res){
+	tags.findOne(
+        {where: {
+            machineID: req.body.machineID
+            registered: false
+        }}).then(function(tag)) {
+			tag.update({
+				registered: true
+				tagName: req.body.tagName
+			})
+        }).error(function(e)) {
+			res.send({success: false})
+		};
 })
 // the most recent workout is defined to be the one that was created most recently
 router.get("/get_last_workout", function(req, res){
