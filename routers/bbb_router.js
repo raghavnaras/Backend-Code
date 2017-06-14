@@ -4,6 +4,7 @@ var models = require('../models');
 var data = models.BikeData
 var user = models.User
 var tags = models.Tag
+var RPi = models.RaspberryPi
 var session = models.SessionData
 var spawn = require("child_process").spawn
 var sequelize = require('sequelize');
@@ -89,25 +90,35 @@ router.post("/logout", function(req, res){
 router.post("/process_tag", function(req, res) {
 	tags.findOne({
 		where: {
-			RFID: req.body.RFID
+			RFID: req.body.RFID,
+			registered: true
 		}
 	}).then(function(tag) {
 		if (tag) {
-			res.send({status: "success", tag: tag})
+			session.create({
+				stampStart: new Date.getTime(),
+				userID: tag.userID
+			})
 		}
 		else {
 			tags.create({
-				RFID: req.body.RFID
+				RFID: req.body.RFID,
+				machineID: RPi.findOne({
+					where: {
+						serialNumber: req.body.serialNumber
+					}
+				}),
+				registered: false
 			})
-			res.send({status: "failure", tag: tag})
 		}
 	})
 })
 router.post("/addsession", function(req, res) {
-    session.findAll(
-        {where: {
+    session.findAll({
+    	where: {
             stampEnd: null
-        }}).then(function(list) {
+        }
+    }).then(function(list) {
         	if(list.length == 0){
         user.findAll({
             where: [{
@@ -200,18 +211,18 @@ router.get("/workout_duration", function(req, res){
 router.get("/check_tag", function(req, res){
 	tags.findOne(
         {where: {
-            machineID: req.body.machineID
+            machineID: req.body.machineID,
             registered: false
-        }}).then(function(tag)) {
+        }}).then(function(tag) {
 			tag.update({
-				registered: true
-				tagName: req.body.tagName
+				registered: true,
+				tagName: req.body.tagName,
 				userID: req.body.userID
 			})
-			res.send({success: true})
-        }).error(function(e)) {
-			res.send({success: false})
-		};
+			res.send({status: "success"})
+        }).error(function(e) {
+			res.send({status: "failure"})
+		});
 })
 // the most recent workout is defined to be the one that was created most recently
 router.get("/get_last_workout", function(req, res){
