@@ -40,7 +40,7 @@ router.get("/sessionlisten", function(req, res){
 	}).then(function(list){
 		if(list){
 		User.findOne({
-			where: {id: list.dataValues.userId}
+			where: {id: list.dataValues.userID}
 		}).then(function(user){
 			res.send({status: "success", user: user})
 		})
@@ -163,7 +163,7 @@ router.post("/process_tag", function(req, res) {
 		if (tag) {
 			SessionData.create({
 				stampStart: new Date.getTime(),
-				userID: tag.userID
+				userID: tag.dataValues.userID
 			})
 		}
 		else {
