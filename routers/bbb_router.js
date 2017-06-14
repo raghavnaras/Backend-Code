@@ -203,14 +203,17 @@ router.get("/check_tag", function(req, res){
             machineID: req.body.machineID
             registered: false
         }}).then(function(tag)) {
-			tag.update({
+			tags.update({
 				registered: true
 				tagName: req.body.tagName
 				userID: req.body.userID
+			}, where: {
+				 machineID: req.body.machineID
+           		 registered: false
 			})
-			res.send({success: true})
+			res.send({status: "success"})
         }).error(function(e)) {
-			res.send({success: false})
+			res.send({status: "failure"})
 		};
 })
 // the most recent workout is defined to be the one that was created most recently
