@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function(sql, Sql) {
-var  users= sql.define("User", {
+var User = sql.define("User", {
 		id: {type: Sql.INTEGER, primaryKey: true, autoIncrement: true},
         name: {type: Sql.STRING},
         email: {type: Sql.STRING},
@@ -10,7 +10,7 @@ var  users= sql.define("User", {
         weight: {type: Sql.FLOAT},
         age: {type: Sql.FLOAT},
         height: {type: Sql.FLOAT},
-        rfid: {type: Sql.STRING}
-}, {timestamps: true,freezeTableName: true});
-    return users;
+        RFID: {type: Sql.STRING}
+}, {timestamps: true, freezeTableName: true});
+    return User;
 };
