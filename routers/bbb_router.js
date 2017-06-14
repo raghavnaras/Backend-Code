@@ -9,7 +9,6 @@ var sequelize = require('sequelize');
 
 
 
-//Ayyyy it's a comment!
 router.get("/users", function(req, res){
 	user.findAll().then(function(list){
 		res.setHeader('Content-Type', 'application/json');
