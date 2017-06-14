@@ -154,7 +154,6 @@ router.post("/logout", function(req, res){
 	})
 })
 router.post("/process_tag", function(req, res) {
-	console.log(req.body)
 	Tag.findOne({
 		where: {
 			RFID: req.body.RFID,
