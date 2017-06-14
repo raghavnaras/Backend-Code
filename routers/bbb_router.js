@@ -206,7 +206,9 @@ router.get("/check_tag", function(req, res){
 			tag.update({
 				registered: true
 				tagName: req.body.tagName
+				userID: req.body.userID
 			})
+			res.send({success: true})
         }).error(function(e)) {
 			res.send({success: false})
 		};
