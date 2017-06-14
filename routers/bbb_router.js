@@ -1,30 +1,33 @@
+// Routers, Models, and Packages
+
 var express = require('express');
 var router = express.Router();
 var models = require('../models');
-var data = models.BikeData
-var user = models.User
-var tags = models.Tag
-var session = models.SessionData
+var BikeData = models.BikeData
+var User = models.User
+var Tag = models.Tag
+var RaspberryPi = models.RaspberryPi
+var SessionBikeData = models.SessionData
 var spawn = require("child_process").spawn
 var sequelize = require('sequelize');
 
 
-
+// GET REQUESTS
 
 router.get("/users", function(req, res){
-	user.findAll().then(function(list){
+	User.findAll().then(function(list){
 		res.setHeader('Content-Type', 'application/json');
         res.send(list);
 	})
 });
 router.get("/data", function(req, res){
-	data.findAll().then(function (list) {
+	BikeData.findAll().then(function (list) {
         res.setHeader('Content-Type', 'application/json');
         res.send(list);
     })
 });
 router.get("/data/last", function(req,res){
-	data.findOne({
+	BikeData.findOne({
 		order: "stamp DESC"
 	}).then(function(list){
 		res.setHeader('Content-Type', 'application/json');
@@ -32,11 +35,11 @@ router.get("/data/last", function(req,res){
 	})
 })
 router.get("/sessionlisten", function(req, res){
-	session.findOne({
+	SessionData.findOne({
 		where: {stampEnd: null}
 	}).then(function(list){
 		if(list){
-		user.findOne({
+		User.findOne({
 			where: {id: list.dataValues.userId}
 		}).then(function(user){
 			res.send({status: "success", user: user})
@@ -46,121 +49,8 @@ router.get("/sessionlisten", function(req, res){
 		}
 	})
 })
-
-router.post("/setup_account", function(req, res) {
-	user.create({
-		name: req.body.name,
-		email: req.body.email,
-		pswd: req.body.password
-	}).then(function(list){
-        res.send({status: "success"});
-	}).error(function(e){
-		res.send({status: "failure"})
-	})
-})
-router.post("/login", function(req, res) {
-	user.findOne({
-		where: {
-			email: req.body.email
-		}
-	}).then(function(user) {
-		if (user) {
-			if (req.body.password == String(user.pswd)) {
-				res.send({status: "success", user: user})
-			}
-			else {
-				res.send({status: "failure"})
-			}			
-		}
-		else {
-			res.send({status: "failure"})
-		}
-	})
-});
-router.post("/logout", function(req, res){
-	session.update({
-  		stampEnd: new Date().getTime(),
-	}, {where:
-			[{userId: req.body.userId}]
-	}).then(function(list){
-        res.send({status: "success"});
-	})
-})
-router.post("/process_tag", function(req, res) {
-	tags.findOne({
-		where: {
-			RFID: req.body.RFID
-		}
-	}).then(function(tag) {
-		if (tag) {
-			res.send({status: "success", tag: tag})
-		}
-		else {
-			tags.create({
-				RFID: req.body.RFID
-			})
-			res.send({status: "failure", tag: tag})
-		}
-	})
-})
-router.post("/addsession", function(req, res) {
-    session.findAll(
-        {where: {
-            stampEnd: null
-        }}).then(function(list) {
-        	if(list.length == 0){
-        user.findAll({
-            where: [{
-                userId: req.body.userId
-            }]
-        }).then(function(list) {
-            if (list.length == 0) {
-                user.update({
-                    rfid: req.body.tag
-                }).then(function(user) {
-                    console.log(user)
-                    session.create({
-                        stampStart: new Date().getTime(),
-                        userId: user.dataValues.id
-                    })
-                    res.send({
-                        status: "new"
-                    })
-                })
-            } else {
-                res.send({
-                    status: "old",
-                    user: list[0]
-                })
-                session.create({
-                    stampStart: new Date().getTime(),
-                    userId: list[0].dataValues.id
-                })
-            }
-        })
-    }
-    else{
-    	res.send({status: "busy"})
-    }
-})  
-})
-
-String.prototype.toHHMMSS = function () {
-	console.log(this)
-	// this should be in milliseconds, second parameter is the base (i.e., decimal)
-    var sec_num = parseInt(this, 10) / 1000
-    var hours   = Math.floor(sec_num / 3600)
-    var minutes = Math.floor((sec_num - (hours * 3600)) / 60)
-    var seconds = Math.floor(sec_num - (hours * 3600) - (minutes * 60))
-
-    return ((hours < 10) ? ("0" + String(hours)) : String(hours)) + ":" 
-		+ ((minutes < 10) ? ("0" + String(minutes)) : String(minutes)) + ":" 
-		+ ((seconds < 10) ? ("0" + String(seconds)) : String(seconds))
-}
-
-
 router.get("/average_duration", function(req, res){
-	session.findAll({
+	SessionData.findAll({
 		where: {
 			userId: req.body.userId,
 			stampEnd: {
@@ -188,7 +78,7 @@ router.get("/average_duration", function(req, res){
 		})
 })
 router.get("/workout_duration", function(req, res){
-	session.findOne(
+	SessionData.findOne(
         {where: {
             stampEnd: null
         }}).then(function(ses) {
@@ -197,28 +87,10 @@ router.get("/workout_duration", function(req, res){
         	res.send({success: true, duration: String((end - start)).toHHMMSS()})
         });
 })
-router.get("/check_tag", function(req, res){
-	tags.findOne(
-        {where: {
-            machineID: req.body.machineID
-            registered: false
-        }}).then(function(tag)) {
-			tags.update({
-				registered: true
-				tagName: req.body.tagName
-				userID: req.body.userID
-			}, where: {
-				 machineID: req.body.machineID
-           		 registered: false
-			})
-			res.send({status: "success"})
-        }).error(function(e)) {
-			res.send({status: "failure"})
-		};
-})
+
 // the most recent workout is defined to be the one that was created most recently
 router.get("/get_last_workout", function(req, res){
-	session.findAll(
+	SessionData.findAll(
 		{where: {
 			userId: req.body.userId,
 			stampEnd: {
@@ -239,8 +111,135 @@ router.get("/get_last_workout", function(req, res){
 		}
 	})
 })
+
+// POST REQUESTS
+
+router.post("/setup_account", function(req, res) {
+	User.create({
+		name: req.body.name,
+		email: req.body.email,
+		pswd: req.body.password
+	}).then(function(list){
+        res.send({status: "success"});
+	}).error(function(e){
+		res.send({status: "failure"})
+	})
+})
+router.post("/login", function(req, res) {
+	User.findOne({
+		where: {
+			email: req.body.email
+		}
+	}).then(function(user) {
+		if (user) {
+			if (req.body.password == String(user.pswd)) {
+				res.send({status: "success", user: user})
+			}
+			else {
+				res.send({status: "failure"})
+			}			
+		}
+		else {
+			res.send({status: "failure"})
+		}
+	})
+});
+router.post("/logout", function(req, res){
+	SessionData.update({
+  		stampEnd: new Date().getTime(),
+	}, {where:
+			[{userId: req.body.userId}]
+	}).then(function(list){
+        res.send({status: "success"});
+	})
+})
+router.post("/process_tag", function(req, res) {
+	Tag.findOne({
+		where: {
+			RFID: req.body.RFID,
+			registered: true
+		}
+	}).then(function(tag) {
+		if (tag) {
+			SessionData.create({
+				stampStart: new Date.getTime(),
+				userID: tag.userID
+			})
+		}
+		else {
+			Tag.create({
+				RFID: req.body.RFID,
+				machineID: RaspberryPi.findOne({
+					where: {
+						serialNumber: req.body.serialNumber
+					}
+				}),
+				registered: false
+			})
+		}
+	})
+})
+router.post("/check_tag", function(req, res){
+	Tag.findOne({
+		where: {
+            machineID: req.body.machineID,
+            registered: false
+        }
+    }).then(function(tag) {
+		tag.update({
+			registered: true,
+			tagName: req.body.tagName,
+			userID: req.body.userID
+		})
+		res.send({status: "success"})
+	}).error(function(e) {
+		res.send({status: "failure"})
+	})
+})
+router.post("/addsession", function(req, res) {
+    SessionData.findAll({
+    	where: {
+            stampEnd: null
+        }
+    }).then(function(list) {
+        if(list.length == 0){
+	        User.findAll({
+	            where: {
+	            	userId: req.body.userId
+            	}
+	        }).then(function(list) {
+	            if (list.length == 0) {
+	                User.update({
+	                    RFID: req.body.tag
+	                }).then(function(user) {
+	                    console.log(user)
+	                    SessionData.create({
+	                        stampStart: new Date().getTime(),
+	                        userId: user.dataValues.id
+	                    })
+	                    res.send({
+	                        status: "new"
+	                    })
+	                })
+	            } else {
+	                res.send({
+	                    status: "old",
+	                    user: list[0]
+	                })
+	                SessionData.create({
+	                    stampStart: new Date().getTime(),
+	                    userId: list[0].dataValues.id
+	                })
+	            }
+        	})
+    	}
+    	else {
+    		res.send({status: "busy"})
+    	}
+	})  
+})
 router.post("/addname", function(req, res){
-	user.update({
+	User.update({
   	name: req.body.name,
 },{
 		where:
@@ -252,7 +251,7 @@ router.post("/addname", function(req, res){
 	})
 });
 router.post("/addemailgender", function(req, res){
-	user.update({
+	User.update({
  	email: req.body.name,
  	gender: req.body.gender
 },{
@@ -265,22 +264,22 @@ router.post("/addemailgender", function(req, res){
 	})
 });
 router.post("/bike", function(req, res){
-	session.findOne({where:{
+	SessionData.findOne({where:{
 		stampEnd: null
 	}
 	}).then(function(session){
 		console.log(session)
-		data.create({
+		BikeData.create({
 			stamp:  new Date().getTime(),
 			rpm: req.body.rpm,
-			bikeId: req.body.bikeId,
+			bikeID: req.body.bikeID,
 			sessionId: session.dataValues.id
 		})
 	})
 	res.send("Upload Success")
 });
 router.post("/history", function(req,res){
-	session.findAll({
+	SessionData.findAll({
 		where: {
 			userId: req.body.userId,
 			stampEnd: {
@@ -288,7 +287,7 @@ router.post("/history", function(req,res){
 			}
 		},
 		include:[
-		{model: data, as: "data"}
+		{model: BikeData, as: "BikeData"}
 		]
 	}).then(function(history){
 
@@ -315,5 +314,20 @@ router.post("/history", function(req,res){
 		res.send(history_list)
 	})
 })
+
+// Helper Functions
+
+String.prototype.toHHMMSS = function () {
+	console.log(this)
+	// this should be in milliseconds, second parameter is the base (i.e., decimal)
+    var sec_num = parseInt(this, 10) / 1000
+    var hours   = Math.floor(sec_num / 3600)
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60)
+    var seconds = Math.floor(sec_num - (hours * 3600) - (minutes * 60))
+
+    return ((hours < 10) ? ("0" + String(hours)) : String(hours)) + ":" 
+		+ ((minutes < 10) ? ("0" + String(minutes)) : String(minutes)) + ":" 
+		+ ((seconds < 10) ? ("0" + String(seconds)) : String(seconds))
+}
 
 module.exports = router; 
