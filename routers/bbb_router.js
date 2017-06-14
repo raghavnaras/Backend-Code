@@ -8,6 +8,9 @@ var session = models.SessionData
 var spawn = require("child_process").spawn
 var sequelize = require('sequelize');
 
+
+
+
 router.get("/users", function(req, res){
 	user.findAll().then(function(list){
 		res.setHeader('Content-Type', 'application/json');
