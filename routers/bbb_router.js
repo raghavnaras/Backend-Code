@@ -3,9 +3,11 @@ var router = express.Router();
 var models = require('../models');
 var data = models.BikeData
 var user = models.User
+var tag = models.Tag
 var session = models.SessionData
 var spawn = require("child_process").spawn
 var sequelize = require('sequelize');
+
 
 
 
@@ -44,13 +46,61 @@ router.get("/sessionlisten", function(req, res){
 		}
 	})
 })
+
+router.post("/setup_account", function(req, res) {
+	user.create({
+		name: req.body.name,
+		email: req.body.email,
+		pswd: req.body.password
+	}).then(function(list){
+        res.send({status: "success"});
+	}).error(function(e){
+		res.send({status: "failure"})
+	})
+})
+router.post("/login", function(req, res) {
+	user.findOne({
+		where: {
+			email: req.body.email
+		}
+	}).then(function(user) {
+		if (user) {
+			if (req.body.password == String(user.pswd)) {
+				res.send({status: "success", user: user})
+			}
+			else {
+				res.send({status: "failure"})
+			}			
+		}
+		else {
+			res.send({status: "failure"})
+		}
+	})
+});
 router.post("/logout", function(req, res){
 	session.update({
-  stampEnd: new Date().getTime(),
-},{		where:
+  		stampEnd: new Date().getTime(),
+	}, {where:
 			[{userId: req.body.userId}]
 	}).then(function(list){
         res.send({status: "success"});
+	})
+})
+router.post("/process_tag", function(req, res) {
+	tag.findOne({
+		where: {
+			RFID: req.body.RFID
+		}
+	}).then(function(tag) {
+		if (tag) {
+			res.send({status: "success", tag: tag})
+		}
+		else {
+			tag.create({
+				RFID: req.body.RFID
+			})
+			res.send({status: "failure", tag: tag})
+		}
 	})
 })
 router.post("/addsession", function(req, res) {
@@ -61,11 +111,11 @@ router.post("/addsession", function(req, res) {
         	if(list.length == 0){
         user.findAll({
             where: [{
-                rfid: req.body.tag
+                userId: req.body.userId
             }]
         }).then(function(list) {
             if (list.length == 0) {
-                user.create({
+                user.update({
                     rfid: req.body.tag
                 }).then(function(user) {
                     console.log(user)
@@ -92,10 +142,9 @@ router.post("/addsession", function(req, res) {
     else{
     	res.send({status: "busy"})
     }
+})  
 })
-   
-    
-});
+
 String.prototype.toHHMMSS = function () {
 	console.log(this)
 	// this should be in milliseconds, second parameter is the base (i.e., decimal)
@@ -104,18 +153,12 @@ String.prototype.toHHMMSS = function () {
     var minutes = Math.floor((sec_num - (hours * 3600)) / 60)
     var seconds = Math.floor(sec_num - (hours * 3600) - (minutes * 60))
 
-    // if (hours   < 10) {hours   = "0" + String(hours)}
-    // if (minutes < 10) {minutes = "0" + String(minutes)}
-    // if (seconds < 10) {seconds = "0" + String(seconds)}
     return ((hours < 10) ? ("0" + String(hours)) : String(hours)) + ":" 
 		+ ((minutes < 10) ? ("0" + String(minutes)) : String(minutes)) + ":" 
 		+ ((seconds < 10) ? ("0" + String(seconds)) : String(seconds))
 }
-// Date.prototype.toHHMMSS = function () {
-// 	var hours = this.getHours()
-// 	var minutes = this.getMinutes()
-// 	var 
-// }
+
+
 router.get("/average_duration", function(req, res){
 	session.findAll({
 		where: {
@@ -253,4 +296,5 @@ router.post("/history", function(req,res){
 		res.send(history_list)
 	})
 })
+
 module.exports = router; 
