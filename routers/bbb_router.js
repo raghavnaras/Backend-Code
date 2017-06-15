@@ -153,6 +153,7 @@ router.post("/logout", function(req, res){
         res.send({status: "success"});
 	})
 })
+//processes the tag
 router.post("/process_tag", function(req, res) {
 	Tag.findOne({
 		where: {
