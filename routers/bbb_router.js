@@ -177,6 +177,9 @@ router.post("/process_tag", function(req, res) {
 				registered: false
 			})
 		}
+		res.send({
+			status: "new"
+		})
 	})
 })
 router.post("/check_tag", function(req, res){
