@@ -166,6 +166,7 @@ router.post("/process_tag", function(req, res) {
 				stampStart: new Date.getTime(),
 				userID: tag.dataValues.userID
 			})
+			res.send({status: "success"});
 		}
 		else {
 			Tag.create({
@@ -177,6 +178,7 @@ router.post("/process_tag", function(req, res) {
 				}),
 				registered: false
 			})
+			res.send({status: "success"});
 		}
 	})
 })
