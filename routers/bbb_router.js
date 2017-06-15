@@ -167,7 +167,7 @@ router.post("/process_tag", function(req, res) {
 				stampStart: new Date.getTime(),
 				userID: tag.dataValues.userID
 			})
-			res.send({status: "success"});
+			res.send({status: "old"});
 		}
 		else {
 			Tag.create({
@@ -179,11 +179,8 @@ router.post("/process_tag", function(req, res) {
 				}),
 				registered: false
 			})
-			res.send({status: "success"});
+			res.send({status: "new"});
 		}
-		res.send({
-			status: "new"
-		})
 	})
 })
 router.post("/check_tag", function(req, res){
@@ -280,7 +277,7 @@ router.post("/bike", function(req, res){
 			stamp:  new Date().getTime(),
 			rpm: req.body.rpm,
 			bikeID: req.body.bikeID,
-			sessionId: session.dataValues.id
+			sessionID: session.dataValues.userID
 		})
 	})
 	res.send({status: "success"})
