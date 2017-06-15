@@ -7,7 +7,7 @@ var BikeData = models.BikeData
 var User = models.User
 var Tag = models.Tag
 var RaspberryPi = models.RaspberryPi
-var SessionBikeData = models.SessionData
+var SessionData = models.SessionData
 var spawn = require("child_process").spawn
 var sequelize = require('sequelize');
 
@@ -153,7 +153,9 @@ router.post("/logout", function(req, res){
         res.send({status: "success"});
 	})
 })
+//processes the tag
 router.post("/process_tag", function(req, res) {
+	console.log(req.body)
 	Tag.findOne({
 		where: {
 			RFID: req.body.RFID,
@@ -165,6 +167,7 @@ router.post("/process_tag", function(req, res) {
 				stampStart: new Date.getTime(),
 				userID: tag.dataValues.userID
 			})
+			res.send({status: "success"});
 		}
 		else {
 			Tag.create({
@@ -176,6 +179,7 @@ router.post("/process_tag", function(req, res) {
 				}),
 				registered: false
 			})
+			res.send({status: "success"});
 		}
 		res.send({
 			status: "new"
