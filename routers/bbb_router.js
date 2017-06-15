@@ -7,7 +7,7 @@ var BikeData = models.BikeData
 var User = models.User
 var Tag = models.Tag
 var RaspberryPi = models.RaspberryPi
-var SessionBikeData = models.SessionData
+var SessionData = models.SessionData
 var spawn = require("child_process").spawn
 var sequelize = require('sequelize');
 
