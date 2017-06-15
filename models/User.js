@@ -11,6 +11,6 @@ var User = sql.define("User", {
         age: {type: Sql.FLOAT},
         height: {type: Sql.FLOAT},
         RFID: {type: Sql.STRING}
-}, {timestamps: true, freezeTableName: true});
+}, {timestamps: false, freezeTableName: true});
     return User;
 };

@@ -44,7 +44,7 @@ router.get("/sessionlisten", function(req, res){
 		}).then(function(user){
 			res.send({status: "success", user: user})
 		})
-		}else{
+		} else {
 			res.send({status: "failure"})
 		}
 	})
@@ -280,7 +280,7 @@ router.post("/bike", function(req, res){
 			sessionId: session.dataValues.id
 		})
 	})
-	res.send("Upload Success")
+	res.send({status: "success"})
 });
 router.post("/history", function(req,res){
 	SessionData.findAll({

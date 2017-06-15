@@ -6,6 +6,6 @@ var BikeData = sql.define("BikeData", {
         rpm: {type: Sql.FLOAT},
         bikeID: {type: Sql.INTEGER},
         sessionId: {type: Sql.INTEGER}
-}, {timestamps: true, freezeTableName: true});
+}, {timestamps: false, freezeTableName: true});
     return BikeData;
 };

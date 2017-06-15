@@ -7,6 +7,6 @@ var Tag = sql.define("Tag", {
         userID: {type: Sql.INTEGER},
         machineID: {type: Sql.INTEGER},
         registered: {type: Sql.BOOLEAN}
-}, {timestamps: true, freezeTableName: true});
+}, {timestamps: false, freezeTableName: true});
     return Tag;
 };
