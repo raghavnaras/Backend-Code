@@ -181,6 +181,9 @@ router.post("/process_tag", function(req, res) {
 			})
 			res.send({status: "success"});
 		}
+		res.send({
+			status: "new"
+		})
 	})
 })
 router.post("/check_tag", function(req, res){
