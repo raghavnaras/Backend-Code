@@ -89,28 +89,29 @@ router.get("/workout_duration", function(req, res){
 })
 
 // the most recent workout is defined to be the one that was created most recently
-// router.get("/get_last_workout", function(req, res){
-// 	SessionData.findAll(
-// 		{where: {
-// 			userId: req.body.userId,
-// 			stampEnd: {
-// 				$ne: null
-// 			}
-// 		}}).then(function(sessions){
-// 		var most_recent_date = -1
-// 		for (inc in sessions) {
-// 			var date = Date.parse(sessions[inc].createdAt)
-// 			if (date > most_recent_date) {
-// 				most_recent_date = date
-// 			}
-// 		}
-// 		if (most_recent_date > -1) {
-// 			res.send({date: String((new Date(most_recent_date)).toDateString())})
-// 		} else {
-// 			res.send({date: ""})
-// 		}
-// 	})
-// })
+router.get("/get_last_workout", function(req, res){
+	SessionData.findAll(
+		{where: {
+			userId: req.body.userId,
+			stampEnd: {
+				$ne: null
+			}
+		}}).then(function(sessions){
+		var most_recent_date = -1
+		for (inc in sessions) {
+			// var date = Date.parse(sessions[inc].createdAt)
+			// if (date > most_recent_date) {
+			// 	most_recent_date = date
+			// }
+		}
+		if (most_recent_date > -1) {
+			// res.send({date: String((new Date(most_recent_date)).toDateString())})
+			res.send({date: ""})
+		} else {
+			res.send({date: ""})
+		}
+	})
+})
 
 // POST REQUESTS
 
