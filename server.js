@@ -19,7 +19,7 @@ app.use(function (req, res, next) {
 
 app.use("/bbb", router)
 
-models.sql.sync().then(function () {
+models.sql.sync(force = true).then(function () {
     app.listen(8000);
     console.log('app is running on port 8000');
 });
