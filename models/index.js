@@ -31,7 +31,7 @@ Object.keys(db).forEach(function(modelName) {
   }
 });
 
-db.SessionData.hasMany(db.BikeData, {foreignKey: 'sessionId', as: 'data'})
+db.SessionData.hasMany(db.BikeData, {foreignKey: 'sessionID', as: 'data'})
 
 db.sql = sql;
 db.Sql = Sql;
