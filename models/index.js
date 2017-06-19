@@ -32,7 +32,7 @@ fs
   .forEach(function(file) {
     //imports each model and stores it in the db dictionary made above under its name
     var model = sql.import(path.join(__dirname, file));
-    model.sql.sync({force: true});
+    model.sync({force: true});
     db[model.name] = model;
   });
 
