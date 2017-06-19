@@ -5,6 +5,6 @@ var SessionData = sql.define("SessionData", {
         stampStart: {type: Sql.STRING},
         stampEnd: {type: Sql.STRING},
         userID: {type: Sql.INTEGER}
-    });
+    }, {timestamps: false, freezeTableName: true});
     return SessionData;
 };
