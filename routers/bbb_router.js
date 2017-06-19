@@ -183,7 +183,7 @@ router.post("/process_tag", function(req, res) {
 			res.send({status: "new"});
 		}
 	})
-})
+})kil
 router.post("/check_tag", function(req, res){
 	Tag.findOne({
 		where: {
@@ -274,14 +274,19 @@ router.post("/bike", function(req, res){
 	}
 	}).then(function(session){
 		console.log(session)
-		BikeData.create({
-			stamp:  new Date().getTime(),
-			rpm: req.body.rpm,
-			bikeID: req.body.bikeID,
-			sessionID: session.dataValues.userID
-		})
+		if (session) {
+			BikeData.create({
+				stamp:  new Date().getTime(),
+				rpm: req.body.rpm,
+				bikeID: req.body.bikeID,
+				sessionID: session.dataValues.userID
+			})
+			res.send({status: "success"})
+		} else {
+			res.send({status: "failure"})
+		}	
 	})
-	res.send({status: "success"})
+	
 });
 router.post("/history", function(req,res){
 	SessionData.findAll({
