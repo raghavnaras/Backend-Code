@@ -32,7 +32,8 @@ fs
   .forEach(function(file) {
     //imports each model and stores it in the db dictionary made above under its name
     var model = sql.import(path.join(__dirname, file));
-    model.sql.sync({force: true});
+    //forces the models to the database if needed
+    //model.sync({force: true});
     db[model.name] = model;
   });
 
@@ -45,8 +46,7 @@ Object.keys(db)
   }
 });
 
-
-db.SessionData.hasMany(db.BikeData, {foreignKey: 'sessionID', as: 'data'})
+//db.SessionData.hasMany(db.BikeData, {foreignKey: 'sessionID', as: 'data'})
 
 db.sql = sql;
 db.Sql = Sql;
