@@ -164,7 +164,7 @@ router.post("/process_tag", function(req, res) {
 		}
 	}).then(function(tag) {
 		SessionData.create({
-			stampStart: new Date.getTime(),
+			stampStart: String(new Date.getTime()),
 			userID: tag.dataValues.userID
 		})
 		res.send({status: "old"});		
