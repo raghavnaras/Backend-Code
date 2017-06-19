@@ -183,7 +183,7 @@ router.post("/process_tag", function(req, res) {
 			res.send({status: "new"});
 		}
 	})
-})kil
+})
 router.post("/check_tag", function(req, res){
 	Tag.findOne({
 		where: {
