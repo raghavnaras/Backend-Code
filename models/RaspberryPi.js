@@ -5,6 +5,6 @@ var RaspberryPi = sql.define("RaspberryPi", {
 		serialNumber: {type: Sql.INTEGER, primaryKey: true},
         machineID: {type: Sql.INTEGER},
         machineType: {type: Sql.STRING}
-}, {timestamps: true, freezeTableName: true});
+}, {timestamps: false, freezeTableName: true});
     return RaspberryPi;
 };
