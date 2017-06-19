@@ -163,25 +163,18 @@ router.post("/process_tag", function(req, res) {
 			registered: true
 		}
 	}).then(function(tag) {
-		if (tag) {
-			SessionData.create({
-				stampStart: String(new Date.getTime()),
-				userID: tag.dataValues.userID
-			})
-			res.send({status: "old"});
-		}
-		else {
-			Tag.create({
-				RFID: req.body.RFID,
-				machineID: RaspberryPi.findOne({
-					where: {
-						serialNumber: req.body.serialNumber
-					}
-				}),
-				registered: false
-			})
-			res.send({status: "new"});
-		}
+		SessionData.create({
+			stampStart: new Date.getTime(),
+			userID: tag.dataValues.userID
+		})
+		res.send({status: "old"});		
+	}).error(function(e) {		
+		Tag.create({
+			RFID: req.body.RFID,
+			machineID: 4,
+			registered: false
+		})
+		res.send({status: "new"});
 	})
 })
 router.post("/check_tag", function(req, res){
