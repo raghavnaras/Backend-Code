@@ -37,7 +37,7 @@ fs
   });
 
 Object.keys(db)
-//.goes through each key in the dictioanry created
+//.goes through each key in the dictionary created
 .forEach(function(modelName) {
   if ("associate" in db[modelName]) {
     //runs over association function if it exists (used for later)
