@@ -169,14 +169,16 @@ router.post("/process_tag", function(req, res) {
 				stampStart: String("Hello, World!")
 			})
 			res.send({status: "old"});	
-		}	
+		} else {
+			Tag.create({
+				RFID: req.body.RFID,
+				machineID: 1,
+				registered: false
+			})
+			res.send({status: "new"});
+		}
 	}).error(function(e) {		
-		Tag.create({
-			RFID: req.body.RFID,
-			machineID: 4,
-			registered: false
-		})
-		res.send({status: "new"});
+		res.send({status: "failure"})
 	})
 })
 router.post("/check_tag", function(req, res){
