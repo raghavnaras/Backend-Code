@@ -4,8 +4,8 @@ module.exports = function(sql, Sql) {
 var BikeData = sql.define("BikeData", {
         stamp: {type: Sql.BIGINT, primaryKey: true},
         rpm: {type: Sql.FLOAT},
-        bikeID: {type: Sql.INTEGER},
+        RFID: {type: Sql.STRING},
         sessionID: {type: Sql.INTEGER}
-}, {timestamps: false, freezeTableName: true});
+}, {timestamps: true, freezeTableName: true});
     return BikeData;
 };

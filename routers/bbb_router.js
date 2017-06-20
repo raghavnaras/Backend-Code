@@ -138,7 +138,7 @@ router.post("/login", function(req, res) {
 			}
 			else {
 				res.send({status: "failure"})
-			}			
+			}
 		}
 		else {
 			res.send({status: "failure"})
@@ -154,29 +154,46 @@ router.post("/logout", function(req, res){
         res.send({status: "success"});
 	})
 })
+
 //processes the tag
 router.post("/process_tag", function(req, res) {
-	console.log(req.body)
-	Tag.findOne({
+	//see if this tag has been used
+	Tag.findAll({
 		where: {
 			RFID: req.body.RFID,
-			registered: true
 		}
-	}).then(function(tag) {
-		SessionData.create({
-			stampStart: String(new Date.getTime()),
-			userID: tag.dataValues.userID
-		})
-		res.send({status: "old"});		
-	}).error(function(e) {		
-		Tag.create({
-			RFID: req.body.RFID,
-			machineID: 4,
-			registered: false
-		})
-		res.send({status: "new"});
+	}).then(function(list) {
+		if (list.length == 0){
+			RaspberryPi.findOne({
+				where: {
+					serialNumber: req.body.serialNumber,
+				}
+			}).then(function(RaspberryPi) {
+				Tag.create({
+					stampStart: String(new Date.getTime()),
+					RFID: req.body.RFID,
+					machineID: RaspberryPi.dataValues.machineID,
+					registered: false
+				})
+			})
+			res.send({status: "new"})
+		} else {
+			RaspberryPi.findOne({
+				where: {
+					serialNumber: req.body.serialNumber,
+				}.then(function(RaspberryPi) {
+					Tag.create({
+						stampStart: String(new Datae.getTime()),
+						RFID: req.body.RFID,
+						machineID: RaspberryPi.dataValues.machineID,
+						registered: list[list.length-1].dataValues.registered
+					})
+				})
+		}
+		res.send({status: "old"})
 	})
 })
+
 router.post("/check_tag", function(req, res){
 	Tag.findOne({
 		where: {
@@ -234,7 +251,7 @@ router.post("/addsession", function(req, res) {
     	else {
     		res.send({status: "busy"})
     	}
-	})  
+	})
 })
 router.post("/addname", function(req, res){
 	User.update({
@@ -277,9 +294,9 @@ router.post("/bike", function(req, res){
 			res.send({status: "success"})
 		} else {
 			res.send({status: "failure"})
-		}	
+		}
 	})
-	
+
 });
 router.post("/history", function(req,res){
 	SessionData.findAll({
@@ -328,9 +345,9 @@ String.prototype.toHHMMSS = function () {
     var minutes = Math.floor((sec_num - (hours * 3600)) / 60)
     var seconds = Math.floor(sec_num - (hours * 3600) - (minutes * 60))
 
-    return ((hours < 10) ? ("0" + String(hours)) : String(hours)) + ":" 
-		+ ((minutes < 10) ? ("0" + String(minutes)) : String(minutes)) + ":" 
+    return ((hours < 10) ? ("0" + String(hours)) : String(hours)) + ":"
+		+ ((minutes < 10) ? ("0" + String(minutes)) : String(minutes)) + ":"
 		+ ((seconds < 10) ? ("0" + String(seconds)) : String(seconds))
 }
 
-module.exports = router; 
+module.exports = router;
