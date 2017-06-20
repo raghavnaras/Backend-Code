@@ -1,4 +1,4 @@
-// Routers, Models, and Packages
+ // Routers, Models, and Packages
 
 var express = require('express');
 var router = express.Router();
@@ -159,16 +159,17 @@ router.post("/process_tag", function(req, res) {
 	console.log(req.body)
 	Tag.findOne({
 		where: {
-			RFID: req.body.RFID,
-			registered: true
+			RFID: req.body.RFID
 		}
 	}).then(function(tag) {
 		if (tag) {
-			SessionData.create({
-				userID: tag.dataValues.userID,
-				stampStart: String("Hello, World!")
-			})
-			res.send({status: "old"});	
+			if (tag.registered) {
+				SessionData.create({
+					userID: tag.dataValues.userID,
+					stampStart: String("Hello, World!")
+				})
+				res.send({status: "old"});
+			}	
 		} else {
 			RaspberryPi.findOne({
 				where: {
