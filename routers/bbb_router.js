@@ -172,7 +172,11 @@ router.post("/process_tag", function(req, res) {
 		} else {
 			Tag.create({
 				RFID: req.body.RFID,
-				machineID: 1,
+				machineID: RaspberryPi.findOne({
+					where: {
+						serialNumber: req.body.serialNumber
+					}
+				}),
 				registered: false
 			})
 			res.send({status: "new"});
