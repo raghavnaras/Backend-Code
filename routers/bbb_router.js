@@ -176,7 +176,7 @@ router.post("/process_tag", function(req, res) {
 					where: {
 						serialNumber: req.body.serialNumber
 					}
-				}),
+				}).machineID,
 				registered: false
 			})
 			res.send({status: "new"});
