@@ -163,11 +163,13 @@ router.post("/process_tag", function(req, res) {
 			registered: true
 		}
 	}).then(function(tag) {
-		SessionData.create({
-			userID: tag.dataValues.userID,
-			stampStart: String(new Date.getTime())
-		})
-		res.send({status: "old"});		
+		if (tag) {
+			SessionData.create({
+				userID: tag.dataValues.userID,
+				stampStart: String("Hello, World!")
+			})
+			res.send({status: "old"});	
+		}	
 	}).error(function(e) {		
 		Tag.create({
 			RFID: req.body.RFID,
@@ -262,9 +264,10 @@ router.post("/addemailgender", function(req, res){
 	})
 });
 router.post("/bike", function(req, res){
-	SessionData.findOne({where:{
-		stampEnd: null
-	}
+	SessionData.findOne({
+		where: {
+			stampEnd: null
+		}
 	}).then(function(session){
 		console.log(session)
 		if (session) {
