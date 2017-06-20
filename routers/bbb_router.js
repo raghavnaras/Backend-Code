@@ -168,7 +168,7 @@ router.post("/process_tag", function(req, res) {
 					userID: tag.dataValues.userID,
 					stampStart: String("Hello, World!")
 				})
-				res.send({status: "old"});
+				res.send({status: "registered"});
 			} else {
 				res.send({status: "repeat"});
 			}	
