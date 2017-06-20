@@ -169,6 +169,8 @@ router.post("/process_tag", function(req, res) {
 					stampStart: String("Hello, World!")
 				})
 				res.send({status: "old"});
+			} else {
+				res.send({status: "repeat"});
 			}	
 		} else {
 			RaspberryPi.findOne({
