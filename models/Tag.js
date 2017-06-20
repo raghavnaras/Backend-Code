@@ -2,7 +2,7 @@
 
 module.exports = function(sql, Sql) {
 var Tag = sql.define("Tag", {
-		RFID: {type: Sql.INTEGER, primaryKey: true},
+		RFID: {type: Sql.BIGINT, primaryKey: true},
         tagName: {type: Sql.STRING},
         userID: {type: Sql.INTEGER},
         machineID: {type: Sql.INTEGER},
