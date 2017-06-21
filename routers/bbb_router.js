@@ -167,7 +167,7 @@ router.post("/process_tag", function(req, res) {
 			if (tag.registered) {
 				SessionData.create({
 					userID: tag.dataValues.userID,
-					stampStart: String("Hello, World!")
+					stampStart: new Data.getTime()
 				})
 				res.send({status: "registered"});
 			} else {
