@@ -116,17 +116,17 @@ router.get("/get_last_workout", function(req, res){
 
 // POST REQUESTS
 
-router.post("/setup_account", function(req, res) {
-	User.create({
-		name: req.body.name,
-		email: req.body.email,
-		pswd: req.body.password
-	}).then(function(list){
-        res.send({status: "success", userID});
-	}).error(function(e){
-		res.send({status: "failure"})
-	})
-})
+// router.post("/setup_account", function(req, res) {
+// 	User.create({
+// 		name: req.body.name,
+// 		email: req.body.email,
+// 		pswd: req.body.password
+// 	}).then(function(list){
+//         res.send({status: "success", userID});
+// 	}).error(function(e){
+// 		res.send({status: "failure"})
+// 	})
+// })
 router.post("/login", function(req, res) {
 	User.findOne({
 		where: {
