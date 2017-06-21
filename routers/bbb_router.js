@@ -281,6 +281,7 @@ router.post("/addemailgender", function(req, res){
 	})
 });
 router.post("/bike", function(req, res){
+	console.log(req.body)
 	RaspberryPi.findOne({
 		where: {
 			serialNumber: req.body.serialNumber
