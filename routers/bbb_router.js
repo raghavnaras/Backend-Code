@@ -122,7 +122,7 @@ router.post("/setup_account", function(req, res) {
 		email: req.body.email,
 		pswd: req.body.password
 	}).then(function(list){
-        res.send({status: "success"});
+        res.send({status: "success", userID});
 	}).error(function(e){
 		res.send({status: "failure"})
 	})
@@ -167,7 +167,7 @@ router.post("/process_tag", function(req, res) {
 			if (tag.registered) {
 				SessionData.create({
 					userID: tag.dataValues.userID,
-					stampStart: new Data.getTime()
+					stampStart: String(new Data.getTime())
 				})
 				res.send({status: "registered"});
 			} else {
