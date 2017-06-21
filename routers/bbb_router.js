@@ -198,10 +198,15 @@ router.post("/check_tag", function(req, res){
             registered: false
         }
     }).then(function(tag) {
-		tag.update({
+		Tag.update({
 			registered: true,
 			tagName: req.body.tagName,
 			userID: req.body.userID
+		}, {
+			where: {
+				machineID: req.body.machineID,
+            	registered: false
+			}
 		})
 		res.send({status: "success"})
 	}).error(function(e) {
