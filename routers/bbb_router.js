@@ -13,11 +13,14 @@ var RaspberryPi = models.RaspberryPi;
 var SessionData = models.SessionData;
 var spawn = require("child_process").spawn;
 var sequelize = require('sequelize');
+var bodyParser = require('body-parser')
 
 var app = express();
 app.use(expressJWT({secret: 'ashu1234'}).unless({path: ['/login', '/setup_account']}));
-app.use(express.json());
-app.usee(express.urlencoded());
+app.use(bodyParser.json({
+	extended: true
+}));
+app.use(bodyParser.urlencoded());
 
 // GET REQUESTS
 
@@ -143,7 +146,7 @@ router.post("/login", function(req, res) {
 		if (user) {
 			if (req.body.password == String(user.pswd)) {
 				var myToken = jwt.sign({username: user.name, userID: user.id, email: user.email}, 'ashu1234');
-				res.json(token: myToken);
+				res.json({token: myToken});
 			}
 			else {
 				res.send({status: "failure"})
