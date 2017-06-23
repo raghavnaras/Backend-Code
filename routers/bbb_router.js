@@ -20,7 +20,7 @@ app.use(expressJWT({secret: 'ashu1234'}).unless({path: ['/login', '/setup_accoun
 app.use(bodyParser.json({
 	extended: true
 }));
-app.usee(bodyParser.urlencoded());
+app.use(bodyParser.urlencoded());
 
 // GET REQUESTS
 
