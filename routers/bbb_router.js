@@ -13,11 +13,14 @@ var RaspberryPi = models.RaspberryPi;
 var SessionData = models.SessionData;
 var spawn = require("child_process").spawn;
 var sequelize = require('sequelize');
+var bodyParser = require('body-parser')
 
 var app = express();
 app.use(expressJWT({secret: 'ashu1234'}).unless({path: ['/login', '/setup_account']}));
-app.use(json());
-app.usee(urlencoded());
+app.use(bodyParser.json({
+	extended: true
+}));
+app.usee(bodyParser.urlencoded());
 
 // GET REQUESTS
 
