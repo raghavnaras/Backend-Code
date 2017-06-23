@@ -148,6 +148,16 @@ router.post("/login", function(req, res) {
 });
 
 router.post("/logout", function(req, res){
+	User.findOne({
+  	where:{
+			userId: req.body.userId
+		}
+	}).then(function(user){
+        res.send({status: "success"});
+	})
+})
+
+router.post("/end_workout", function(req, res){
 	SessionData.update({
   		stampEnd: new Date().getTime(),
 	}, {where:
@@ -168,7 +178,7 @@ router.post("/process_tag", function(req, res) {
 		if (tag) {
 			if (tag.registered) {
 				SessionData.create({
-					userID: tag.dataValues.userID,
+					userId: tag.dataValues.userId,
 					stampStart: String(new Data.getTime())
 				})
 				res.send({status: "registered"});
