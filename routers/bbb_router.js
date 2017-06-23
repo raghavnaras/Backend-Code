@@ -143,7 +143,7 @@ router.post("/login", function(req, res) {
 		if (user) {
 			if (req.body.password == String(user.pswd)) {
 				var myToken = jwt.sign({username: user.name, userID: user.id, email: user.email}, 'ashu1234');
-				res.json(token: myToken);
+				res.json({token: myToken});
 			}
 			else {
 				res.send({status: "failure"})
