@@ -16,8 +16,8 @@ var sequelize = require('sequelize');
 
 var app = express();
 app.use(expressJWT({secret: 'ashu1234'}).unless({path: ['/login', '/setup_account']}));
-app.use(express.json());
-app.usee(express.urlencoded());
+app.use(json());
+app.usee(urlencoded());
 
 // GET REQUESTS
 
