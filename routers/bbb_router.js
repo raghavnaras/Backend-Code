@@ -2,16 +2,22 @@
  // test comment
 
 var express = require('express');
+var expressJWT = require('express-jwt');
+var jwt = require ('jsonwebtoken');
 var router = express.Router();
 var models = require('../models');
-var BikeData = models.BikeData
-var User = models.User
-var Tag = models.Tag
-var RaspberryPi = models.RaspberryPi
-var SessionData = models.SessionData
-var spawn = require("child_process").spawn
+var BikeData = models.BikeData;
+var User = models.User;
+var Tag = models.Tag;
+var RaspberryPi = models.RaspberryPi;
+var SessionData = models.SessionData;
+var spawn = require("child_process").spawn;
 var sequelize = require('sequelize');
 
+var app = express();
+app.use(expressJWT({secret: 'ashu1234'}).unless({path: ['/login', '/setup_account']}));
+app.use(express.json());
+app.usee(express.urlencoded());
 
 // GET REQUESTS
 
@@ -122,7 +128,7 @@ router.post("/setup_account", function(req, res) {
 		email: req.body.email,
 		pswd: req.body.password
 	}).then(function(list){
-        res.send({status: "success", userID});
+        res.send({status: "success"});
 	}).error(function(e){
 		res.send({status: "failure"})
 	})
@@ -132,10 +138,11 @@ router.post("/login", function(req, res) {
 		where: {
 			email: req.body.email
 		}
-	}).then(function(user) {
+	}).then(function(user) { 
 		if (user) {
 			if (req.body.password == String(user.pswd)) {
-				res.send({status: "success", user: user})
+				var myToken = jwt.sign({username: user.name, userID: user.id, email: user.email}, 'ashu1234');
+				res.json(token: myToken);
 			}
 			else {
 				res.send({status: "failure"})
