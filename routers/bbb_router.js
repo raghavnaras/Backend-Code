@@ -17,9 +17,7 @@ var bodyParser = require('body-parser')
 
 var app = express();
 app.use(expressJWT({secret: 'ashu1234'}).unless({path: ['/login', '/setup_account']}));
-app.use(bodyParser.json({
-	extended: true
-}));
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 
 // GET REQUESTS
