@@ -47,10 +47,10 @@ router.get("/sessionlisten", function(req, res){
 		where: {stampEnd: null}
 	}).then(function(list){
 		if(list){
-		User.findOne({
-			where: {id: list.dataValues.userID}
-		}).then(function(user){
-			res.send({status: "success", user: user})
+		Tag.findOne({
+			where: {id: list.dataValues.RFID}
+		}).then(function(RFID){
+			res.send({status: "success", tag: RFID})
 		})
 		} else {
 			res.send({status: "failure"})
@@ -148,23 +148,35 @@ router.post("/login", function(req, res) {
 			}
 			else {
 				res.send({status: "failure"})
-			}			
+			}
 		}
 		else {
 			res.send({status: "failure"})
 		}
 	})
 });
+
 router.post("/logout", function(req, res){
+	User.findOne({
+  	where:{
+			userId: req.body.userId
+		}
+	}).then(function(user){
+        res.send({status: "success"});
+	})
+})
+
+router.post("/end_workout", function(req, res){
 	SessionData.update({
   		stampEnd: new Date().getTime(),
 	}, {where:
-			[{userId: req.body.userId}]
+			[{RFID: req.body.RFID}]
 	}).then(function(list){
         res.send({status: "success"});
 	})
 })
-//processes the tag
+
+//processes the tag after scanning
 router.post("/process_tag", function(req, res) {
 	console.log(req.body)
 	Tag.findOne({
@@ -175,13 +187,13 @@ router.post("/process_tag", function(req, res) {
 		if (tag) {
 			if (tag.registered) {
 				SessionData.create({
-					userID: tag.dataValues.userID,
+					userId: tag.dataValues.userId,
 					stampStart: String(new Data.getTime())
 				})
 				res.send({status: "registered"});
 			} else {
 				res.send({status: "repeat"});
-			}	
+			}
 		} else {
 			RaspberryPi.findOne({
 				where: {
@@ -196,7 +208,7 @@ router.post("/process_tag", function(req, res) {
 			})
 			res.send({status: "new"});
 		}
-	}).error(function(e) {		
+	}).error(function(e) {
 		res.send({status: "failure"})
 	})
 })
@@ -262,7 +274,7 @@ router.post("/addsession", function(req, res) {
     	else {
     		res.send({status: "busy"})
     	}
-	})  
+	})
 })
 router.post("/addname", function(req, res){
 	User.update({
@@ -355,9 +367,9 @@ String.prototype.toHHMMSS = function () {
     var minutes = Math.floor((sec_num - (hours * 3600)) / 60)
     var seconds = Math.floor(sec_num - (hours * 3600) - (minutes * 60))
 
-    return ((hours < 10) ? ("0" + String(hours)) : String(hours)) + ":" 
-		+ ((minutes < 10) ? ("0" + String(minutes)) : String(minutes)) + ":" 
+    return ((hours < 10) ? ("0" + String(hours)) : String(hours)) + ":"
+		+ ((minutes < 10) ? ("0" + String(minutes)) : String(minutes)) + ":"
 		+ ((seconds < 10) ? ("0" + String(seconds)) : String(seconds))
 }
 
-module.exports = router; 
+module.exports = router;
