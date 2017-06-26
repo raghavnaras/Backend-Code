@@ -36,18 +36,21 @@ router.get("/data", function(req, res){
         res.send(list);
     })
 });
+
+// get the last bike data point of a user in a session
 router.get("/data/last", function(req,res){
 	SessionData.max('stampStart',{
 		where: {userId:id}
-	}).then(function(sessionid){
-		BikeData.findOne({
-			where: {sessionID: sessionid}
+	}).then(function(stampStart){
+		BikeData.max('stamp',{
+			where: {sessionID: stampStart}
 		})
 	}).then(function(list){
 		res.setHeader('Content-Type', 'application/json');
         res.send(list);
 	})
 })
+
 router.get("/sessionlisten", function(req, res){
 	SessionData.findOne({
 		where: {stampEnd: null}
@@ -184,7 +187,6 @@ router.post("/end_workout", function(req, res){
 
 //processes the tag after scanning
 router.post("/process_tag", function(req, res) {
-	console.log(req.body)
 	Tag.findOne({
 		where: {
 			RFID: req.body.RFID
@@ -192,9 +194,17 @@ router.post("/process_tag", function(req, res) {
 	}).then(function(tag) {
 		if (tag) {
 			if (tag.registered) {
-				SessionData.create({
-					userId: tag.dataValues.userId,
-					stampStart: String(new Data.getTime())
+				RaspberryPi.findOne({
+					where: {
+						serialNumber: req.body.serialNumber
+					}
+				}).then(function(RaspPi){
+					SessionData.create({
+						RFID: req.body.RFID,
+						userId: tag.dataValues.userId,
+						machineID: RaspPi.machineID,
+						stampStart: String(new Data.getTime())
+					})
 				})
 				res.send({status: "registered"});
 			} else {
@@ -318,6 +328,16 @@ router.post("/bike", function(req, res){
 				stamp: new Date().getTime(),
 				rpm: req.body.rpm,
 				bikeID: RaspPi.machineID
+			})
+			SessionData.findOne({
+				where: {
+					machineID: RaspPi.machineID,
+					stampEnd: null
+				}
+			}).then(function(session) {
+				BikeData.update({
+					sessionID: session.stampStart
+				})
 			})
 			res.send({status: "success"})
 		} else {
