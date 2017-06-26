@@ -43,21 +43,21 @@ router.get("/data/last", function(req,res){
         res.send(list);
 	})
 })
-router.get("/sessionlisten", function(req, res){
-	SessionData.findOne({
-		where: {stampEnd: null}
-	}).then(function(list){
-		if(list){
-		Tag.findOne({
-			where: {id: list.dataValues.RFID}
-		}).then(function(RFID){
-			res.send({status: "success", tag: RFID})
-		})
-		} else {
-			res.send({status: "failure"})
-		}
-	})
-})
+// router.get("/sessionlisten", function(req, res){
+// 	SessionData.findOne({
+// 		where: {stampEnd: null}
+// 	}).then(function(list){
+// 		if(list){
+// 		Tag.findOne({
+// 			where: {id: list.dataValues.RFID}
+// 		}).then(function(RFID){
+// 			res.send({status: "success", tag: RFID})
+// 		})
+// 		} else {
+// 			res.send({status: "failure"})
+// 		}
+// 	})
+// })
 router.get("/average_duration", function(req, res){
 	SessionData.findAll({
 		where: {
