@@ -6,6 +6,7 @@ var expressJWT = require('express-jwt');
 var jwt = require ('jsonwebtoken');
 var router = express.Router();
 var models = require('../models');
+var jwtauth = require('../jwt_auth.js');
 var BikeData = models.BikeData;
 var User = models.User;
 var Tag = models.Tag;
@@ -13,13 +14,11 @@ var RaspberryPi = models.RaspberryPi;
 var SessionData = models.SessionData;
 var spawn = require("child_process").spawn;
 var sequelize = require('sequelize');
-var bodyParser = require('body-parser')
-var bcrypt = require('bcryptjs')
+var bodyParser = require('body-parser');
+var bcrypt = require('bcryptjs');
 
 var app = express();
-app.use(expressJWT({secret: 'ashu1234'}).unless({path: ['/login', '/setup_account']}));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded());
+app.all('/*', [express.bodyParser(), jwtauth]);
 
 // GET REQUESTS
 
