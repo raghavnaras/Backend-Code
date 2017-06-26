@@ -37,8 +37,12 @@ router.get("/data", function(req, res){
     })
 });
 router.get("/data/last", function(req,res){
-	BikeData.findOne({
-		order: "stamp DESC"
+	SessionData.max('stampStart',{
+		where: {userId:id}
+	}).then(function(sessionid){
+		BikeData.findOne({
+			where: {sessionID: sessionid}
+		})
 	}).then(function(list){
 		res.setHeader('Content-Type', 'application/json');
         res.send(list);
@@ -142,7 +146,7 @@ router.post("/login", function(req, res) {
 		where: {
 			email: req.body.email
 		}
-	}).then(function(user) { 
+	}).then(function(user) {
 		if (user) {
 			if (req.body.password == String(user.pswd)) {
 				var myToken = jwt.sign({username: user.name, userID: user.id, email: user.email}, 'ashu1234');
@@ -304,7 +308,6 @@ router.post("/addemailgender", function(req, res){
 	})
 });
 router.post("/bike", function(req, res){
-	console.log(req.body)
 	RaspberryPi.findOne({
 		where: {
 			serialNumber: req.body.serialNumber
