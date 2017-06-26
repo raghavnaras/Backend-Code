@@ -143,7 +143,7 @@ router.post("/setup_account", function(req, res) {
     });
     
 router.post("/login", function(req, res) {
-	console.log(req.headers.Authorization)
+	console.log(req.headers['Authorization']);
 	User.findOne({
 		where: {
 			email: req.body.email
