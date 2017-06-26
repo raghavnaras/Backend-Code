@@ -158,11 +158,9 @@ router.post("/login", function(req, res) {
                 	// var expires = moment().add('days', 7).valueOf();
                     var token = jwt.sign({username: user.name, userID: user.id, email: user.email}, 'ashu1234');
 				    res.json({
-				    	token: token,
-				    	// expires: expires, 
-				    	user: user
+				    	token: token
+				    	// expires: expires
 				    });
-				    res.send({status: 200});
                 }
                 else {
 					res.send({status: 401});
