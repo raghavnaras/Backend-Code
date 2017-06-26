@@ -143,25 +143,34 @@ router.post("/setup_account", function(req, res) {
     });
     
 router.post("/login", function(req, res) {
+	console.log(req.headers.Authorization)
 	User.findOne({
 		where: {
 			email: req.body.email
 		}
-	}).then(function(user) { 
+	}).then(function(err, user) { 
+		if (err) {
+			return res.send({status: 401});
+		}
+		if (!user) {
+			return res.send({status: 401});
+		}
 		if (user) {
             bcrypt.compare(req.body.password, String(user.pswd), function(err, response) {
                 if (response){
-                    var myToken = jwt.sign({username: user.name, userID: user.id, email: user.email}, 'ashu1234');
-				    res.json({token: myToken});
+                	// var expires = moment().add('days', 7).valueOf();
+                    var token = jwt.sign({username: user.name, userID: user.id, email: user.email}, 'ashu1234');
+				    res.json({
+				    	token: token,
+				    	// expires: expires, 
+				    	user: user
+				    });
+				    res.send({status: 200});
                 }
                 else {
-				res.send({status: "failure"})
-			}
+					res.send({status: 401});
+				}
             })
-			
-		}
-		else {
-			res.send({status: "failure"})
 		}
 	})
 });
