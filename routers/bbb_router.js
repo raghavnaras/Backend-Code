@@ -317,25 +317,22 @@ router.post("/addemailgender", function(req, res){
 		res.send({status: "failure"})
 	})
 });
+
 router.post("/bike", function(req, res){
 	RaspberryPi.findOne({
-		where: {
-			serialNumber: req.body.serialNumber
-		}
+		where: {serialNumber: req.body.serialNumber}
 	}).then(function(RaspPi) {
 		if (RaspPi) {
-			BikeData.create({
-				stamp: new Date().getTime(),
-				rpm: req.body.rpm,
-				bikeID: RaspPi.machineID
-			})
 			SessionData.findOne({
 				where: {
 					machineID: RaspPi.machineID,
 					stampEnd: null
 				}
 			}).then(function(session) {
-				BikeData.update({
+				BikeData.create({
+					stamp: new Date().getTime(),
+					rpm: req.body.rpm,
+					bikeID: RaspPi.machineID
 					sessionID: session.stampStart
 				})
 			})
