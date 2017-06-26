@@ -14,6 +14,7 @@ var SessionData = models.SessionData;
 var spawn = require("child_process").spawn;
 var sequelize = require('sequelize');
 var bodyParser = require('body-parser')
+var bcrypt = require('bcryptjs')
 
 var app = express();
 app.use(expressJWT({secret: 'ashu1234'}).unless({path: ['/login', '/setup_account']}));
@@ -124,17 +125,23 @@ router.get("/get_last_workout", function(req, res){
 // POST REQUESTS
 
 router.post("/setup_account", function(req, res) {
-	User.create({
-		name: req.body.name,
-		email: req.body.email,
-		pswd: req.body.password
-	}).then(function(list){
+    
+    bcrypt.genSalt(10, function(err, salt) {
+    bcrypt.hash(req.body.password, salt, function(err, hash) {
+        User.create({
+                  name: req.body.name,
+                  email: req.body.email,
+                  pswd: hash
+         }).then(function(list){
         res.send({status: "success"});
 	}).error(function(e){
 		res.send({status: "failure"})
 	})
-})
+    });
+});
 
+    });
+    
 router.post("/login", function(req, res) {
 	User.findOne({
 		where: {
@@ -142,13 +149,16 @@ router.post("/login", function(req, res) {
 		}
 	}).then(function(user) { 
 		if (user) {
-			if (req.body.password == String(user.pswd)) {
-				var myToken = jwt.sign({username: user.name, userID: user.id, email: user.email}, 'ashu1234');
-				res.json({token: myToken});
-			}
-			else {
+            bcrypt.compare(req.body.password, String(user.pswd), function(err, response) {
+                if (response){
+                    var myToken = jwt.sign({username: user.name, userID: user.id, email: user.email}, 'ashu1234');
+				    res.json({token: myToken});
+                }
+                else {
 				res.send({status: "failure"})
 			}
+            })
+			
 		}
 		else {
 			res.send({status: "failure"})
