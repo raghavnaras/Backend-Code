@@ -2,6 +2,7 @@ var models = require('../models');
 var User = models.User;
 
 module.exports = function(req, res, next) {
+	console.log("Entered jwt_auth.js");
 	//allows three ways to insert token into the request
 	var token = (req.body && req.body.access_token) 
 	    || (req.query && req.query.access_token) 
