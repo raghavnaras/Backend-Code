@@ -148,10 +148,7 @@ router.post("/login", function(req, res) {
 		where: {
 			email: req.body.email
 		}
-	}).then(function(err, user) { 
-		if (err) {
-			return res.send({status: 401});
-		}
+	}).then(function(user) { 
 		if (!user) {
 			return res.send({status: 401});
 		}
@@ -172,6 +169,8 @@ router.post("/login", function(req, res) {
 				}
             })
 		}
+	}).error(function(error) {
+		res.send({status: 401});
 	})
 });
 
