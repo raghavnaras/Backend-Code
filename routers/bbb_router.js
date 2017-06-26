@@ -18,7 +18,7 @@ var bodyParser = require('body-parser');
 var bcrypt = require('bcryptjs');
 
 var app = express();
-app.all('/*', [express.bodyParser(), jwtauth]);
+app.all('/*', [bodyParser(), jwtauth]);
 
 // GET REQUESTS
 
