@@ -203,7 +203,7 @@ router.post("/process_tag", function(req, res) {
 		if (tag) {
 			if (tag.registered) {
 				SessionData.create({
-					userId: tag.dataValues.userId,
+					userID: tag.dataValues.userID,
 					stampStart: String(new Data.getTime())
 				})
 				res.send({status: "registered"});
