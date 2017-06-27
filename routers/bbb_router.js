@@ -219,7 +219,6 @@ router.post("/process_tag", function(req, res) {
 		}
 	}).then(function(tag) {
 		if (tag) {
-			if (tag.registered) {
 				RaspberryPi.findOne({
 					where: {
 						serialNumber: req.body.serialNumber
@@ -233,9 +232,6 @@ router.post("/process_tag", function(req, res) {
 					})
 				})
 				res.send({status: "registered"});
-			} else {
-				res.send({status: "repeat"});
-			}
 		} else {
 			RaspberryPi.findOne({
 				where: {
@@ -359,7 +355,7 @@ router.post("/bike", function(req, res){
 					stamp: new Date().getTime(),
 					rpm: req.body.rpm,
 					bikeID: RaspPi.machineID
-					//sessionID: session.dataValues.stampStart
+					sessionID: session.dataValues.stampStart
 				})
 			})
 			res.send({status: "success"});
