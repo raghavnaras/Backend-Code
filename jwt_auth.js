@@ -2,8 +2,12 @@ var models = require('./models');
 var User = models.User;
 
 module.exports = function(req, res, next) {
-	console.log("Header:");
-	console.log(req.headers['authorization']);
+	
+	// DEBUGGING
+	// LOGICAL ERROR: Header 'authorization' not appearing in the middleware!
+	console.log("Header: " + JSON.stringify(req.headers));
+	console.log("Header authorization: " + req.headers['authorization']);
+	
 	//allows three ways to insert token into the request
 	var token = (req.body && req.body.access_token) 
 	    || (req.query && req.query.access_token) 

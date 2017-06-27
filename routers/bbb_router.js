@@ -111,6 +111,7 @@ router.get("/workout_duration", function(req, res){
 
 // the most recent workout is defined to be the one that was created most recently
 router.get("/get_last_workout", function(req, res){
+	console.log("Get Last Workout Information: " + JSON.stringify(req.headers));
 	SessionData.findAll(
 		{where: {
 			userId: req.body.userId,
@@ -155,8 +156,8 @@ router.post("/setup_account", function(req, res) {
     });
     
 router.post("/login", function(req, res) {
-	console.log(req.headers);
-	console.log(req.headers['authorization']);
+	console.log("Login Information: " + JSON.stringify(req.headers));
+	// console.log(req.headers['authorization']);
 	User.findOne({
 		where: {
 			email: req.body.email
@@ -207,7 +208,7 @@ router.post("/end_workout", function(req, res){
 
 //processes the tag after scanning
 router.post("/process_tag", function(req, res) {
-	console.log(req.body)
+	// console.log(req.body)
 	Tag.findOne({
 		where: {
 			RFID: req.body.RFID
