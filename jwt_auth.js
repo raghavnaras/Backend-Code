@@ -2,7 +2,8 @@ var models = require('./models');
 var User = models.User;
 
 module.exports = function(req, res, next) {
-	console.log("Entered jwt_auth.js");
+	console.log("Header:");
+	console.log(req.headers['authorization']);
 	//allows three ways to insert token into the request
 	var token = (req.body && req.body.access_token) 
 	    || (req.query && req.query.access_token) 
@@ -19,13 +20,13 @@ module.exports = function(req, res, next) {
 				if (user) {
 					next();
 				} else {
-					res.end("Not a valid user.", 401);
+					res.status(401).end();
 				}
 			})
 		} catch (err) {
-			res.end("Couldn't parse token.", 400);
+			res.status(400).end();
 		}
 	} else {
-		res.end("No access token.", 403);
+		res.status(403).end();
 	}
 }
