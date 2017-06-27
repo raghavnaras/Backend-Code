@@ -2,7 +2,7 @@
  // test comment
 
 var express = require('express');
-var expressJWT = require('express-jwt');
+//var expressJWT = require('express-jwt');
 var jwt = require ('jsonwebtoken');
 var router = express.Router();
 var models = require('../models');
@@ -18,7 +18,20 @@ var bodyParser = require('body-parser');
 var bcrypt = require('bcryptjs');
 
 var app = express();
-router.use(jwtauth);
+//sets up authorization where it matters
+router.use('/users', jwtauth);
+router.use('/data', jwtauth);
+router.use('/data/last', jwtauth);
+router.use('/sessionlisten', jwtauth);
+router.use('/average_duration', jwtauth);
+router.use('/workout_duration', jwtauth);
+router.use('/get_last_workout', jwtauth);
+router.use('/logout', jwtauth);
+router.use('/end_workout', jwtauth);
+router.use('/check_tag', jwtauth);
+router.use('/addname', jwtauth);
+router.use('/addemailgender', jwtauth);
+router.use('/history', jwtauth);
 
 // GET REQUESTS
 
