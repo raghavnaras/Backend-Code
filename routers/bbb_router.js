@@ -250,48 +250,48 @@ router.post("/check_tag", function(req, res){
 		res.send({status: "failure"})
 	})
 })
-router.post("/addsession", function(req, res) {
-    SessionData.findAll({
-    	where: {
-            stampEnd: null
-        }
-    }).then(function(list) {
-        if(list.length == 0){
-	        User.findAll({
-	            where: {
-	            	userId: req.body.userId
-            	}
-	        }).then(function(list) {
-	            if (list.length == 0) {
-	                User.update({
-	                    RFID: req.body.tag
-	                }).then(function(user) {
-	                    console.log(user)
-	                    SessionData.create({
-	                        stampStart: new Date().getTime(),
-	                        userId: user.dataValues.id
-	                    })
-	                    res.send({
-	                        status: "new"
-	                    })
-	                })
-	            } else {
-	                res.send({
-	                    status: "old",
-	                    user: list[0]
-	                })
-	                SessionData.create({
-	                    stampStart: new Date().getTime(),
-	                    userId: list[0].dataValues.id
-	                })
-	            }
-        	})
-    	}
-    	else {
-    		res.send({status: "busy"})
-    	}
-	})
-})
+// router.post("/addsession", function(req, res) {
+//     SessionData.findAll({
+//     	where: {
+//             stampEnd: null
+//         }
+//     }).then(function(list) {
+//         if(list.length == 0){
+// 	        User.findAll({
+// 	            where: {
+// 	            	userId: req.body.userId
+//             	}
+// 	        }).then(function(list) {
+// 	            if (list.length == 0) {
+// 	                User.update({
+// 	                    RFID: req.body.tag
+// 	                }).then(function(user) {
+// 	                    console.log(user)
+// 	                    SessionData.create({
+// 	                        stampStart: new Date().getTime(),
+// 	                        userId: user.dataValues.id
+// 	                    })
+// 	                    res.send({
+// 	                        status: "new"
+// 	                    })
+// 	                })
+// 	            } else {
+// 	                res.send({
+// 	                    status: "old",
+// 	                    user: list[0]
+// 	                })
+// 	                SessionData.create({
+// 	                    stampStart: new Date().getTime(),
+// 	                    userId: list[0].dataValues.id
+// 	                })
+// 	            }
+//         	})
+//     	}
+//     	else {
+//     		res.send({status: "busy"})
+//     	}
+// 	})
+// })
 router.post("/addname", function(req, res){
 	User.update({
   	name: req.body.name,
