@@ -14,12 +14,11 @@ var SessionData = models.SessionData;
 var spawn = require("child_process").spawn;
 var sequelize = require('sequelize');
 var bodyParser = require('body-parser')
+var bcrypt = require('bcryptjs')
 
 var app = express();
 app.use(expressJWT({secret: 'ashu1234'}).unless({path: ['/login', '/setup_account']}));
-app.use(bodyParser.json({
-	extended: true
-}));
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 
 // GET REQUESTS
@@ -51,21 +50,22 @@ router.get("/data/last", function(req,res){
 	})
 })
 
-router.get("/sessionlisten", function(req, res){
-	SessionData.findOne({
-		where: {stampEnd: null}
-	}).then(function(list){
-		if(list){
-		Tag.findOne({
-			where: {id: list.dataValues.RFID}
-		}).then(function(RFID){
-			res.send({status: "success", tag: RFID})
-		})
-		} else {
-			res.send({status: "failure"})
-		}
-	})
-})
+// router.get("/sessionlisten", function(req, res){
+// 	SessionData.findOne({
+// 		where: {stampEnd: null}
+// 	}).then(function(list){
+// 		if(list){
+// 		Tag.findOne({
+// 			where: {id: list.dataValues.RFID}
+// 		}).then(function(RFID){
+// 			res.send({status: "success", tag: RFID})
+// 		})
+// 		} else {
+// 			res.send({status: "failure"})
+// 		}
+// 	})
+// })
+
 router.get("/average_duration", function(req, res){
 	SessionData.findAll({
 		where: {
@@ -133,35 +133,61 @@ router.get("/get_last_workout", function(req, res){
 // POST REQUESTS
 
 router.post("/setup_account", function(req, res) {
-	User.create({
-		name: req.body.name,
-		email: req.body.email,
-		pswd: req.body.password
-	}).then(function(list){
+
+    bcrypt.genSalt(10, function(err, salt) {
+    bcrypt.hash(req.body.password, salt, function(err, hash) {
+        User.create({
+                  name: req.body.name,
+                  email: req.body.email,
+                  pswd: hash
+         }).then(function(list){
         res.send({status: "success"});
 	}).error(function(e){
 		res.send({status: "failure"})
 	})
-})
+    });
+});
+
+    });
 
 router.post("/login", function(req, res) {
+	console.log(req.headers['Authorization']);
 	User.findOne({
 		where: {
 			email: req.body.email
 		}
+	// }).then(function(user) {
+	// 	if (user) {
+	// 		if (req.body.password == String(user.pswd)) {
+	// 			var myToken = jwt.sign({username: user.name, userID: user.id, email: user.email}, 'ashu1234');
+	// 			res.json({token: myToken});
+	// 		}
+	// 		else {
+	// 			res.send({status: "failure"})
+	// 		}
+
 	}).then(function(user) {
+		if (!user) {
+			return res.send({status: 401});
+
+		}
 		if (user) {
-			if (req.body.password == String(user.pswd)) {
-				var myToken = jwt.sign({username: user.name, userID: user.id, email: user.email}, 'ashu1234');
-				res.json({token: myToken});
-			}
-			else {
-				res.send({status: "failure"})
-			}
+            bcrypt.compare(req.body.password, String(user.pswd), function(err, response) {
+                if (response){
+                	// var expires = moment().add('days', 7).valueOf();
+                    var token = jwt.sign({username: user.name, userID: user.id, email: user.email}, 'ashu1234');
+				    res.json({
+				    	token: token
+				    	// expires: expires
+				    });
+                }
+                else {
+					res.send({status: 401});
+				}
+            })
 		}
-		else {
-			res.send({status: "failure"})
-		}
+	}).error(function(error) {
+		res.send({status: 401});
 	})
 });
 
