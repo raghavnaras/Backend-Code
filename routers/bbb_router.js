@@ -354,7 +354,7 @@ router.post("/bike", function(req, res){
 				BikeData.create({
 					stamp: new Date().getTime(),
 					rpm: req.body.rpm,
-					bikeID: RaspPi.machineID
+					bikeID: RaspPi.machineID,
 					sessionID: session.dataValues.stampStart
 				})
 			})
