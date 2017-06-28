@@ -2,10 +2,11 @@
  // test comment
 
 var express = require('express');
-var expressJWT = require('express-jwt');
+//var expressJWT = require('express-jwt');
 var jwt = require ('jsonwebtoken');
 var router = express.Router();
 var models = require('../models');
+var jwtauth = require('../jwt_auth.js');
 var BikeData = models.BikeData;
 var User = models.User;
 var Tag = models.Tag;
@@ -13,13 +14,24 @@ var RaspberryPi = models.RaspberryPi;
 var SessionData = models.SessionData;
 var spawn = require("child_process").spawn;
 var sequelize = require('sequelize');
-var bodyParser = require('body-parser')
-var bcrypt = require('bcryptjs')
+var bodyParser = require('body-parser');
+var bcrypt = require('bcryptjs');
 
 var app = express();
-app.use(expressJWT({secret: 'ashu1234'}).unless({path: ['/login', '/setup_account']}));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded());
+//sets up authorization where it matters
+router.use('/users', jwtauth);
+router.use('/data', jwtauth);
+router.use('/data/last', jwtauth);
+router.use('/sessionlisten', jwtauth);
+router.use('/average_duration', jwtauth);
+router.use('/workout_duration', jwtauth);
+router.use('/get_last_workout', jwtauth);
+router.use('/logout', jwtauth);
+router.use('/end_workout', jwtauth);
+router.use('/check_tag', jwtauth);
+router.use('/addname', jwtauth);
+router.use('/addemailgender', jwtauth);
+router.use('/history', jwtauth);
 
 // GET REQUESTS
 
@@ -50,22 +62,21 @@ router.get("/data/last", function(req,res){
 	})
 })
 
-// router.get("/sessionlisten", function(req, res){
-// 	SessionData.findOne({
-// 		where: {stampEnd: null}
-// 	}).then(function(list){
-// 		if(list){
-// 		Tag.findOne({
-// 			where: {id: list.dataValues.RFID}
-// 		}).then(function(RFID){
-// 			res.send({status: "success", tag: RFID})
-// 		})
-// 		} else {
-// 			res.send({status: "failure"})
-// 		}
-// 	})
-// })
-
+router.get("/sessionlisten", function(req, res){
+	SessionData.findOne({
+		where: {stampEnd: null}
+	}).then(function(list){
+		if(list){
+		Tag.findOne({
+			where: {id: list.dataValues.RFID}
+		}).then(function(RFID){
+			res.send({status: "success", tag: RFID})
+		})
+		} else {
+			res.send({status: "failure"})
+		}
+	})
+})
 router.get("/average_duration", function(req, res){
 	SessionData.findAll({
 		where: {
@@ -107,6 +118,7 @@ router.get("/workout_duration", function(req, res){
 
 // the most recent workout is defined to be the one that was created most recently
 router.get("/get_last_workout", function(req, res){
+	console.log("Get Last Workout Information: " + JSON.stringify(req.headers));
 	SessionData.findAll(
 		{where: {
 			userID: req.body.userID,
@@ -150,8 +162,39 @@ router.post("/setup_account", function(req, res) {
 
     });
 
+router.post("/changepassword", function(req, res){
+
+    User.findOne({
+        where: {
+            id: req.body.userId
+        }
+    }).then(function(user){
+        if (user) {
+            bcrypt.compare(req.body.oldpw, String(user.pswd), function(err, response) {
+                if (response){
+                    bcrypt.genSalt(10,function(err,salt){
+                    bcrypt.hash(req.body.newpw, salt, function(err,hash){
+                        User.update({
+                            pswd: hash
+                        }, {
+                            where: {
+                                id: req.body.userId
+                            }
+                        })
+                    })
+                    })
+                    res.send({status:"success"})
+                }
+                else
+                    res.send({status:"failure"}) 
+                })
+            }
+        })
+    });
+
 router.post("/login", function(req, res) {
-	console.log(req.headers['Authorization']);
+	console.log("Login Information: " + JSON.stringify(req.headers));
+	// console.log(req.headers['authorization']);
 	User.findOne({
 		where: {
 			email: req.body.email
@@ -194,7 +237,7 @@ router.post("/login", function(req, res) {
 router.post("/logout", function(req, res){
 	User.findOne({
   	where:{
-			userID: req.body.userID
+			id: req.body.userID
 		}
 	}).then(function(user){
         res.send({status: "success"});
@@ -272,48 +315,50 @@ router.post("/check_tag", function(req, res){
 		res.send({status: "failure"})
 	})
 })
-router.post("/addsession", function(req, res) {
-    SessionData.findAll({
-    	where: {
-            stampEnd: null
-        }
-    }).then(function(list) {
-        if(list.length == 0){
-	        User.findAll({
-	            where: {
-	            	userID: req.body.userID
-            	}
-	        }).then(function(list) {
-	            if (list.length == 0) {
-	                User.update({
-	                    RFID: req.body.tag
-	                }).then(function(user) {
-	                    console.log(user)
-	                    SessionData.create({
-	                        stampStart: new Date().getTime(),
-	                        userID: user.dataValues.id
-	                    })
-	                    res.send({
-	                        status: "new"
-	                    })
-	                })
-	            } else {
-	                res.send({
-	                    status: "old",
-	                    user: list[0]
-	                })
-	                SessionData.create({
-	                    stampStart: new Date().getTime(),
-	                    userID: list[0].dataValues.id
-	                })
-	            }
-        	})
-    	}
-    	else {
-    		res.send({status: "busy"})
-    	}
-	})
-})
+
+// router.post("/addsession", function(req, res) {
+//     SessionData.findAll({
+//     	where: {
+//             stampEnd: null
+//         }
+//     }).then(function(list) {
+//         if(list.length == 0){
+// 	        User.findAll({
+// 	            where: {
+// 	            	userId: req.body.userId
+//             	}
+// 	        }).then(function(list) {
+// 	            if (list.length == 0) {
+// 	                User.update({
+// 	                    RFID: req.body.tag
+// 	                }).then(function(user) {
+// 	                    console.log(user)
+// 	                    SessionData.create({
+// 	                        stampStart: new Date().getTime(),
+// 	                        userId: user.dataValues.id
+// 	                    })
+// 	                    res.send({
+// 	                        status: "new"
+// 	                    })
+// 	                })
+// 	            } else {
+// 	                res.send({
+// 	                    status: "old",
+// 	                    user: list[0]
+// 	                })
+// 	                SessionData.create({
+// 	                    stampStart: new Date().getTime(),
+// 	                    userId: list[0].dataValues.id
+// 	                })
+// 	            }
+//         	})
+//     	}
+//     	else {
+//     		res.send({status: "busy"})
+//     	}
+// 	})
+// })
+
 router.post("/addname", function(req, res){
 	User.update({
   	name: req.body.name,

@@ -9,4 +9,5 @@ var Tag = sql.define("Tag", {
         registered: {type: Sql.BOOLEAN}
 }, {timestamps: false, freezeTableName: true});
     return Tag;
+	    
 };
