@@ -497,7 +497,7 @@ function check_idle_time() {
 			}
 		}
 	})
-})
+}
 setTimeout(check_idle_time,10000,'')
 
 module.exports = router;
