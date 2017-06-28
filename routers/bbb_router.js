@@ -14,7 +14,7 @@ var SessionData = models.SessionData;
 var spawn = require("child_process").spawn;
 var sequelize = require('sequelize');
 var bodyParser = require('body-parser')
-var bcrypt = require('bcryptjs')
+//var bcrypt = require('bcryptjs')
 
 var app = express();
 app.use(expressJWT({secret: 'ashu1234'}).unless({path: ['/login', '/setup_account']}));
@@ -213,22 +213,22 @@ router.post("/end_workout", function(req, res){
 
 //processes the tag after scanning
 router.post("/process_tag", function(req, res) {
-	Tag.findOne({
+	Tag.findAll({
 		where: {
 			RFID: req.body.RFID
 		}
-	}).then(function(tag) {
-		if (tag) {
+	}).then(function(list) {
+		if (list.length != 0) {
 				RaspberryPi.findOne({
 					where: {
 						serialNumber: req.body.serialNumber
 					}
-				}).then(function(RaspPi){
+				}).then(function(RaspPi) {
 					SessionData.create({
 						RFID: req.body.RFID,
 						userID: tag.dataValues.userID,
 						machineID: RaspPi.machineID,
-						stampStart: String(new Data.getTime())
+						stampStart: new Date().getTime()
 					})
 				})
 				res.send({status: "registered"});
@@ -250,6 +250,7 @@ router.post("/process_tag", function(req, res) {
 		res.send({status: "failure"})
 	})
 })
+
 router.post("/check_tag", function(req, res){
 	Tag.findOne({
 		where: {
@@ -354,8 +355,8 @@ router.post("/bike", function(req, res){
 				BikeData.create({
 					stamp: new Date().getTime(),
 					rpm: req.body.rpm,
-					bikeID: RaspPi.machineID
-					sessionID: session.dataValues.stampStart
+					bikeID: RaspPi.machineID,
+					sessionID: session.stampStart
 				})
 			})
 			res.send({status: "success"});
