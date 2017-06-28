@@ -14,13 +14,8 @@ var RaspberryPi = models.RaspberryPi;
 var SessionData = models.SessionData;
 var spawn = require("child_process").spawn;
 var sequelize = require('sequelize');
-<<<<<<< HEAD
-var bodyParser = require('body-parser')
-//var bcrypt = require('bcryptjs')
-=======
 var bodyParser = require('body-parser');
 var bcrypt = require('bcryptjs');
->>>>>>> 53a73e01e9b90552489ea230ccd0aba642f7478c
 
 var app = express();
 //sets up authorization where it matters
