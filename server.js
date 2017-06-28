@@ -5,10 +5,10 @@ var models = require('./models');
 
 // ADDED THIS CODE FOR DEBUGGING PURPOSES!
 // DELETE IF NEEDED!
-// <==
+// ==>
 var jwt = require ('jsonwebtoken');
 var jwtauth = require('./jwt_auth.js');
-// ==>
+// <==
 
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -24,13 +24,13 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.use("/bbb", router)
+app.use("/bbb", router);
 
 // ADDED THIS CODE FOR DEBUGGING PURPOSES!
 // DELETE IF NEEDED!
-// <==
-app.use(jwtauth);
 // ==>
+app.use(jwtauth);
+// <==
 
 models.sql.sync().then(function () {
     app.listen(8000);
