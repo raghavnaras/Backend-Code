@@ -228,7 +228,7 @@ router.post("/process_tag", function(req, res) {
 						RFID: req.body.RFID,
 						userID: tag.dataValues.userID,
 						machineID: RaspPi.machineID,
-						stampStart: String(new Data.getTime())
+						stampStart: new Date.getTime()
 					})
 				})
 				res.send({status: "registered"});
@@ -355,7 +355,7 @@ router.post("/bike", function(req, res){
 					stamp: new Date().getTime(),
 					rpm: req.body.rpm,
 					bikeID: RaspPi.machineID,
-					sessionID: session.dataValues.stampStart
+					sessionID: session.stampStart
 				})
 			})
 			res.send({status: "success"});
