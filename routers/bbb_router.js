@@ -213,12 +213,12 @@ router.post("/end_workout", function(req, res){
 
 //processes the tag after scanning
 router.post("/process_tag", function(req, res) {
-	Tag.findAll({
+	Tag.findOne({
 		where: {
 			RFID: req.body.RFID
 		}
-	}).then(function(list) {
-		if (list.length != 0) {
+	}).then(function(tag) {
+		if (tag) {
 				RaspberryPi.findOne({
 					where: {
 						serialNumber: req.body.serialNumber
@@ -416,5 +416,26 @@ String.prototype.toHHMMSS = function () {
 		+ ((minutes < 10) ? ("0" + String(minutes)) : String(minutes)) + ":"
 		+ ((seconds < 10) ? ("0" + String(seconds)) : String(seconds))
 }
+
+// function check_idle_time() {
+// 	SessionData.findAll() {
+// 		where:{stampEnd:null}
+// 	}.then(function(list){
+// 		for (session in list) {
+// 			BikeData.findAll({
+// 				where: {
+// 					sessionID: session.stampStart,
+// 					bikeID: session.machineID
+// 				}
+// 			}).then(function(list) {
+// 				var current_time = new Date().getTime();
+// 				session_list = []
+// 				for (session in list){
+// 					
+// 				}
+// 			})
+// 		}
+// 	})
+// }
 
 module.exports = router;
