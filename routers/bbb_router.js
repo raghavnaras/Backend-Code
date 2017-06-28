@@ -47,14 +47,21 @@ router.get("/data", function(req, res){
         res.send(list);
     })
 });
+
+// get the last bike data point of a user in a session
 router.get("/data/last", function(req,res){
-	BikeData.findOne({
-		order: "stamp DESC"
+	SessionData.max('stampStart',{
+		where: {userID:id}
+	}).then(function(stampStart){
+		BikeData.max('stamp',{
+			where: {sessionID: stampStart}
+		})
 	}).then(function(list){
 		res.setHeader('Content-Type', 'application/json');
         res.send(list);
 	})
 })
+
 router.get("/sessionlisten", function(req, res){
 	SessionData.findOne({
 		where: {stampEnd: null}
@@ -73,7 +80,7 @@ router.get("/sessionlisten", function(req, res){
 router.get("/average_duration", function(req, res){
 	SessionData.findAll({
 		where: {
-			userId: req.body.userId,
+			userID: req.body.userID,
 			stampEnd: {
 				$ne: null
 			}
@@ -114,7 +121,7 @@ router.get("/get_last_workout", function(req, res){
 	console.log("Get Last Workout Information: " + JSON.stringify(req.headers));
 	SessionData.findAll(
 		{where: {
-			userId: req.body.userId,
+			userID: req.body.userID,
 			stampEnd: {
 				$ne: null
 			}
@@ -138,7 +145,7 @@ router.get("/get_last_workout", function(req, res){
 // POST REQUESTS
 
 router.post("/setup_account", function(req, res) {
-    
+
     bcrypt.genSalt(10, function(err, salt) {
     bcrypt.hash(req.body.password, salt, function(err, hash) {
         User.create({
@@ -192,9 +199,20 @@ router.post("/login", function(req, res) {
 		where: {
 			email: req.body.email
 		}
-	}).then(function(user) { 
+	// }).then(function(user) {
+	// 	if (user) {
+	// 		if (req.body.password == String(user.pswd)) {
+	// 			var myToken = jwt.sign({username: user.name, userID: user.id, email: user.email}, 'ashu1234');
+	// 			res.json({token: myToken});
+	// 		}
+	// 		else {
+	// 			res.send({status: "failure"})
+	// 		}
+
+	}).then(function(user) {
 		if (!user) {
 			return res.send({status: 401});
+
 		}
 		if (user) {
             bcrypt.compare(req.body.password, String(user.pswd), function(err, response) {
@@ -238,22 +256,25 @@ router.post("/end_workout", function(req, res){
 
 //processes the tag after scanning
 router.post("/process_tag", function(req, res) {
-	// console.log(req.body)
 	Tag.findOne({
 		where: {
 			RFID: req.body.RFID
 		}
 	}).then(function(tag) {
 		if (tag) {
-			if (tag.registered) {
-				SessionData.create({
-					userID: tag.dataValues.userID,
-					stampStart: String(new Data.getTime())
+				RaspberryPi.findOne({
+					where: {
+						serialNumber: req.body.serialNumber
+					}
+				}).then(function(RaspPi) {
+					SessionData.create({
+						RFID: req.body.RFID,
+						userID: tag.dataValues.userID,
+						machineID: RaspPi.machineID,
+						stampStart: new Date().getTime()
+					})
 				})
 				res.send({status: "registered"});
-			} else {
-				res.send({status: "repeat"});
-			}
 		} else {
 			RaspberryPi.findOne({
 				where: {
@@ -294,6 +315,7 @@ router.post("/check_tag", function(req, res){
 		res.send({status: "failure"})
 	})
 })
+
 // router.post("/addsession", function(req, res) {
 //     SessionData.findAll({
 //     	where: {
@@ -336,12 +358,13 @@ router.post("/check_tag", function(req, res){
 //     	}
 // 	})
 // })
+
 router.post("/addname", function(req, res){
 	User.update({
   	name: req.body.name,
 },{
 		where:
-			[{id: req.body.userId}]
+			[{id: req.body.userID}]
 	}).then(function(list){
         res.send({status: "success"});
 	}).error(function(e){
@@ -354,27 +377,33 @@ router.post("/addemailgender", function(req, res){
  	gender: req.body.gender
 },{
 		where:
-			[{id: req.body.userId}]
+			[{id: req.body.userID}]
 	}).then(function(list){
         res.send({status: "success"});
 	}).error(function(e){
 		res.send({status: "failure"})
 	})
 });
+
 router.post("/bike", function(req, res){
-	console.log(req.body)
 	RaspberryPi.findOne({
-		where: {
-			serialNumber: req.body.serialNumber
-		}
+		where: {serialNumber: req.body.serialNumber}
 	}).then(function(RaspPi) {
 		if (RaspPi) {
-			BikeData.create({
-				stamp: new Date().getTime(),
-				rpm: req.body.rpm,
-				bikeID: RaspPi.machineID
+			SessionData.findOne({
+				where: {
+					machineID: RaspPi.machineID,
+					stampEnd: null
+				}
+			}).then(function(session) {
+				BikeData.create({
+					stamp: new Date().getTime(),
+					rpm: req.body.rpm,
+					bikeID: RaspPi.machineID,
+					sessionID: session.stampStart
+				})
 			})
-			res.send({status: "success"})
+			res.send({status: "success"});
 		} else {
 			res.send({status: "failure"})
 		}
@@ -383,7 +412,7 @@ router.post("/bike", function(req, res){
 router.post("/history", function(req,res){
 	SessionData.findAll({
 		where: {
-			userId: req.body.userId,
+			userID: req.body.userID,
 			stampEnd: {
 				$ne: null
 			}
