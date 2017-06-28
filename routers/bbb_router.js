@@ -474,26 +474,26 @@ function check_idle_time() {
 						bikeID: session.machineID
 					}
 				}).then(function(list) {
-					var current_time = new Date().getTime();
-					stamp_list = []
-					for (session in list){
-						stamp_list.push(session.stamp)
-					}
-					if (Math.max(stamp_list) - current_time > 30000){
-						BikeData.findOne({
-							where: {stamp: Math.max(stamp_list)}
-						}).then(function(bike){
-							SessionData.update({
-								stampEnd: new Date().getTime()
-							},
-								{ where:{
-									stampStart:bike.stamp,
-									machineID:bike.bikeID
-								}
+						var current_time = new Date().getTime();
+						stamp_list = []
+						for (session in list){
+							stamp_list.push(session.stamp)
+						}
+						if (Math.max(stamp_list) - current_time > 30000){
+							BikeData.findOne({
+								where: {stamp: Math.max(stamp_list)}
+							}).then(function(bike){
+								SessionData.update({
+									stampEnd: new Date().getTime()
+								},
+									{ where:{
+										stampStart:bike.stamp,
+										machineID:bike.bikeID
+									}
+								})
 							})
-						})
-					}
-				})
+						}
+					})
 			}
 		}
 	})
