@@ -465,7 +465,7 @@ String.prototype.toHHMMSS = function () {
 function check_idle_time() {
 	SessionData.findAll({
 		where: {stampEnd:null}
-	}.then(function(list){
+	}).then(function(list){
 		if (list.length != 0) {
 			for (session in list) {
 				BikeData.findAll({
