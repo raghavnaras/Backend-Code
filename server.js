@@ -20,7 +20,7 @@ app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Methods', '*');
     res.header('Access-Control-Expose-Headers', 'X-Api-Version, X-Request-Id, X-Response-Time, authorization');
     res.header('Access-Control-Max-Age', '1000');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
     next();
 });
 
@@ -29,7 +29,7 @@ app.use("/bbb", router);
 // ADDED THIS CODE FOR DEBUGGING PURPOSES!
 // DELETE IF NEEDED!
 // ==>
-app.use(jwtauth);
+// app.use(jwtauth);
 // <==
 
 models.sql.sync().then(function () {
