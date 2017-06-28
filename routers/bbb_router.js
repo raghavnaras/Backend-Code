@@ -213,22 +213,22 @@ router.post("/end_workout", function(req, res){
 
 //processes the tag after scanning
 router.post("/process_tag", function(req, res) {
-	Tag.findOne({
+	Tag.findAll({
 		where: {
 			RFID: req.body.RFID
 		}
-	}).then(function(tag) {
-		if (tag) {
+	}).then(function(list) {
+		if (list.length != 0) {
 				RaspberryPi.findOne({
 					where: {
 						serialNumber: req.body.serialNumber
 					}
-				}).then(function(RaspPi){
+				}).then(function(RaspPi) {
 					SessionData.create({
 						RFID: req.body.RFID,
 						userID: tag.dataValues.userID,
 						machineID: RaspPi.machineID,
-						stampStart: new Date.getTime()
+						stampStart: new Date().getTime()
 					})
 				})
 				res.send({status: "registered"});
