@@ -191,7 +191,7 @@ router.post("/changepassword", function(req, res){
                     res.send({status:"success"})
                 }
                 else
-                    res.send({status:"failure"}) 
+                    res.send({status:"failure"})
                 })
             }
         })
@@ -467,25 +467,42 @@ String.prototype.toHHMMSS = function () {
 		+ ((seconds < 10) ? ("0" + String(seconds)) : String(seconds))
 }
 
-// function check_idle_time() {
-// 	SessionData.findAll() {
-// 		where:{stampEnd:null}
-// 	}.then(function(list){
-// 		for (session in list) {
-// 			BikeData.findAll({
-// 				where: {
-// 					sessionID: session.stampStart,
-// 					bikeID: session.machineID
-// 				}
-// 			}).then(function(list) {
-// 				var current_time = new Date().getTime();
-// 				session_list = []
-// 				for (session in list){
-// 					
-// 				}
-// 			})
-// 		}
-// 	})
-// }
+function check_idle_time() {
+	SessionData.findAll() {
+		where: {stampEnd:null}
+	}.then(function(list){
+		if (list.length != 0) {
+			for (session in list) {
+				BikeData.findAll({
+					where: {
+						sessionID: session.stampStart,
+						bikeID: session.machineID
+					}
+				}).then(function(list) {
+					var current_time = new Date().getTime();
+					stamp_list = []
+					for (session in list){
+						stamp_list.push(session.stamp)
+					}
+					if (Math.max(stamp_list) - current_time > 30000){
+						BikeData.findOne({
+							where: {stamp: Math.max(stamp_list)}
+						}).then(function(bike){
+							SessionData.update({
+								stampEnd: new Date().getTime()
+							},
+								{ where:{
+									stampStart:bike.stamp,
+									machineID:bike.bikeID
+								}
+							})
+						})
+					}
+				})
+			}
+		}
+	})
+}
+setTimeout(check_idle_time,10000,'')
 
 module.exports = router;
