@@ -154,7 +154,37 @@ router.post("/setup_account", function(req, res) {
 });
 
     });
-    
+
+router.post("/changepassword", function(req, res){
+
+    User.findOne({
+        where: {
+            id: req.body.userId
+        }
+    }).then(function(user){
+        if (user) {
+            bcrypt.compare(req.body.oldpw, String(user.pswd), function(err, response) {
+                if (response){
+                    bcrypt.genSalt(10,function(err,salt){
+                    bcrypt.hash(req.body.newpw, salt, function(err,hash){
+                        User.update({
+                            pswd: hash
+                        }, {
+                            where: {
+                                id: req.body.userId
+                            }
+                        })
+                    })
+                    })
+                    res.send({status:"success"})
+                }
+                else
+                    res.send({status:"failure"}) 
+                })
+            }
+        })
+    });
+
 router.post("/login", function(req, res) {
 	console.log("Login Information: " + JSON.stringify(req.headers));
 	// console.log(req.headers['authorization']);
