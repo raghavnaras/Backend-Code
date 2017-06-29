@@ -455,7 +455,7 @@ router.post("/end_workout", function(req, res) {
 		if (session) {
 			SessionData.update({
 				stampEnd: new Date().getTime()
-			}).then(function(session){
+			},{where:{machineID:session.machineID}}).then(function(session){
 				res.send({status: "success"});
 			})
 		}
