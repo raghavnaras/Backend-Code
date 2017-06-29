@@ -287,25 +287,19 @@ router.post("/process_tag", function(req, res) {
 	})
 })
 router.post("/check_tag", function(req, res){
-	Tag.findOne({
+	Tag.update({
+		registered: true,
+		tagName: req.body.tagName,
+		userID: req.body.userID
+	}, {
 		where: {
-            machineID: req.body.machineID,
-            registered: false
-        }
-    }).then(function(tag) {
-		Tag.update({
-			registered: true,
-			tagName: req.body.tagName,
-			userID: req.body.userID
-		}, {
-			where: {
-				machineID: req.body.machineID,
-            	registered: false
-			}
-		})
-		res.send({status: "success"})
+			machineID: req.body.machineID,
+        	registered: false
+		}
+	}).then(function(tag) {
+		res.send({status: 'success'});
 	}).error(function(e) {
-		res.send({status: "failure"})
+		res.send({status: 'failure'});
 	})
 })
 
