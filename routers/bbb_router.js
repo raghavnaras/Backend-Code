@@ -297,6 +297,7 @@ router.post("/check_tag", function(req, res){
         	registered: false
 		}
 	}).then(function(tag) {
+		console.log(tag);
 		res.send({status: 'success'});
 	}).error(function(e) {
 		res.send({status: 'failure'});
