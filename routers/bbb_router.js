@@ -457,9 +457,9 @@ router.post("/end_workout", function(req, res) {
 				{machineID: RaspPi.machineID,
 				stampEnd: null}
 			}).then(function(session){
-				console.log(session.stampEnd);
+				console.log(session.machineID);
 				if (session) {
-					console.log(session.stampEnd);
+					console.log(session.machineID);
 					SessionData.update({
 						stampEnd: new Date().getTime()
 					},{where:{machineID:session.machineID}}).then(function(session){
