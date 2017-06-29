@@ -450,13 +450,16 @@ router.post("/end_workout", function(req, res) {
 	RaspberryPi.findOne({
 		where: {serialNumber: req.body.serial}
 	}).then(function(RaspPi){
+		console.log(RaspPi.machineID);
 		if (RaspPi) {
 			SessionData.findOne({
 				where:
 				{machineID: RaspPi.machineID,
 				stampEnd: null}
 			}).then(function(session){
+				console.log(session.stampStart);
 				if (session) {
+					console.log(session.stampEnd);
 					SessionData.update({
 						stampEnd: new Date().getTime()
 					},{where:{machineID:session.machineID}}).then(function(session){
