@@ -19,48 +19,34 @@ module.exports = function(req, res, next) {
 		|| req.headers['authorization'];
 
 	if (token) {
-		try {
-			console.log(1);
-			// jwt.verify(token, 'ashu1234', function(err, decoded) {
-			// 	if (err) {
-			// 		console.log("Token could not be verified.");
-			// 		res.json({status: 'success', message: "Failed to authenticate token."});
-			// 	}
-			// 	else {
-			// 		req.decoded = decoded;
-			// 		next();
-			// 	}
-			// });
-			console.log(2);
-			var decoded = jwt.decode(token);
-			console.log(3);
-			console.log("Decoded token: " + JSON.stringify(decoded));
-			User.findOne({
-				where: {
-					id: decoded.userID
-				}
-			}).then(function(user) {
-				console.log(4);
-				if (user) {
-					console.log(5);
-					next();
-					console.log(6);
-				} else {
-					console.log(7);
-					res.status(401).end();
-					console.log(8);
-				}
-			})
-			console.log(9)
-		} catch (err) {
-			console.log(10);
-			res.status(400).end();
-			console.log(11);
-		}
+		jwt.verify(token, 'ashu1234', function(err, decoded) {
+			if (err) {
+				console.log("Token could not be verified.");
+				res.sendStatus(401);
+			}
+			else {
+				req.decoded = decoded;
+				console.log("Token has been decoded.");
+				next();
+			}
+		});
+		// 	var decoded = jwt.decode(token);
+		// 	User.findOne({
+		// 		where: {
+		// 			id: decoded.userID
+		// 		}
+		// 	}).then(function(user) {
+		// 		if (user) {
+		// 			next();
+		// 		} else {
+		// 			res.status(401).end();
+		// 		}
+		// 	})
+		// } catch (err) {
+		// 	res.sendStatus(400);
+		// }
 	} else {
-		console.log(12);
 		res.sendStatus(403);
-		console.log(13);
 	}
 	
 }

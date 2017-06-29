@@ -19,6 +19,7 @@ var bcrypt = require('bcryptjs');
 
 var app = express();
 // app.use(jwtauth);
+
 // sets up authorization where it matters
 router.use('/users', jwtauth);
 router.use('/data', jwtauth);
