@@ -447,16 +447,22 @@ router.post("/history", function(req,res){
 })
 
 router.post("/end_workout", function(req, res) {
-	SessionData.findOne({
-		where:
-		{machineID: req.body.machineID,
-		stampEnd: null}
-	}).then(function(session){
-		if (session) {
-			SessionData.update({
-				stampEnd: new Date().getTime()
-			},{where:{machineID:session.machineID}}).then(function(session){
-				res.send({status: "success"});
+	RaspberryPi.findOne({
+		where: {serialNumber: req.body.serial}
+	}).then(function(RaspPi){
+		if (RaspPi) {
+			SessionData.findOne({
+				where:
+				{machineID: RaspPi.machineID,
+				stampEnd: null}
+			}).then(function(session){
+				if (session) {
+					SessionData.update({
+						stampEnd: new Date().getTime()
+					},{where:{machineID:session.machineID}}).then(function(session){
+						res.send({status: "success"});
+					})
+				}
 			})
 		}
 	})
