@@ -10,7 +10,8 @@ module.exports = function(req, res, next) {
 	console.log("Header authorization: " + req.headers['authorization']);
 
 	if (req.method == 'OPTIONS') {
-		res.status(200).end("OPTIONS REQUEST found.");
+		console.log("OPTIONS REQUEST FOUND.")
+		res.status(200).end();
 	}
 	
 	// allows three ways to insert token into the request
