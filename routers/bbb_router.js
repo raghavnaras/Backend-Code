@@ -18,7 +18,8 @@ var bodyParser = require('body-parser');
 var bcrypt = require('bcryptjs');
 
 var app = express();
-//sets up authorization where it matters
+// app.use(jwtauth);
+// sets up authorization where it matters
 router.use('/users', jwtauth);
 router.use('/data', jwtauth);
 router.use('/data/last', jwtauth);

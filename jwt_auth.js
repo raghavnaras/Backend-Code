@@ -5,8 +5,6 @@ var User = models.User;
 
 module.exports = function(req, res, next) {
 	
-	// DEBUGGING
-	// LOGICAL ERROR: Header 'authorization' not appearing in the middleware!
 	console.log("Header: " + JSON.stringify(req.headers));
 	console.log("Body: " + JSON.stringify(req.body));
 	console.log("Header authorization: " + req.headers['authorization']);
@@ -33,7 +31,7 @@ module.exports = function(req, res, next) {
 			// 		next();
 			// 	}
 			// });
-			// console.log(2);
+			console.log(2);
 			var decoded = jwt.decode(token);
 			console.log(3);
 			console.log("Decoded token: " + JSON.stringify(decoded));
@@ -61,7 +59,7 @@ module.exports = function(req, res, next) {
 		}
 	} else {
 		console.log(12);
-		res.status(403).end();
+		res.sendStatus(403);
 		console.log(13);
 	}
 	
