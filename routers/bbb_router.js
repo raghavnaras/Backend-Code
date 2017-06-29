@@ -401,7 +401,12 @@ router.post("/bike", function(req, res){
 					stamp: new Date().getTime(),
 					rpm: req.body.rpm,
 					bikeID: RaspPi.machineID,
-					sessionID: session.stampStart
+				}).then(function(bikeData) {
+					if (session.stampStart != null) {
+						BikeData.update({
+							sessionID: session.stampStart
+						},{where:{stamp:bikeData.stamp}})
+					}
 				})
 			})
 			res.send({status: "success"});
