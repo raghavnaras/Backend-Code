@@ -195,34 +195,25 @@ router.post("/changepassword", function(req, res){
     });
 
 router.post("/login", function(req, res) {
-	console.log("Login Information: " + JSON.stringify(req.headers));
-	// console.log(req.headers['authorization']);
+	// console.log("Login Information: " + JSON.stringify(req.headers));
 	User.findOne({
 		where: {
 			email: req.body.email
 		}
-	// }).then(function(user) {
-	// 	if (user) {
-	// 		if (req.body.password == String(user.pswd)) {
-	// 			var myToken = jwt.sign({username: user.name, userID: user.id, email: user.email}, 'ashu1234');
-	// 			res.json({token: myToken});
-	// 		}
-	// 		else {
-	// 			res.send({status: "failure"})
-	// 		}
-
 	}).then(function(user) {
 		if (!user) {
-			return res.send({status: 401});
-
+			return res.send({status: 403});
 		}
 		if (user) {
             bcrypt.compare(req.body.password, String(user.pswd), function(err, response) {
                 if (response){
                 	// var expires = moment().add('days', 7).valueOf();
-                    var token = jwt.sign({username: user.name, userID: user.id, email: user.email}, 'ashu1234');
+                    var token = jwt.sign({userName: user.name, userID: user.id, email: user.email}, 'ashu1234');
 				    res.json({
-				    	token: token
+				    	token: token,
+				    	userName: user.name,
+				    	userID: user.id,
+				    	email: user.email
 				    	// expires: expires
 				    });
                 }
