@@ -18,7 +18,9 @@ var bodyParser = require('body-parser');
 var bcrypt = require('bcryptjs');
 
 var app = express();
-//sets up authorization where it matters
+// app.use(jwtauth);
+
+// sets up authorization where it matters
 router.use('/users', jwtauth);
 router.use('/data', jwtauth);
 router.use('/data/last', jwtauth);
@@ -193,34 +195,25 @@ router.post("/changepassword", function(req, res){
     });
 
 router.post("/login", function(req, res) {
-	console.log("Login Information: " + JSON.stringify(req.headers));
-	// console.log(req.headers['authorization']);
+	// console.log("Login Information: " + JSON.stringify(req.headers));
 	User.findOne({
 		where: {
 			email: req.body.email
 		}
-	// }).then(function(user) {
-	// 	if (user) {
-	// 		if (req.body.password == String(user.pswd)) {
-	// 			var myToken = jwt.sign({username: user.name, userID: user.id, email: user.email}, 'ashu1234');
-	// 			res.json({token: myToken});
-	// 		}
-	// 		else {
-	// 			res.send({status: "failure"})
-	// 		}
-
 	}).then(function(user) {
 		if (!user) {
-			return res.send({status: 401});
-
+			return res.send({status: 403});
 		}
 		if (user) {
             bcrypt.compare(req.body.password, String(user.pswd), function(err, response) {
                 if (response){
                 	// var expires = moment().add('days', 7).valueOf();
-                    var token = jwt.sign({username: user.name, userID: user.id, email: user.email}, 'ashu1234');
+                    var token = jwt.sign({userName: user.name, userID: user.id, email: user.email}, 'ashu1234');
 				    res.json({
-				    	token: token
+				    	token: token,
+				    	userName: user.name,
+				    	userID: user.id,
+				    	email: user.email
 				    	// expires: expires
 				    });
                 }
@@ -295,25 +288,20 @@ router.post("/process_tag", function(req, res) {
 })
 
 router.post("/check_tag", function(req, res){
-	Tag.findOne({
+	Tag.update({
+		registered: true,
+		tagName: req.body.tagName,
+		userID: req.body.userID
+	}, {
 		where: {
-            machineID: req.body.machineID,
-            registered: false
-        }
-    }).then(function(tag) {
-		Tag.update({
-			registered: true,
-			tagName: req.body.tagName,
-			userID: req.body.userID
-		}, {
-			where: {
-				machineID: req.body.machineID,
-            	registered: false
-			}
-		})
-		res.send({status: "success"})
+			machineID: req.body.machineID,
+        	registered: false
+		}
+	}).then(function(tag) {
+		console.log(tag);
+		res.send({status: 'success'});
 	}).error(function(e) {
-		res.send({status: "failure"})
+		res.send({status: 'failure'});
 	})
 })
 
