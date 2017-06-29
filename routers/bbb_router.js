@@ -447,7 +447,7 @@ router.post("/history", function(req,res){
 	})
 })
 
-router.post("/end_workout", function(req, res)) {
+router.post("/end_workout", function(req, res) {
 	SessionData.update({
 		stampEnd: new Date().getTime()},
 		{where:
@@ -456,7 +456,7 @@ router.post("/end_workout", function(req, res)) {
 	}).then(function(session){
 		res.send({status: "success"});
 	})
-}
+})
 
 // Helper Functions
 
