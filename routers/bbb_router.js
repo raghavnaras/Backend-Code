@@ -297,8 +297,12 @@ router.post("/check_tag", function(req, res){
         	registered: false
 		}
 	}).then(function(tag) {
-		console.log(tag);
-		res.send({status: 'success'});
+		if (tag) {
+			res.send({status: 'success'});
+		}
+		else {
+			res.send({status: 'failure'});	
+		}
 	}).error(function(e) {
 		res.send({status: 'failure'});
 	})
