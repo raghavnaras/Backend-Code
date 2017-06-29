@@ -408,6 +408,7 @@ router.post("/bike", function(req, res){
 		}
 	})
 });
+
 router.post("/history", function(req,res){
 	SessionData.findAll({
 		where: {
@@ -453,10 +454,7 @@ router.post("/end_workout", function(req, res) {
 	}).then(function(session){
 		if (session) {
 			SessionData.update({
-				stampEnd: new Date().getTime()},
-				{where:
-					{stampEnd: null,
-					machineID: req.body.machineID}
+				stampEnd: new Date().getTime()
 			}).then(function(session){
 				res.send({status: "success"});
 			})
