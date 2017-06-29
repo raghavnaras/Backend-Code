@@ -447,6 +447,17 @@ router.post("/history", function(req,res){
 	})
 })
 
+router.post("/end_workout", function(req, res)) {
+	SessionData.update({
+		stampEnd: new Date().getTime()},
+		{where:
+			{stampEnd: null,
+			machineID: req.body.machineID}
+	}).then(function(session){
+		res.send({status: "success"});
+	})
+}
+
 // Helper Functions
 
 String.prototype.toHHMMSS = function () {
@@ -462,42 +473,44 @@ String.prototype.toHHMMSS = function () {
 		+ ((seconds < 10) ? ("0" + String(seconds)) : String(seconds))
 }
 
-function check_idle_time() {
-	SessionData.findAll({
-		where: {stampEnd:null}
-	}).then(function(list){
-		if (list.length != 0) {
-			for (session in list) {
-				BikeData.findAll({
-					where: {
-						sessionID: session.stampStart,
-						bikeID: session.machineID
-					}
-				}).then(function(list) {
-						var current_time = new Date().getTime();
-						stamp_list = []
-						for (session in list){
-							stamp_list.push(session.stamp)
-						}
-						if (Math.max(stamp_list) - current_time > 30000){
-							BikeData.findOne({
-								where: {stamp: Math.max(stamp_list)}
-							}).then(function(bike){
-								SessionData.update({
-									stampEnd: new Date().getTime()
-								},
-									{ where:{
-										stampStart:bike.stamp,
-										machineID:bike.bikeID
-									}
-								})
-							})
-						}
-					})
-			}
-		}
-	})
-}
-setTimeout(check_idle_time,10000,'')
+
+
+// function check_idle_time() {
+// 	SessionData.findAll({
+// 		where: {stampEnd:null}
+// 	}).then(function(list){
+// 		if (list.length != 0) {
+// 			for (session in list) {
+// 				BikeData.findAll({
+// 					where: {
+// 						sessionID: session.stampStart,
+// 						bikeID: session.machineID
+// 					}
+// 				}).then(function(list) {
+// 						var current_time = new Date().getTime();
+// 						stamp_list = []
+// 						for (session in list){
+// 							stamp_list.push(session.stamp)
+// 						}
+// 						if (Math.max(stamp_list) - current_time > 30000){
+// 							BikeData.findOne({
+// 								where: {stamp: Math.max(stamp_list)}
+// 							}).then(function(bike){
+// 								SessionData.update({
+// 									stampEnd: new Date().getTime()
+// 								},
+// 									{ where:{
+// 										stampStart:bike.stamp,
+// 										machineID:bike.bikeID
+// 									}
+// 								})
+// 							})
+// 						}
+// 					})
+// 			}
+// 		}
+// 	})
+// }
+// setTimeout(check_idle_time,10000,'')
 
 module.exports = router;
