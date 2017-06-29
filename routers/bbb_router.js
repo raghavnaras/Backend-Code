@@ -391,18 +391,23 @@ router.post("/bike", function(req, res){
 		where: {serialNumber: req.body.serialNumber}
 	}).then(function(RaspPi) {
 		if (RaspPi) {
-			SessionData.findOne({
-				where: {
-					machineID: RaspPi.machineID,
-					stampEnd: null
-				}
-			}).then(function(session) {
-				BikeData.create({
-					stamp: new Date().getTime(),
-					rpm: req.body.rpm,
-					bikeID: RaspPi.machineID,
-				}).then(function(bikeData) {
-					if (session.stampStart != null) {
+			// SessionData.findOne({
+			// 	where: {
+			// 		machineID: RaspPi.machineID,
+			// 		stampEnd: null
+			// 	}
+			// }).then(function(session) {
+			BikeData.create({
+				stamp: new Date().getTime(),
+				rpm: req.body.rpm,
+				bikeID: RaspPi.machineID,
+			}).then(function(bikeData) {
+				SessionData.findOne({
+					where:
+					{machineID: RaspPi.machineID,
+					 stampEnd: null}
+				}).then(function(session){
+					if (session) {
 						BikeData.update({
 							sessionID: session.stampStart
 						},{where:{stamp:bikeData.stamp}})
@@ -453,13 +458,21 @@ router.post("/history", function(req,res){
 })
 
 router.post("/end_workout", function(req, res) {
-	SessionData.update({
-		stampEnd: new Date().getTime()},
-		{where:
-			{stampEnd: null,
-			machineID: req.body.machineID}
+	SessionData.findOne({
+		where:
+		{machineID: req.body.machineID,
+		stampEnd: null}
 	}).then(function(session){
-		res.send({status: "success"});
+		if (session) {
+			SessionData.update({
+				stampEnd: new Date().getTime()},
+				{where:
+					{stampEnd: null,
+					machineID: req.body.machineID}
+			}).then(function(session){
+				res.send({status: "success"});
+			})
+		}
 	})
 })
 
