@@ -297,7 +297,7 @@ router.post("/check_tag", function(req, res){
         	registered: false
 		}
 	}).then(function(pair) {
-		if (pair[0]) {
+		if (pair[0] > 0) {
 			res.send({status: 'success'});
 		}
 		else {
