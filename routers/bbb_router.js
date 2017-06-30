@@ -296,9 +296,8 @@ router.post("/check_tag", function(req, res){
 			machineID: req.body.machineID,
         	registered: false
 		}
-	}).then(function(tag) {
-		console.log("FIRST ELEMENT OF TAG FROM CHECK_TAG: " + tag[0]);
-		if (tag) {
+	}).then(function(pair) {
+		if (pair[0]) {
 			res.send({status: 'success'});
 		}
 		else {
