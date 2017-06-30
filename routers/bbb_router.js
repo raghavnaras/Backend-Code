@@ -388,14 +388,18 @@ router.post("/bike", function(req, res){
 					stampEnd: null
 				}
 			}).then(function(session) {
-				BikeData.create({
-					stamp: new Date().getTime(),
-					rpm: req.body.rpm,
-					bikeID: RaspPi.machineID,
-					sessionID: session.stampStart
-				})
+				if (session) {
+					BikeData.create({
+						stamp: new Date().getTime(),
+						rpm: req.body.rpm,
+						bikeID: RaspPi.machineID,
+						sessionID: session.stampStart
+					})
+					res.send({status: "success"});
+				} else {
+					res.send({status: "failure"});
+				}
 			})
-			res.send({status: "success"});
 		} else {
 			res.send({status: "failure"})
 		}
