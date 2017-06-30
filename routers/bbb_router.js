@@ -297,7 +297,7 @@ router.post("/check_tag", function(req, res){
         	registered: false
 		}
 	}).then(function(tag) {
-		console.log(tag);
+		console.log("RAW TAG FROM CHECK_TAG: " + tag);
 		if (tag) {
 			res.send({status: 'success'});
 		}
