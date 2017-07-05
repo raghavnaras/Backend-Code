@@ -384,19 +384,19 @@ router.post("/end_workout", function(req, res) {
 				}
 			}).then(function(pair) {
 				if (pair[0] != 1) {
-					res.send({status: "failure"});
+					res.send({status: "failure1"});
 				}
 				else {
 					res.send({status: "success"});
 				}
 			}).error(function(error) {
-				res.send({status: "failure"});
+				res.send({status: "failure2"});
 			})
 		} else {
-			res.send({status: "failure"});
+			res.send({status: "failure3"});
 		}
 	}).error(function(error) {
-		res.send({status: "failure"});
+		res.send({status: "failure4"});
 	})
 });
 
