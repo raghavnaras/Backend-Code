@@ -29,7 +29,6 @@ router.use('/average_duration', jwtauth);
 router.use('/workout_duration', jwtauth);
 router.use('/get_last_workout', jwtauth);
 router.use('/logout', jwtauth);
-router.use('/end_workout', jwtauth);
 router.use('/check_tag', jwtauth);
 router.use('/addname', jwtauth);
 router.use('/addemailgender', jwtauth);
