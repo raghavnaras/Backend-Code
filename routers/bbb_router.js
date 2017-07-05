@@ -59,7 +59,7 @@ router.get("/verifysecretcode", function(req,res){
     User.findOne({
         where:{
             email: req.body.email
-        }  
+        }
     }).then(function(user){
         if (user){
 	        bcrypt.compare((req.body.secretcode.toString()), String(user.resetpasswordcode), function(err, response) {
@@ -73,7 +73,7 @@ router.get("/verifysecretcode", function(req,res){
     )}
 	    else {
 	        res.send({status: "failure"});
-	    }  
+	    }
 	})
 })
 
@@ -137,6 +137,7 @@ router.get("/average_duration", function(req, res){
 router.get("/workout_duration", function(req, res){
 	SessionData.findOne(
         {where: {
+						userID: req.body.userID
             stampEnd: null
         }}).then(function(ses) {
         	var start = parseInt(ses.stampStart)
@@ -260,9 +261,9 @@ router.post("/sendresetpassword",function(req, res){
                         throw err}
                     else {
                         res.send({status: 200});
-                    }           
+                    }
                 });
-            
+
         }
         else
             res.send({status: "failure"})
@@ -295,7 +296,7 @@ router.post("/changepassword", function(req, res){
                     res.send({status:"success"})
                 }
                 else
-                    res.send({status:"failure"}) 
+                    res.send({status:"failure"})
                 })
             }
         })
@@ -396,7 +397,7 @@ router.post("/end_workout", function(req, res) {
 		}
 	}).error(function(error) {
 		res.send({status: "failure"});
-	})	
+	})
 });
 
 //processes the tag after scanning
@@ -466,7 +467,7 @@ router.post("/check_tag", function(req, res){
 			res.send({status: 'success'});
 		}
 		else {
-			res.send({status: 'failure'});	
+			res.send({status: 'failure'});
 		}
 	}).error(function(e) {
 		res.send({status: 'failure'});
