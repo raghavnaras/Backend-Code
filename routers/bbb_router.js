@@ -347,21 +347,26 @@ router.post("/start_workout", function(req, res) {
 			serialNumber: req.body.serialNumber
 		}
 	}).then(function(RaspPi) {
-		SessionData.findOne({
-			where: {
-				machineID: RaspPi.machineID,
-				stampEnd: null
-			}
-		}).then(function(session) {
-			if (session) {
-				res.send({status: "Exists", message: "Session is in progress."})
-			} else {
-				SessionData.create({
-					stampStart: new Date().getTime(),
-					machineID: RaspPi.machineID
-				})
-			}
-		})
+		if (RaspPi) {
+			SessionData.findOne({
+				where: {
+					machineID: RaspPi.machineID,
+					stampEnd: null
+				}
+			}).then(function(session) {
+				if (session) {
+					res.send({status: "Exists", message: "Session is in progress."})
+				} else {
+					SessionData.create({
+						stampStart: new Date().getTime(),
+						machineID: RaspPi.machineID
+					})
+					res.send({status: "Created", message: "Session has been created."})
+				}
+			})
+		} else {
+			res.send({status: "None found", message: "Could not find machine (Pi)."})
+		}
 	})
 })
 
@@ -425,10 +430,12 @@ router.post("/process_tag", function(req, res) {
 							machineID: RaspPi.machineID,
 							stampStart: new Date().getTime()
 						})
+						res.send({status: "Created", message: "Session has been created since one is not in progress."})
+					} else {
+						res.send({status: "Updated", message: "Session in progress has been updated."});
 					}
 				})
 			})
-			res.send({status: "Repeat", message: "This tag has been scanned before."});
 		} else {
 			RaspberryPi.findOne({
 				where: {
