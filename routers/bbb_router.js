@@ -137,7 +137,7 @@ router.get("/average_duration", function(req, res){
 router.get("/workout_duration", function(req, res){
 	SessionData.findOne(
         {where: {
-						userID: req.body.userID
+						userID: req.body.userID,
             stampEnd: null
         }}).then(function(ses) {
         	var start = parseInt(ses.stampStart)
