@@ -432,7 +432,7 @@ router.post("/process_tag", function(req, res) {
 						})
 						res.send({status: "Created", message: "Session has been created since one is not in progress."})
 					} else {
-						res.send({status: "Repeat", message: "This tag has been scanned before."});
+						res.send({status: "Updated", message: "Session in progress has been updated."});
 					}
 				})		
 			})
