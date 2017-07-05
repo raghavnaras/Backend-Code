@@ -1,8 +1,6 @@
  // Routers, Models, and Packages
- // test comment
 
 var express = require('express');
-//var expressJWT = require('express-jwt');
 var jwt = require ('jsonwebtoken');
 var router = express.Router();
 var models = require('../models');
@@ -18,7 +16,6 @@ var bodyParser = require('body-parser');
 var bcrypt = require('bcryptjs');
 
 var app = express();
-// app.use(jwtauth);
 
 var aws = require("aws-sdk");
 aws.config.update({
@@ -37,7 +34,6 @@ router.use('/average_duration', jwtauth);
 router.use('/workout_duration', jwtauth);
 router.use('/get_last_workout', jwtauth);
 router.use('/logout', jwtauth);
-router.use('/end_workout', jwtauth);
 router.use('/check_tag', jwtauth);
 router.use('/addname', jwtauth);
 router.use('/addemailgender', jwtauth);
@@ -66,20 +62,19 @@ router.get("/verifysecretcode", function(req,res){
         }  
     }).then(function(user){
         if (user){
-        bcrypt.compare((req.body.secretcode.toString()), String(user.resetpasswordcode), function(err, response) {
-            if (response){
-                res.send({status: 200})
-            }
-            else{
-                res.send({status: "failure"});
-            }
-        }
+	        bcrypt.compare((req.body.secretcode.toString()), String(user.resetpasswordcode), function(err, response) {
+	            if (response){
+	                res.send({status: 200})
+	            }
+	            else{
+	                res.send({status: "failure"});
+	            }
+	        }
     )}
-    else{
-        res.send({status: "failure"});
-    }
-    
-})
+	    else {
+	        res.send({status: "failure"});
+	    }  
+	})
 })
 
 // get the last bike data point of a user in a session
@@ -349,15 +344,28 @@ router.post("/logout", function(req, res){
 	})
 })
 
-router.post("/end_workout", function(req, res){
+router.post("/end_workout", function(req, res) {
 	SessionData.update({
   		stampEnd: new Date().getTime(),
-	}, {where:
-			[{RFID: req.body.RFID}]
-	}).then(function(list){
-        res.send({status: "success"});
+	}, {
+		where:
+			machineID: RaspberryPi.findOne({
+				where: {
+					serialNumber: req.body.serialNumber
+				}
+			}).dataValues.machineID
+		}
+	).then(function(pair) {
+		if (pair[0] != 1) {
+			res.send({status: "failure"})
+		}
+		else {
+			res.send({status: "success"});
+		} 
+	}).error(function(error) {
+		res.send({status: "failure"});
 	})
-})
+});
 
 //processes the tag after scanning
 router.post("/process_tag", function(req, res) {
@@ -463,31 +471,31 @@ router.post("/check_tag", function(req, res){
 // 	})
 // })
 
-router.post("/addname", function(req, res){
-	User.update({
-  	name: req.body.name,
-},{
-		where:
-			[{id: req.body.userID}]
-	}).then(function(list){
-        res.send({status: "success"});
-	}).error(function(e){
-		res.send({status: "failure"})
-	})
-});
-router.post("/addemailgender", function(req, res){
-	User.update({
- 	email: req.body.name,
- 	gender: req.body.gender
-},{
-		where:
-			[{id: req.body.userID}]
-	}).then(function(list){
-        res.send({status: "success"});
-	}).error(function(e){
-		res.send({status: "failure"})
-	})
-});
+// router.post("/addname", function(req, res){
+// 	User.update({
+//   	name: req.body.name,
+// },{
+// 		where:
+// 			[{id: req.body.userID}]
+// 	}).then(function(list){
+//         res.send({status: "success"});
+// 	}).error(function(e){
+// 		res.send({status: "failure"})
+// 	})
+// });
+// router.post("/addemailgender", function(req, res){
+// 	User.update({
+//  	email: req.body.name,
+//  	gender: req.body.gender
+// },{
+// 		where:
+// 			[{id: req.body.userID}]
+// 	}).then(function(list){
+//         res.send({status: "success"});
+// 	}).error(function(e){
+// 		res.send({status: "failure"})
+// 	})
+// });
 
 router.post("/bike", function(req, res){
 	RaspberryPi.findOne({
