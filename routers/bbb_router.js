@@ -237,10 +237,15 @@ router.post("/logout", function(req, res){
 })
 
 router.post("/end_workout", function(req, res){
-	SessionData.update({
-  		stampEnd: new Date().getTime(),
-	}, {where:
-			[{serialNumber: req.body.serial}]
+	RaspberryPi.findOne(
+		where: {
+			serialNumber: req.body.serial
+	}).then(function(RaspPi){
+		SessionData.update({
+	  		stampEnd: new Date().getTime(),
+		}, {where:
+				{serialNumber: RaspPi.machineID}
+		})
 	}).then(function(list){
         res.send({status: "success"});
 	})
