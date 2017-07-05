@@ -19,7 +19,7 @@ module.exports = function(req, res, next) {
 	    || (req.query && req.query.access_token) 
 		|| req.headers['authorization'];
 
-	if (token) {
+	if (token && req.method != 'OPTIONS') {
 		jwt.verify(token, 'ashu1234', function(err, decoded) {
 			if (err) {
 				console.log("Token could not be verified.");

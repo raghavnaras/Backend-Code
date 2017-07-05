@@ -1,8 +1,6 @@
  // Routers, Models, and Packages
- // test comment
 
 var express = require('express');
-//var expressJWT = require('express-jwt');
 var jwt = require ('jsonwebtoken');
 var router = express.Router();
 var models = require('../models');
@@ -18,7 +16,14 @@ var bodyParser = require('body-parser');
 var bcrypt = require('bcryptjs');
 
 var app = express();
-// app.use(jwtauth);
+
+var aws = require("aws-sdk");
+aws.config.update({
+    region: "us-west-2",
+});
+
+var ses = new aws.SES({"accessKeyId": "", "secretAccessKey":"","region":"us-west-2"})
+
 
 // sets up authorization where it matters
 router.use('/users', jwtauth);
@@ -48,6 +53,29 @@ router.get("/data", function(req, res){
         res.send(list);
     })
 });
+
+
+router.get("/verifysecretcode", function(req,res){
+    User.findOne({
+        where:{
+            email: req.body.email
+        }
+    }).then(function(user){
+        if (user){
+	        bcrypt.compare((req.body.secretcode.toString()), String(user.resetpasswordcode), function(err, response) {
+	            if (response){
+	                res.send({status: 200})
+	            }
+	            else{
+	                res.send({status: "failure"});
+	            }
+	        }
+    )}
+	    else {
+	        res.send({status: "failure"});
+	    }
+	})
+})
 
 // get the last bike data point of a user in a session
 router.get("/data/last", function(req,res){
@@ -163,6 +191,86 @@ router.post("/setup_account", function(req, res) {
 
     });
 
+
+router.post("/forgotpasswordchange", function(req, res){
+    User.findOne({
+        where: {
+            email: req.body.email
+        }
+    }).then(function(user){
+        if (user) {
+                    bcrypt.genSalt(10,function(err,salt){
+                    bcrypt.hash(req.body.password, salt, function(err,hash){
+                        User.update({
+                            pswd: hash,
+                            resetpasswordcode: null
+                        }, {
+                            where: {
+                                email: req.body.email
+                            }
+                        })
+                    })
+                    })
+                    res.send({status:200})
+            }
+        else{
+            res.send({status:"failure"})
+        }
+        })
+    });
+
+router.post("/sendresetpassword",function(req, res){
+    User.findOne({
+        where:{
+            email: req.body.email
+        }
+    }).then(function(user){
+        if (user){
+            var resetcode = Math.floor((Math.random() * 99999) + 1);
+            bcrypt.genSalt(10,function(err,salt){
+                    bcrypt.hash(resetcode.toString(), salt, function(err,hash){
+                        User.update({
+                            resetpasswordcode: hash
+                        }, {
+                            where: {
+                                email: req.body.email
+                            }
+                        })
+                    })
+                    })
+
+                var ses_mail = "From: 'Digital Gym Reset Password' <" + req.body.email + ">\n";
+                ses_mail = ses_mail + "To: " + req.body.email + "\n";
+                ses_mail = ses_mail + "Subject: Digital Gym Reset Password\n";
+                ses_mail = ses_mail + "MIME-Version: 1.0\n";
+                ses_mail = ses_mail + "Content-Type: multipart/mixed; boundary=\"NextPart\"\n\n";
+                ses_mail = ses_mail + "--NextPart\n";
+                ses_mail = ses_mail + "Content-Type: text/html; charset=us-ascii\n\n";
+                ses_mail = ses_mail + "Your secret code is: "+ resetcode.toString()+"\n\n This is an automated message. Please do not respond. \n\n";
+                ses_mail = ses_mail + "--NextPart--";
+
+                var params = {
+                    RawMessage: { Data: new Buffer(ses_mail) },
+                    Destinations: [ req.body.email ],
+                    Source: "'Digital Gym Reset Password' <" + req.body.email + ">'"
+                };
+
+                ses.sendRawEmail(params, function(err, data) {
+                    if(err) {
+                        throw err}
+                    else {
+                        res.send({status: 200});
+                    }
+                });
+
+        }
+        else
+            res.send({status: "failure"})
+    })
+})
+
+
+
 router.post("/changepassword", function(req, res){
 
     User.findOne({
@@ -236,20 +344,28 @@ router.post("/logout", function(req, res){
 	})
 })
 
-router.post("/end_workout", function(req, res){
-	RaspberryPi.findOne({
-		where: {
-			serialNumber: req.body.serial}
-	}).then(function(RaspPi){
-		SessionData.update({
-	  		stampEnd: new Date().getTime(),
-		}, {where:
-				{serialNumber: RaspPi.machineID}
-		})
-	}).then(function(list){
-        res.send({status: "success"});
+router.post("/end_workout", function(req, res) {
+	SessionData.update({
+  		stampEnd: new Date().getTime(),
+	}, {
+		where:
+			machineID: RaspberryPi.findOne({
+				where: {
+					serialNumber: req.body.serialNumber
+				}
+			}).dataValues.machineID
+		}
+	).then(function(pair) {
+		if (pair[0] != 1) {
+			res.send({status: "failure"})
+		}
+		else {
+			res.send({status: "success"});
+		}
+	}).error(function(error) {
+		res.send({status: "failure"});
 	})
-})
+});
 
 //processes the tag after scanning
 router.post("/process_tag", function(req, res) {
@@ -301,9 +417,13 @@ router.post("/check_tag", function(req, res){
 			machineID: req.body.machineID,
         	registered: false
 		}
-	}).then(function(tag) {
-		console.log(tag);
-		res.send({status: 'success'});
+	}).then(function(pair) {
+		if (pair[0] > 0) {
+			res.send({status: 'success'});
+		}
+		else {
+			res.send({status: 'failure'});
+		}
 	}).error(function(e) {
 		res.send({status: 'failure'});
 	})
@@ -352,47 +472,51 @@ router.post("/check_tag", function(req, res){
 // 	})
 // })
 
-router.post("/addname", function(req, res){
-	User.update({
-  	name: req.body.name,
-},{
-		where:
-			[{id: req.body.userID}]
-	}).then(function(list){
-        res.send({status: "success"});
-	}).error(function(e){
-		res.send({status: "failure"})
-	})
-});
-router.post("/addemailgender", function(req, res){
-	User.update({
- 	email: req.body.name,
- 	gender: req.body.gender
-},{
-		where:
-			[{id: req.body.userID}]
-	}).then(function(list){
-        res.send({status: "success"});
-	}).error(function(e){
-		res.send({status: "failure"})
-	})
-});
+// router.post("/addname", function(req, res){
+// 	User.update({
+//   	name: req.body.name,
+// },{
+// 		where:
+// 			[{id: req.body.userID}]
+// 	}).then(function(list){
+//         res.send({status: "success"});
+// 	}).error(function(e){
+// 		res.send({status: "failure"})
+// 	})
+// });
+// router.post("/addemailgender", function(req, res){
+// 	User.update({
+//  	email: req.body.name,
+//  	gender: req.body.gender
+// },{
+// 		where:
+// 			[{id: req.body.userID}]
+// 	}).then(function(list){
+//         res.send({status: "success"});
+// 	}).error(function(e){
+// 		res.send({status: "failure"})
+// 	})
+// });
 
 router.post("/bike", function(req, res){
 	RaspberryPi.findOne({
 		where: {serialNumber: req.body.serialNumber}
 	}).then(function(RaspPi) {
 		if (RaspPi) {
+<<<<<<< HEAD
 			// SessionData.findOne({
 			// 	where: {
 			// 		machineID: RaspPi.machineID,
 			// 		stampEnd: null
 			// 	}
 			// }).then(function(session) {
+=======
+>>>>>>> master
 			BikeData.create({
 				stamp: new Date().getTime(),
 				rpm: req.body.rpm,
 				bikeID: RaspPi.machineID,
+<<<<<<< HEAD
 			}).then(function(bikeData) {
 				SessionData.findOne({
 					where:
@@ -405,6 +529,8 @@ router.post("/bike", function(req, res){
 						},{where:{stamp:bikeData.stamp}})
 					}
 				})
+=======
+>>>>>>> master
 			})
 			res.send({status: "success"});
 		} else {
