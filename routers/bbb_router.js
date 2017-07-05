@@ -343,6 +343,30 @@ router.post("/logout", function(req, res){
 	}).then(function(user){
         res.send({status: "success"});
 	})
+});
+
+router.post("/start_workout", function(req, res) {
+	RaspberryPi.findOne({
+		where: {
+			serialNumber: req.body.serialNumber
+		}
+	}).then(function(RaspPi) {
+		SessionData.findOne({
+			where: {
+				machineID: RaspPi.machineID,
+				stampEnd: null
+			}
+		}).then(function(session) {
+			if (session) {
+				res.send({status: "Exists", message: "Session is in progress."})
+			} else {
+				SessionData.create({
+					stampStart: new Date().getTime(),
+					machineID: RaspPi.machineID
+				})
+			}
+		})
+	})
 })
 
 router.post("/end_workout", function(req, res) {
@@ -384,19 +408,31 @@ router.post("/process_tag", function(req, res) {
 		}
 	}).then(function(tag) {
 		if (tag) {
-				RaspberryPi.findOne({
+			RaspberryPi.findOne({
+				where: {
+					serialNumber: req.body.serialNumber
+				}
+			}).then(function(RaspPi) {
+				SessionData.update({
+					RFID: req.body.RFID,
+					userID: tag.dataValues.userID
+				}, {
 					where: {
-						serialNumber: req.body.serialNumber
-					}
-				}).then(function(RaspPi) {
-					SessionData.create({
-						RFID: req.body.RFID,
-						userID: tag.dataValues.userID,
 						machineID: RaspPi.machineID,
-						stampStart: new Date().getTime()
-					})
-				})
-				res.send({status: "registered"});
+						stampEnd: null
+					}
+				}).then(function(pair) {
+					if (pair[0] == 0) {
+						SessionData.create({
+							RFID: req.body.RFID,
+							userID: tag.dataValues.userID,
+							machineID: RaspPi.machineID,
+							stampStart: new Date().getTime()
+						})
+					}
+				})		
+			})
+			res.send({status: "Repeat", message: "This tag has been scanned before."});
 		} else {
 			RaspberryPi.findOne({
 				where: {
@@ -415,6 +451,7 @@ router.post("/process_tag", function(req, res) {
 		res.send({status: "failure"})
 	})
 })
+
 router.post("/check_tag", function(req, res){
 	Tag.update({
 		registered: true,
