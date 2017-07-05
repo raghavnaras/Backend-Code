@@ -237,9 +237,9 @@ router.post("/logout", function(req, res){
 })
 
 router.post("/end_workout", function(req, res){
-	RaspberryPi.findOne(
+	RaspberryPi.findOne({
 		where: {
-			serialNumber: req.body.serial
+			serialNumber: req.body.serial}
 	}).then(function(RaspPi){
 		SessionData.update({
 	  		stampEnd: new Date().getTime(),
