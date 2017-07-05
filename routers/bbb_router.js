@@ -346,6 +346,7 @@ router.post("/logout", function(req, res){
 });
 
 router.post("/start_workout", function(req, res) {
+		console.log("Entered start_workout");
 	RaspberryPi.findOne({
 		where: {
 			serialNumber: req.body.serialNumber
@@ -375,6 +376,7 @@ router.post("/start_workout", function(req, res) {
 })
 
 router.post("/end_workout", function(req, res) {
+	console.log("Entered end_workout");
 	RaspberryPi.findOne({
 		where: {
 			serialNumber: req.body.serialNumber
@@ -407,6 +409,7 @@ router.post("/end_workout", function(req, res) {
 
 //processes the tag after scanning
 router.post("/process_tag", function(req, res) {
+	console.log("Entered process_tag");
 	Tag.findOne({
 		where: {
 			RFID: req.body.RFID
