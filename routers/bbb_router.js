@@ -346,22 +346,30 @@ router.post("/logout", function(req, res){
 })
 
 router.post("/end_workout", function(req, res) {
-	SessionData.update({
-  		stampEnd: new Date().getTime(),
-	}, {
-		where:
-			machineID: RaspberryPi.findOne({
+	RaspberryPi.findOne({
+		where: {
+			serialNumber: req.body.serialNumber
+		}
+	}).then(function(RaspPi) {
+		if (RaspPi) {
+			SessionData.update({
+				stampEnd: new Date().getTime()
+			}, {
 				where: {
-					serialNumber: req.body.serialNumber
+					machineID: RaspPi.machineID
 				}
-			}).dataValues.machineID
-		}
-	).then(function(pair) {
-		if (pair[0] != 1) {
-			res.send({status: "failure"})
-		}
-		else {
-			res.send({status: "success"});
+			}).then(function(pair) {
+				if (pair[0] != 1) {
+					res.send({status: "failure"});
+				}
+				else {
+					res.send({status: "success"});
+				}
+			}).error(function(error) {
+				res.send({status: "failure"});
+			})
+		} else {
+			res.send({status: "failure"});
 		}
 	}).error(function(error) {
 		res.send({status: "failure"});
