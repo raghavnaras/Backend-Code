@@ -121,19 +121,15 @@ router.get("/average_duration", function(req, res){
 				var end = sessions[inc].stampEnd
 				if (start != null && end != null) {
 					count = count + 1
-					console.log(start)
-					console.log(end)
 					total_dur = total_dur + ((parseInt(end) - parseInt(start)))
 				}
 			}
-			if (count == 0) {
-				res.send({success: false, duration: ""})
-			}
-			else {
+			if (count != 0) {
 				res.send({success: true, duration: (String(total_dur / count)).toHHMMSS()})
 			}
 		})
 })
+
 router.get("/workout_duration", function(req, res){
 	SessionData.findOne(
         {where: {
@@ -141,7 +137,7 @@ router.get("/workout_duration", function(req, res){
             stampEnd: null
         }}).then(function(ses) {
         	var start = parseInt(ses.stampStart)
-			var end = new Date().getTime()
+					var end = new Date().getTime()
         	res.send({success: true, duration: String((end - start)).toHHMMSS()})
         });
 })
@@ -430,7 +426,7 @@ router.post("/process_tag", function(req, res) {
 							stampStart: new Date().getTime()
 						})
 					}
-				})		
+				})
 			})
 			res.send({status: "Repeat", message: "This tag has been scanned before."});
 		} else {
@@ -460,7 +456,7 @@ router.post("/check_tag", function(req, res){
 	}, {
 		where: {
 			machineID: req.body.machineID,
-        	registered: false
+      registered: false
 		}
 	}).then(function(pair) {
 		if (pair[0] > 0) {
