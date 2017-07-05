@@ -25,7 +25,7 @@ aws.config.update({
     region: "us-west-2",
 });
 
-var ses = new aws.SES({"accessKeyId": "AKIAJFFQZRGNVPRSN4WA", "secretAccessKey":"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","region":"us-west-2"})
+var ses = new aws.SES({"accessKeyId": "", "secretAccessKey":"","region":"us-west-2"})
 
 
 // sets up authorization where it matters
