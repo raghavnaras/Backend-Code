@@ -364,6 +364,7 @@ router.post("/start_workout", function(req, res) {
 					stampStart: new Date().getTime(),
 					machineID: RaspPi.machineID
 				})
+				res.send({status: "Created", message: "Session has been created."})
 			}
 		})
 	})
@@ -429,10 +430,12 @@ router.post("/process_tag", function(req, res) {
 							machineID: RaspPi.machineID,
 							stampStart: new Date().getTime()
 						})
+						res.send({status: "Created", message: "Session has been created since one is not in progress."})
+					} else {
+						res.send({status: "Repeat", message: "This tag has been scanned before."});
 					}
 				})		
 			})
-			res.send({status: "Repeat", message: "This tag has been scanned before."});
 		} else {
 			RaspberryPi.findOne({
 				where: {
