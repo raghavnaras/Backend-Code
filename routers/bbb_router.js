@@ -383,7 +383,8 @@ router.post("/end_workout", function(req, res) {
 				stampEnd: new Date().getTime()
 			}, {
 				where: {
-					machineID: RaspPi.machineID
+					machineID: RaspPi.machineID,
+					stampEnd: null
 				}
 			}).then(function(pair) {
 				if (pair[0] != 1) {
