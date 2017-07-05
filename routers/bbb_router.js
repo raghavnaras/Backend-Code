@@ -240,7 +240,7 @@ router.post("/end_workout", function(req, res){
 	SessionData.update({
   		stampEnd: new Date().getTime(),
 	}, {where:
-			[{RFID: req.body.RFID}]
+			[{serialNumber: req.body.serial}]
 	}).then(function(list){
         res.send({status: "success"});
 	})
