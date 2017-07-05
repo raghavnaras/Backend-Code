@@ -114,6 +114,7 @@ router.get("/average_duration", function(req, res){
 				$ne: null
 			}
 		}}).then(function(sessions){
+			console.log(sessions.length)
 			var total_dur = 0
 			var count = 0
 			for(inc in sessions){
