@@ -605,17 +605,31 @@ router.post("/bike", function(req, res){
 		where: {serialNumber: req.body.serialNumber}
 	}).then(function(RaspPi) {
 		if (RaspPi) {
-			BikeData.create({
-				stamp: new Date().getTime(),
-				rpm: req.body.rpm,
-				bikeID: RaspPi.machineID,
+			SessionData.findOne({
+				where: {
+					stampEnd: null,
+					machineID: RaspPi.machineID
+				}
+			}).then(function(session) {
+				if (session) {
+					BikeData.create({
+						stamp: new Date().getTime(),
+						rpm: req.body.rpm,
+						bikeID: RaspPi.machineID,
+						sessionID: session.sessionID
+					});
+					res.send({status: "success"});
+				} else {
+					res.send({status: "failure"});
+				}
 			})
-			res.send({status: "success"});
 		} else {
-			res.send({status: "failure"})
+			res.send({status: "failure"});
 		}
-	})
+	});
 });
+
+
 router.post("/history", function(req,res){
 	SessionData.findAll({
 		where: {
