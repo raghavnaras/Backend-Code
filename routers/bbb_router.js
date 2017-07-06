@@ -30,7 +30,7 @@ router.use('/users', jwtauth);
 router.use('/data', jwtauth);
 router.use('/data/last', jwtauth);
 router.use('/sessionlisten', jwtauth);
-router.use('/average_duration', jwtauth);
+//router.use('/average_duration', jwtauth);
 router.use('/workout_duration', jwtauth);
 router.use('/get_last_workout', jwtauth);
 router.use('/logout', jwtauth);
