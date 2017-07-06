@@ -28,7 +28,7 @@
 // sets up authorization where it matters
 router.use('/users', jwtauth);
 router.use('/data', jwtauth);
-router.use('/data/last', jwtauth);
+//router.use('/data/last', jwtauth);
 router.use('/sessionlisten', jwtauth);
 //router.use('/average_duration', jwtauth);
 //router.use('/workout_duration', jwtauth);
@@ -664,7 +664,7 @@ router.post("/history", function(req,res){
 					history_list[session].distance = 0.0044*(past_workout.stampEnd - past_workout.stampStart) * milli_to_minutes * expectation
 					history_list[session].duration = String(past_workout.stampEnd - past_workout.stampStart).toHHMMSS()
 					history_list[session].date = new Date(Date.parse(past_workout.createdAt)).toDateString()
-				})				
+				})
 			}
 		}
 	}).then(function() {
