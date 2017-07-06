@@ -4,9 +4,10 @@ module.exports = function(sql, Sql) {
 var SessionData = sql.define("SessionData", {
 	RFID: {type: Sql.BIGINT},
 	userID: {type: Sql.INTEGER},
-	machineID: {type: Sql.INTEGER, primaryKey: true},
-	stampStart: {type: Sql.STRING, primaryKey: true},
-	stampEnd: {type: Sql.STRING}
+	machineID: {type: Sql.INTEGER},
+	stampStart: {type: Sql.STRING},
+	stampEnd: {type: Sql.STRING},
+	sessionID: {type: Sql.UUID, primaryKey: true}
     }, {timestamps: false, freezeTableName: true});
     return SessionData;
 };
