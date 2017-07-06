@@ -106,8 +106,24 @@ router.get("/sessionlisten", function(req, res){
 		}
 	})
 })
+
+// Helper Functions
+
+String.prototype.toHHMMSS = function () {
+	console.log(this)
+	// this should be in milliseconds, second parameter is the base (i.e., decimal)
+    var sec_num = parseInt(this, 10) / 1000
+    var hours   = Math.floor(sec_num / 3600)
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60)
+    var seconds = Math.floor(sec_num - (hours * 3600) - (minutes * 60))
+
+		if (hours   < 10) {hours   = "0" + hours;}
+    if (minutes < 10) {minutes = "0" + minutes;}
+    if (seconds < 10) {seconds = "0" + seconds;}
+    return hours + ':' + minutes + ':' + seconds;
+}
+
 router.post("/average_duration", function(req, res){
-	console.log("req body userID" , req.body.userID)
 	SessionData.findAll({
 		where: {
 			userID: req.body.userID,
@@ -115,7 +131,6 @@ router.post("/average_duration", function(req, res){
 				$ne: null
 			}
 		}}).then(function(sessions){
-			console.log(sessions.length)
 			var total_dur = 0
 			var count = 0
 			for(inc in sessions){
@@ -123,6 +138,8 @@ router.post("/average_duration", function(req, res){
 				var end = sessions[inc].stampEnd
 				if (start != null && end != null) {
 					count = count + 1
+					console.log("end - start", end - start)
+					console.log("parseInt end - start", parseInt(end - start))
 					total_dur = total_dur + parseInt(end - start)
 				}
 			}
@@ -614,20 +631,5 @@ router.post("/history", function(req,res){
 	})
 })
 
-// Helper Functions
-
-String.prototype.toHHMMSS = function () {
-	console.log(this)
-	// this should be in milliseconds, second parameter is the base (i.e., decimal)
-    var sec_num = parseInt(this, 10) / 1000
-    var hours   = Math.floor(sec_num / 3600)
-    var minutes = Math.floor((sec_num - (hours * 3600)) / 60)
-    var seconds = Math.floor(sec_num - (hours * 3600) - (minutes * 60))
-
-		if (hours   < 10) {hours   = "0" + hours;}
-    if (minutes < 10) {minutes = "0" + minutes;}
-    if (seconds < 10) {seconds = "0" + seconds;}
-    return hours + ':' + minutes + ':' + seconds;
-}
 
 module.exports = router;
