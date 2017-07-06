@@ -1,28 +1,28 @@
  // Routers, Models, and Packages
 
-var express = require('express');
-var jwt = require ('jsonwebtoken');
-var router = express.Router();
-var models = require('../models');
-var jwtauth = require('../jwt_auth.js');
-var BikeData = models.BikeData;
-var User = models.User;
-var Tag = models.Tag;
-var RaspberryPi = models.RaspberryPi;
-var SessionData = models.SessionData;
-var spawn = require("child_process").spawn;
-var sequelize = require('sequelize');
-var bodyParser = require('body-parser');
-var bcrypt = require('bcryptjs');
+ var express = require('express');
+ var jwt = require ('jsonwebtoken');
+ var router = express.Router();
+ var models = require('../models');
+ var jwtauth = require('../jwt_auth.js');
+ var BikeData = models.BikeData;
+ var User = models.User;
+ var Tag = models.Tag;
+ var RaspberryPi = models.RaspberryPi;
+ var SessionData = models.SessionData;
+ var spawn = require("child_process").spawn;
+ var sequelize = require('sequelize');
+ var bodyParser = require('body-parser');
+ var bcrypt = require('bcryptjs');
 
-var app = express();
+ var app = express();
 
-var aws = require("aws-sdk");
-aws.config.update({
-    region: "us-west-2",
-});
+ var aws = require("aws-sdk");
+ aws.config.update({
+ 	region: "us-west-2",
+ });
 
-var ses = new aws.SES({"accessKeyId": "", "secretAccessKey":"","region":"us-west-2"})
+ var ses = new aws.SES({"accessKeyId": "", "secretAccessKey":"","region":"us-west-2"})
 
 
 // sets up authorization where it matters
@@ -44,37 +44,37 @@ router.use('/history', jwtauth);
 router.get("/users", function(req, res){
 	User.findAll().then(function(list){
 		res.setHeader('Content-Type', 'application/json');
-        res.send(list);
+		res.send(list);
 	})
 });
 router.get("/data", function(req, res){
 	BikeData.findAll().then(function (list) {
-        res.setHeader('Content-Type', 'application/json');
-        res.send(list);
-    })
+		res.setHeader('Content-Type', 'application/json');
+		res.send(list);
+	})
 });
 
 
 router.get("/verifysecretcode", function(req,res){
-    User.findOne({
-        where:{
-            email: req.body.email
-        }
-    }).then(function(user){
-        if (user){
-	        bcrypt.compare((req.body.secretcode.toString()), String(user.resetpasswordcode), function(err, response) {
-	            if (response){
-	                res.send({status: 200})
-	            }
-	            else{
-	                res.send({status: "failure"});
-	            }
-	        }
-    )}
-	    else {
-	        res.send({status: "failure"});
-	    }
-	})
+	User.findOne({
+		where:{
+			email: req.body.email
+		}
+	}).then(function(user){
+		if (user){
+			bcrypt.compare((req.body.secretcode.toString()), String(user.resetpasswordcode), function(err, response) {
+				if (response){
+					res.send({status: 200})
+				}
+				else{
+					res.send({status: "failure"});
+				}
+			}
+			)}
+			else {
+				res.send({status: "failure"});
+			}
+		})
 })
 
 // get the last bike data point of a user in a session
@@ -87,7 +87,7 @@ router.post("/data/last", function(req,res){
 		})
 	}).then(function(list){
 		res.setHeader('Content-Type', 'application/json');
-        res.send(list);
+		res.send(list);
 	})
 })
 
@@ -96,11 +96,11 @@ router.get("/sessionlisten", function(req, res){
 		where: {stampEnd: null}
 	}).then(function(list){
 		if(list){
-		Tag.findOne({
-			where: {id: list.dataValues.RFID}
-		}).then(function(RFID){
-			res.send({status: "success", tag: RFID})
-		})
+			Tag.findOne({
+				where: {id: list.dataValues.RFID}
+			}).then(function(RFID){
+				res.send({status: "success", tag: RFID})
+			})
 		} else {
 			res.send({status: "failure"})
 		}
@@ -112,15 +112,15 @@ router.get("/sessionlisten", function(req, res){
 String.prototype.toHHMMSS = function () {
 	console.log(this)
 	// this should be in milliseconds, second parameter is the base (i.e., decimal)
-    var sec_num = parseInt(this, 10);
-    var hours   = Math.floor(sec_num / 3600);
-    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
-    var seconds = Math.floor(sec_num - (hours * 3600) - (minutes * 60));
+	var sec_num = parseInt(this, 10);
+	var hours   = Math.floor(sec_num / 3600);
+	var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+	var seconds = Math.floor(sec_num - (hours * 3600) - (minutes * 60));
 
 	if (hours   < 10) {hours   = "0" + hours;}
-    if (minutes < 10) {minutes = "0" + minutes;}
-    if (seconds < 10) {seconds = "0" + seconds;}
-    return hours + ':' + minutes + ':' + seconds;
+	if (minutes < 10) {minutes = "0" + minutes;}
+	if (seconds < 10) {seconds = "0" + seconds;}
+	return hours + ':' + minutes + ':' + seconds;
 }
 
 router.post("/average_duration", function(req, res){
@@ -145,25 +145,25 @@ router.post("/average_duration", function(req, res){
 				res.send({success: true, duration: String(total_dur / parseFloat(count*1000)).toHHMMSS()})
 			}
 		})
-})
+	})
 
 router.post("/workout_duration", function(req, res){
 	SessionData.findOne(
-        {where: {
-						userID: req.body.userID,
-            stampEnd: null
-        }}).then(function(ses) {
+		{where: {
+			userID: req.body.userID,
+			stampEnd: null
+		}}).then(function(ses) {
 
-				if (ses) {
-					var start = parseInt(ses.stampStart)
-					var end = new Date().getTime()
-        	res.send({success: true, duration: end - start})
-				}
-				else {
-					res.send({success: false, duration: ""})
-				}
-        });
-})
+			if (ses) {
+				var start = parseInt(ses.stampStart)
+				var end = new Date().getTime()
+				res.send({success: true, duration: end - start})
+			}
+			else {
+				res.send({success: false, duration: ""})
+			}
+		});
+	})
 
 router.post("check_active_session", function(req, res){
 	SessionData.findOne({
@@ -191,8 +191,8 @@ router.get("/get_last_workout", function(req, res){
 				$ne: null
 			}
 		}}).then(function(sessions){
-		var most_recent_date = -1
-		for (inc in sessions) {
+			var most_recent_date = -1
+			for (inc in sessions) {
 			// var date = Date.parse(sessions[inc].createdAt)
 			// if (date > most_recent_date) {
 			// 	most_recent_date = date
@@ -205,7 +205,7 @@ router.get("/get_last_workout", function(req, res){
 			res.send({date: ""})
 		}
 	})
-})
+	})
 
 router.get("/test_connection", function(req, res) {
 	res.send({status: "success"});
@@ -215,131 +215,131 @@ router.get("/test_connection", function(req, res) {
 
 router.post("/setup_account", function(req, res) {
 
-    bcrypt.genSalt(10, function(err, salt) {
-    bcrypt.hash(req.body.password, salt, function(err, hash) {
-        User.create({
-                  name: req.body.name,
-                  email: req.body.email,
-                  pswd: hash
-         }).then(function(list){
-        res.send({status: "success"});
-	}).error(function(e){
-		res.send({status: "failure"})
-	})
-    });
-});
+	bcrypt.genSalt(10, function(err, salt) {
+		bcrypt.hash(req.body.password, salt, function(err, hash) {
+			User.create({
+				name: req.body.name,
+				email: req.body.email,
+				pswd: hash
+			}).then(function(list){
+				res.send({status: "success"});
+			}).error(function(e){
+				res.send({status: "failure"})
+			})
+		});
+	});
 
-    });
+});
 
 
 router.post("/forgotpasswordchange", function(req, res){
-    User.findOne({
-        where: {
-            email: req.body.email
-        }
-    }).then(function(user){
-        if (user) {
-                    bcrypt.genSalt(10,function(err,salt){
-                    bcrypt.hash(req.body.password, salt, function(err,hash){
-                        User.update({
-                            pswd: hash,
-                            resetpasswordcode: null
-                        }, {
-                            where: {
-                                email: req.body.email
-                            }
-                        })
-                    })
-                    })
-                    res.send({status:200})
-            }
-        else{
-            res.send({status:"failure"})
-        }
-        })
-    });
+	User.findOne({
+		where: {
+			email: req.body.email
+		}
+	}).then(function(user){
+		if (user) {
+			bcrypt.genSalt(10,function(err,salt){
+				bcrypt.hash(req.body.password, salt, function(err,hash){
+					User.update({
+						pswd: hash,
+						resetpasswordcode: null
+					}, {
+						where: {
+							email: req.body.email
+						}
+					})
+				})
+			})
+			res.send({status:200})
+		}
+		else{
+			res.send({status:"failure"})
+		}
+	})
+});
 
 router.post("/sendresetpassword",function(req, res){
-    User.findOne({
-        where:{
-            email: req.body.email
-        }
-    }).then(function(user){
-        if (user){
-            var resetcode = Math.floor((Math.random() * 99999) + 1);
-            bcrypt.genSalt(10,function(err,salt){
-                    bcrypt.hash(resetcode.toString(), salt, function(err,hash){
-                        User.update({
-                            resetpasswordcode: hash
-                        }, {
-                            where: {
-                                email: req.body.email
-                            }
-                        })
-                    })
-                    })
+	User.findOne({
+		where:{
+			email: req.body.email
+		}
+	}).then(function(user){
+		if (user){
+			var resetcode = Math.floor((Math.random() * 99999) + 1);
+			bcrypt.genSalt(10,function(err,salt){
+				bcrypt.hash(resetcode.toString(), salt, function(err,hash){
+					User.update({
+						resetpasswordcode: hash
+					}, {
+						where: {
+							email: req.body.email
+						}
+					})
+				})
+			})
 
-                var ses_mail = "From: 'Digital Gym Reset Password' <" + req.body.email + ">\n";
-                ses_mail = ses_mail + "To: " + req.body.email + "\n";
-                ses_mail = ses_mail + "Subject: Digital Gym Reset Password\n";
-                ses_mail = ses_mail + "MIME-Version: 1.0\n";
-                ses_mail = ses_mail + "Content-Type: multipart/mixed; boundary=\"NextPart\"\n\n";
-                ses_mail = ses_mail + "--NextPart\n";
-                ses_mail = ses_mail + "Content-Type: text/html; charset=us-ascii\n\n";
-                ses_mail = ses_mail + "Your secret code is: "+ resetcode.toString()+"\n\n This is an automated message. Please do not respond. \n\n";
-                ses_mail = ses_mail + "--NextPart--";
+			var ses_mail = "From: 'Digital Gym Reset Password' <" + req.body.email + ">\n";
+			ses_mail = ses_mail + "To: " + req.body.email + "\n";
+			ses_mail = ses_mail + "Subject: Digital Gym Reset Password\n";
+			ses_mail = ses_mail + "MIME-Version: 1.0\n";
+			ses_mail = ses_mail + "Content-Type: multipart/mixed; boundary=\"NextPart\"\n\n";
+			ses_mail = ses_mail + "--NextPart\n";
+			ses_mail = ses_mail + "Content-Type: text/html; charset=us-ascii\n\n";
+			ses_mail = ses_mail + "Your secret code is: "+ resetcode.toString()+"\n\n This is an automated message. Please do not respond. \n\n";
+			ses_mail = ses_mail + "--NextPart--";
 
-                var params = {
-                    RawMessage: { Data: new Buffer(ses_mail) },
-                    Destinations: [ req.body.email ],
-                    Source: "'Digital Gym Reset Password' <" + req.body.email + ">'"
-                };
+			var params = {
+				RawMessage: { Data: new Buffer(ses_mail) },
+				Destinations: [ req.body.email ],
+				Source: "'Digital Gym Reset Password' <" + req.body.email + ">'"
+			};
 
-                ses.sendRawEmail(params, function(err, data) {
-                    if(err) {
-                        throw err}
-                    else {
-                        res.send({status: 200});
-                    }
-                });
+			ses.sendRawEmail(params, function(err, data) {
+				if(err) {
+					throw err}
+					else {
+						res.send({status: 200});
+					}
+				});
 
-        }
-        else
-            res.send({status: "failure"})
-    })
+		}
+		else
+			res.send({status: "failure"})
+	})
 })
 
 
 
 router.post("/changepassword", function(req, res){
 
-    User.findOne({
-        where: {
-            id: req.body.userId
-        }
-    }).then(function(user){
-        if (user) {
-            bcrypt.compare(req.body.oldpw, String(user.pswd), function(err, response) {
-                if (response){
-                    bcrypt.genSalt(10,function(err,salt){
-                    bcrypt.hash(req.body.newpw, salt, function(err,hash){
-                        User.update({
-                            pswd: hash
-                        }, {
-                            where: {
-                                id: req.body.userId
-                            }
-                        })
-                    })
-                    })
-                    res.send({status:"success"})
-                }
-                else
-                    res.send({status:"failure"})
-                })
-            }
-        })
-    });
+	User.findOne({
+		where: {
+			id: req.body.userId
+		}
+	}).then(function(user){
+		if (user) {
+			bcrypt.compare(req.body.oldpw, String(user.pswd), function(err, response) {
+				if (response){
+					bcrypt.genSalt(10,function(err,salt){
+						bcrypt.hash(req.body.newpw, salt, function(err,hash){
+							User.update({
+								pswd: hash
+							}, {
+								where: {
+									id: req.body.userId
+								}
+							})
+						})
+					})
+					res.send({status:"success"})
+				}
+				else
+					res.send({status:"failure"})
+			})
+		}
+	})
+});
 
 router.post("/login", function(req, res) {
 	// console.log("Login Information: " + JSON.stringify(req.headers));
@@ -352,21 +352,21 @@ router.post("/login", function(req, res) {
 			return res.send({status: 403});
 		}
 		if (user) {
-            bcrypt.compare(req.body.password, String(user.pswd), function(err, response) {
-                if (response){
+			bcrypt.compare(req.body.password, String(user.pswd), function(err, response) {
+				if (response){
                 	// var expires = moment().add('days', 7).valueOf();
-                    var token = jwt.sign({userName: user.name, userID: user.id, email: user.email}, 'ashu1234');
-				    res.json({
-				    	token: token,
-				    	userName: user.name,
-				    	userID: user.id,
-				    	email: user.email
+                	var token = jwt.sign({userName: user.name, userID: user.id, email: user.email}, 'ashu1234');
+                	res.json({
+                		token: token,
+                		userName: user.name,
+                		userID: user.id,
+                		email: user.email
 				    	// expires: expires
 				    });
                 }
                 else {
-					res.send({status: 401});
-				}
+                	res.send({status: 401});
+                }
             })
 		}
 	}).error(function(error) {
@@ -376,11 +376,11 @@ router.post("/login", function(req, res) {
 
 router.post("/logout", function(req, res){
 	User.findOne({
-  	where:{
+		where:{
 			id: req.body.userID
 		}
 	}).then(function(user){
-        res.send({status: "success"});
+		res.send({status: "success"});
 	})
 });
 
@@ -517,7 +517,7 @@ router.post("/check_tag", function(req, res){
 	}, {
 		where: {
 			machineID: req.body.machineID,
-      registered: false
+			registered: false
 		}
 	}).then(function(pair) {
 		if (pair[0] > 0) {
@@ -623,32 +623,37 @@ router.post("/history", function(req,res){
 			stampEnd: {
 				$ne: null
 			}
-		},
-		include:[
-		{model: BikeData, as: "BikeData"}
-		]
-	}).then(function(history){
-
-		history_list = []
-		for(entry in history){
-			past_workout = history[entry].dataValues
-			if(past_workout != null){
-			var milli_to_minutes = (1/60000.0)
-			history_list.push({})
-
-			total = 0
-			//loop through all data values
-			for (point in past_workout.data){
-				total += past_workout.data[point].rpm
-			}
-
-			expectation = total/parseFloat(past_workout.data.length)
-			history_list[entry].average_rpm = expectation
-			history_list[entry].distance = 0.0044*(past_workout.stampEnd-past_workout.stampStart)*milli_to_minutes*expectation
-			history_list[entry].duration = String(past_workout.stampEnd - past_workout.stampStart).toHHMMSS()
-			history_list[entry].date = new Date(Date.parse(past_workout.createdAt)).toDateString()
 		}
-	}
+	}).then(function(sessions){
+		history_list = []
+		for (session in sessions) {
+			past_workout = sessions[session].dataValues
+			if (past_workout != null) {
+				var milli_to_minutes = (1/60000.0)
+				history_list.push({})
+
+				total = 0
+				//loop through all data values
+				// for (point in past_workout.data){
+				// 	total += past_workout.data[point].rpm
+				// }
+				BikeData.findAll({
+					where: {
+						sessionID: session.dataValues.sessionID
+					}
+				}).then(function(data) {
+					for (point in data) {
+						total += data[point].dataValues.rpm
+					}
+					expectation = total/parseFloat(past_workout.data.length)
+					history_list[session].average_rpm = expectation
+					history_list[session].distance = 0.0044*(past_workout.stampEnd - past_workout.stampStart) * milli_to_minutes * expectation
+					history_list[session].duration = String(past_workout.stampEnd - past_workout.stampStart).toHHMMSS()
+					history_list[session].date = new Date(Date.parse(past_workout.createdAt)).toDateString()
+				})				
+			}
+		}
+	}).then(function() {
 		res.send(history_list)
 	})
 })
