@@ -7,6 +7,6 @@ var SessionData = sql.define("SessionData", {
 	machineID: {type: Sql.INTEGER, primaryKey: true},
 	stampStart: {type: Sql.STRING, primaryKey: true},
 	stampEnd: {type: Sql.STRING}
-    }, {timestamps: false, freezeTableName: true});
+}, {timestamps: false, freezeTableName: true});
     return SessionData;
 };
