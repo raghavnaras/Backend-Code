@@ -142,8 +142,6 @@ router.post("/average_duration", function(req, res){
 				}
 			}
 			if (count != 0) {
-				console.log("total dur",total_dur)
-				console.log("duration hhmmss",String(total_dur / parseFloat(count*1000)).toHHMMSS())
 				res.send({success: true, duration: String(total_dur / parseFloat(count*1000)).toHHMMSS()})
 			}
 		})
@@ -158,6 +156,7 @@ router.post("/workout_duration", function(req, res){
 				if (ses) {
 					var start = parseInt(ses.stampStart)
 					var end = new Date().getTime()
+					console.log(duration: String((end - start)).toHHMMSS())
         	res.send({success: true, duration: String((end - start)).toHHMMSS()})
 				}
 				else {
