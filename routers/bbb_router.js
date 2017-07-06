@@ -153,10 +153,12 @@ router.post("/workout_duration", function(req, res){
 						userID: req.body.userID,
             stampEnd: null
         }}).then(function(ses) {
+
 				if (ses) {
+					console.log("ses true")
 					var start = parseInt(ses.stampStart)
 					var end = new Date().getTime()
-					console.log(String((end - start)).toHHMMSS())
+					console.log("duration",String((end - start)).toHHMMSS())
         	res.send({success: true, duration: String((end - start)).toHHMMSS()})
 				}
 				else {
