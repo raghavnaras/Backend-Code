@@ -169,6 +169,10 @@ router.get("/get_last_workout", function(req, res){
 	})
 })
 
+router.get("test_connection", function(req, res) {
+	res.send({status: "success"});
+});
+
 // POST REQUESTS
 
 router.post("/setup_account", function(req, res) {
