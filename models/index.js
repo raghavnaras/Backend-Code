@@ -33,6 +33,7 @@ fs.readdirSync(__dirname)
         //imports each model and stores it in the db dictionary made above under its name
         model = sql.import(path.join(__dirname, file));
         //forces the models to the database if needed
+        model.sync({force: true});
         db[model.name] = model;
     });
 
@@ -46,7 +47,6 @@ Object.keys(db)
     });
 
 db.SessionData.hasMany(db.BikeData, {foreignKey: 'sessionID', as:"data"});
-model.sync({force: true});
 
 db.sql = sql;
 db.Sql = Sql;
