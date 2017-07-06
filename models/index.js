@@ -44,8 +44,7 @@ Object.keys(db)
         }
     });
 
-db.BikeData.belongs(db.SessionData);
-db.SessionData.hasMany(db.BikeData);
+db.SessionData.hasMany(db.BikeData, {foreignKey: 'sessionID', as:"data"});
 model.sync({force: true});
 
 db.sql = sql;
