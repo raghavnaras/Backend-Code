@@ -471,7 +471,7 @@ router.post("/process_tag", function(req, res) {
 			}).then(function(RaspPi) {
 				SessionData.update({
 					RFID: req.body.RFID,
-					userID: tag.dataValues.userID
+					userID: tag.userID
 				}, {
 					where: {
 						machineID: RaspPi.machineID,
