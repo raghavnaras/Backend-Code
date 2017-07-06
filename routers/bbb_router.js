@@ -107,10 +107,10 @@ router.get("/sessionlisten", function(req, res){
 	})
 })
 router.post("/average_duration", function(req, res){
-	console.log("req body userID" , req.body.id)
+	console.log("req body userID" , req.body.userID)
 	SessionData.findAll({
 		where: {
-			userID: req.body.id,
+			userID: req.body.userID,
 			stampEnd: {
 				$ne: null
 			}
