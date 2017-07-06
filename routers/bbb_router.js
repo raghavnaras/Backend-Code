@@ -123,7 +123,7 @@ router.post("/average_duration", function(req, res){
 				var end = sessions[inc].stampEnd
 				if (start != null && end != null) {
 					count = count + 1
-					total_dur = total_dur + ((parseInt(end) - parseInt(start)))
+					total_dur = total_dur + parseInt(end - start)
 				}
 			}
 			if (count != 0) {
@@ -138,9 +138,14 @@ router.post("/workout_duration", function(req, res){
 						userID: req.body.userID,
             stampEnd: null
         }}).then(function(ses) {
-        	var start = parseInt(ses.stampStart)
+				if (ses) {
+					var start = parseInt(ses.stampStart)
 					var end = new Date().getTime()
         	res.send({success: true, duration: String((end - start)).toHHMMSS()})
+				}
+				else {
+					res.send({success: false, duration: ""})
+				}
         });
 })
 
@@ -619,9 +624,10 @@ String.prototype.toHHMMSS = function () {
     var minutes = Math.floor((sec_num - (hours * 3600)) / 60)
     var seconds = Math.floor(sec_num - (hours * 3600) - (minutes * 60))
 
-    return ((hours < 10) ? ("0" + String(hours)) : String(hours)) + ":"
-		+ ((minutes < 10) ? ("0" + String(minutes)) : String(minutes)) + ":"
-		+ ((seconds < 10) ? ("0" + String(seconds)) : String(seconds))
+		if (hours   < 10) {hours   = "0" + hours;}
+    if (minutes < 10) {minutes = "0" + minutes;}
+    if (seconds < 10) {seconds = "0" + seconds;}
+    return hours + ':' + minutes + ':' + seconds;
 }
 
 module.exports = router;
