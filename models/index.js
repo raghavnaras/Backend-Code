@@ -21,6 +21,7 @@ sql.authenticate()
     });
 
 var fs = require("fs");
+var model;
 
 //grabs all the files in the models folder
 fs.readdirSync(__dirname)
@@ -30,7 +31,7 @@ fs.readdirSync(__dirname)
     })
     .forEach(function(file) {
         //imports each model and stores it in the db dictionary made above under its name
-        var model = sql.import(path.join(__dirname, file));
+        model = sql.import(path.join(__dirname, file));
         //forces the models to the database if needed
         db[model.name] = model;
     });
