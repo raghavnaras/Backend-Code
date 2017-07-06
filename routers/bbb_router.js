@@ -165,7 +165,7 @@ router.post("/workout_duration", function(req, res){
         });
 })
 
-router.post("check_active_session", function(req, res){
+router.post("/check_active_session", function(req, res){
 	SessionData.findOne({
 		where: {
 			userID: req.body.userID,
