@@ -6,7 +6,7 @@ var BikeData = sql.define("BikeData",
         stamp: {type: Sql.BIGINT, primaryKey: true},
         rpm: {type: Sql.FLOAT},
         bikeID: {type: Sql.INTEGER},
-        sessionID: {trype: Sql.INTEGER}
+        sessionID: {type: Sql.INTEGER}
 	}, { timestamps: false, freezeTableName: true });
 
     return BikeData;

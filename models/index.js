@@ -46,7 +46,7 @@ Object.keys(db)
         }
     });
 
-db.SessionData.hasMany(db.BikeData, {foreignKey: 'sessionID', as:"data"});
+// db.SessionData.hasMany(db.BikeData, {foreignKey: 'sessionID', as:"data"});
 
 db.sql = sql;
 db.Sql = Sql;
