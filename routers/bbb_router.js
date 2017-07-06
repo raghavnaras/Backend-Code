@@ -82,7 +82,7 @@ router.post("/data/last", function(req,res){
 	SessionData.max('sessionID',{
 		where: {userID:id}
 	}).then(function(sessionID){
-		BikeData.findAll({
+		BikeData.max('stamp',{
 			where: {sessionID: sessionID}
 		})
 	}).then(function(list){
@@ -449,10 +449,10 @@ router.post("/end_workout", function(req, res) {
 
 // processes the tag after scanning
 
-// TODO: Change code so that in case that a session is in progress, and someone scans a 
-// tag that is different from the tag that had been scanned for the session in progress, 
+// TODO: Change code so that in case that a session is in progress, and someone scans a
+// tag that is different from the tag that had been scanned for the session in progress,
 // the session in progress should end and another session should be created. At the moment,
-// the tag of the session in progress is updated with the RFID of the most recently scanned 
+// the tag of the session in progress is updated with the RFID of the most recently scanned
 // tag, but a new session is not created.
 
 router.post("/process_tag", function(req, res) {
