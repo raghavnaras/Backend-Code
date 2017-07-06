@@ -659,7 +659,7 @@ router.post("/history", function(req,res){
 				// }
 				BikeData.findAll({
 					where: {
-						sessionID: session.dataValues.sessionID
+						sessionID: session.sessionID
 					}
 				}).then(function(data) {
 					for (point in data) {
