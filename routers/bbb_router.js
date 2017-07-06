@@ -165,6 +165,22 @@ router.post("/workout_duration", function(req, res){
         });
 })
 
+router.post("check_active_session", function(req, res){
+	SessionData.findOne({
+		where: {
+			userID: req.body.userID,
+			stampEnd: null
+		}
+	}).then(function(session){
+		if (session) {
+			res.send({active: true})
+		}
+		else {
+			res.send({active: false})
+		}
+	})
+})
+
 // the most recent workout is defined to be the one that was created most recently
 router.get("/get_last_workout", function(req, res){
 	console.log("Get Last Workout Information: " + JSON.stringify(req.headers));
