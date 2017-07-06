@@ -31,7 +31,7 @@ router.use('/data', jwtauth);
 router.use('/data/last', jwtauth);
 router.use('/sessionlisten', jwtauth);
 //router.use('/average_duration', jwtauth);
-router.use('/workout_duration', jwtauth);
+//router.use('/workout_duration', jwtauth);
 router.use('/get_last_workout', jwtauth);
 router.use('/logout', jwtauth);
 router.use('/check_tag', jwtauth);
@@ -107,6 +107,7 @@ router.get("/sessionlisten", function(req, res){
 	})
 })
 router.get("/average_duration", function(req, res){
+	console.log("req body userID" + req.body.userID)
 	SessionData.findAll({
 		where: {
 			userID: req.body.userID,
@@ -126,7 +127,7 @@ router.get("/average_duration", function(req, res){
 				}
 			}
 			if (count != 0) {
-				res.send({success: true, duration: (String(total_dur / count)).toHHMMSS()})
+				res.send({success: true, duration: String(total_dur / parseFloat(count*1000)).toHHMMSS()})
 			}
 		})
 })
