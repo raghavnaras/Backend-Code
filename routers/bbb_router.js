@@ -80,7 +80,7 @@ router.get("/verifysecretcode", function(req,res){
 // get the last bike data point of a user in a session
 router.post("/data/last", function(req,res){
 	SessionData.max('sessionID',{
-		where: {userID:id}
+		where: {userID:userID}
 	}).then(function(sessionID){
 		BikeData.max('stamp',{
 			where: {sessionID: sessionID}
