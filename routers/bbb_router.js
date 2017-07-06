@@ -354,6 +354,7 @@ router.post("/login", function(req, res) {
 		if (user) {
 			bcrypt.compare(req.body.password, String(user.pswd), function(err, response) {
 				if (response){
+					console.log("Login UserID: " + user.id);
                 	// var expires = moment().add('days', 7).valueOf();
                 	var token = jwt.sign({userName: user.name, userID: user.id, email: user.email}, 'ashu1234');
                 	res.json({
@@ -478,6 +479,8 @@ router.post("/process_tag", function(req, res) {
 					}
 				}).then(function(pair) {
 					if (pair[0] == 0) {
+						console.log("UserID from Tag in process_tag: " + tag.dataValues.userID);
+						console.log("UserID from Tag in process_tag without dataValues: " + tag.userID);
 						SessionData.create({
 							RFID: req.body.RFID,
 							userID: tag.dataValues.userID,
@@ -486,6 +489,8 @@ router.post("/process_tag", function(req, res) {
 						})
 						res.send({status: "Created", message: "Session has been created since one is not in progress."})
 					} else {
+						console.log("UserID from Tag in process_tag second: " + tag.dataValues.userID);
+						console.log("UserID from Tag in process_tag without dataValues second: " + tag.userID);
 						res.send({status: "Updated", message: "Session in progress has been updated."});
 					}
 				})
@@ -510,6 +515,7 @@ router.post("/process_tag", function(req, res) {
 })
 
 router.post("/check_tag", function(req, res){
+	console.log("Req from check_tag: " + req.body.userID);
 	Tag.update({
 		registered: true,
 		tagName: req.body.tagName,
