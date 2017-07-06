@@ -155,11 +155,9 @@ router.post("/workout_duration", function(req, res){
         }}).then(function(ses) {
 
 				if (ses) {
-					console.log("ses true")
 					var start = parseInt(ses.stampStart)
 					var end = new Date().getTime()
-					console.log("duration",String((end - start)).toHHMMSS())
-        	res.send({success: true, duration: String((end - start)).toHHMMSS()})
+        	res.send({success: true, duration: end - start})
 				}
 				else {
 					res.send({success: false, duration: ""})
