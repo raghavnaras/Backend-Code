@@ -106,8 +106,8 @@ router.get("/sessionlisten", function(req, res){
 		}
 	})
 })
-router.get("/average_duration", function(req, res){
-	console.log("req body userID" + req.body.id)
+router.post("/average_duration", function(req, res){
+	console.log("req body userID" , req.body.id)
 	SessionData.findAll({
 		where: {
 			userID: req.body.id,
@@ -132,7 +132,7 @@ router.get("/average_duration", function(req, res){
 		})
 })
 
-router.get("/workout_duration", function(req, res){
+router.post("/workout_duration", function(req, res){
 	SessionData.findOne(
         {where: {
 						userID: req.body.userID,
