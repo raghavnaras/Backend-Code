@@ -112,10 +112,10 @@ router.get("/sessionlisten", function(req, res){
 String.prototype.toHHMMSS = function () {
 	console.log(this)
 	// this should be in milliseconds, second parameter is the base (i.e., decimal)
-    var sec_num = parseInt(this, 10) / 1000
-    var hours   = Math.floor(sec_num / 3600)
-    var minutes = Math.floor((sec_num - (hours * 3600)) / 60)
-    var seconds = Math.floor(sec_num - (hours * 3600) - (minutes * 60))
+    var sec_num = parseInt(this, 10);
+    var hours   = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = Math.floor(sec_num - (hours * 3600) - (minutes * 60));
 
 		if (hours   < 10) {hours   = "0" + hours;}
     if (minutes < 10) {minutes = "0" + minutes;}
@@ -138,12 +138,12 @@ router.post("/average_duration", function(req, res){
 				var end = sessions[inc].stampEnd
 				if (start != null && end != null) {
 					count = count + 1
-					console.log("end - start", end - start)
-					console.log("parseInt end - start", parseInt(end - start))
 					total_dur = total_dur + parseInt(end - start)
 				}
 			}
 			if (count != 0) {
+				console.log("total dur",total_dur)
+				console.log("duration hhmmss",String(total_dur / parseFloat(count*1000)).toHHMMSS())
 				res.send({success: true, duration: String(total_dur / parseFloat(count*1000)).toHHMMSS()})
 			}
 		})
