@@ -669,6 +669,7 @@ router.post("/history", function(req,res){
 						history_list[session].average_rpm = expectation
 						history_list[session].distance = 0.0044*(sessions[session].stampEnd - sessions[session].stampStart) * milli_to_minutes * expectation
 						history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
+						console.log("DATE STRINGGGGGGGG: " + new Date(Date.parse(sessions[session].stampStart)).toDateString())
 						history_list[session].date = new Date(Date.parse(sessions[session].stampStart)).toDateString()
 						return -1;
 					})
