@@ -66,19 +66,20 @@ router.post("/data/last", function(req,res){
 		}
 	}).then(function(session){
 		if (session) {
-			console.log("session ID", session.sessionID);
-			BikeData.findOne({
+			BikeData.findAll({
+				limit: 1,
 				order: [
-					[sequelize.fn('max', sequelize.col('stamp')), 'DESC']
+					['stamp', 'DESC']
 				],
 				where: {sessionID: session.sessionID}
-			}).then(function(bikeData){
-				console.log("last bike stamp is", bikeData.stamp);
-				res.send({success: true, rpm: bikeData.rpm})
+			}).then(function(list){
+				console.log("list is", list);
+				data = list[0];
+				console.log("rpm is", data.rpm);
+				res.send({success: true, rpm: data.rpm})
 			})
 		}
 		else {
-			console.log("can't find a session")
 			res.send({success: false, rpm: 0.0})
 		}
 	})
