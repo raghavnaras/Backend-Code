@@ -724,6 +724,7 @@ router.post("/history", function(req,res){
 		// 	}
 		// });
 		Promise.all(promises).then(function(session) {
+			console.log("FUCKK YEAHH, HISTORY, BITCH!!!!!!!!!!!!!!!!!!");
 			res.send(history_list);
 		});
 });
