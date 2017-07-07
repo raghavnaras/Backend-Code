@@ -644,9 +644,15 @@ router.post("/history", function(req,res){
 				$ne: null
 			}
 		}
-	}).then(function(sessions){
+	}).then(function(sessions) {
 		history_list = []
-		var promises = sessions.map(function(session) {
+		var promises = []
+
+		for (session in sessions) {
+			// past_workout = sessions[session].dataValues
+			console.log("PAST WORKOUTTTT: " + sessions[session]);
+			console.log("PAST WORKOUTTTT START: " + sessions[session].stampStart);
+			console.log("PAST WORKOUTTTT START WITH DVALUES: " + sessions[session].dataValues.stampStart);
 			if (session != null) {
 				var milli_to_minutes = (1/60000.0)
 				history_list.push({})
@@ -656,32 +662,71 @@ router.post("/history", function(req,res){
 				// for (point in past_workout.data){
 				// 	total += past_workout.data[point].rpm
 				// }
-				return BikeData.findAll({
-					where: {
-						sessionID: session.sessionID
-					}
-				}).then(function(data) {
-					for (point in data) {
-						total += data[point].dataValues.rpm
-						console.log("BIKE POINNNNTTT FUCK YEAAAAA RPM: " + data[point].rpm);
-						console.log("BIKE POINNNNTTT FUCK YEAAAAA RPM WITH DATA VALUES: " + data[point].dataValues.rpm);
-					}
-					expectation = total/parseFloat(data.length)
-					// console.log("IM EXPECTING SOME MAD DANK RIGHT HEREEEEEEE: " + expectation);
-					history_list[session.sessionID].average_rpm = expectation
-					// console.log("ENTRY FOR AVE: " + history_list[session].average_rpm);
-					history_list[session].distance = 0.0044*(session.stampEnd - session.stampStart) * milli_to_minutes * expectation
-					// console.log("ENTRY FOR DURATION: " + history_list[session].distance);
-					history_list[session].duration = String(session.stampEnd - session.stampStart).toHHMMSS()
-					// console.log("ENTRY FOR DATE: " + history_list[session].duration);
-					history_list[session].date = new Date(Date.parse(session.createdAt)).toDateString()
-					return -1;
-				})
+				promises.push(
+					BikeData.findAll({
+						where: {
+							sessionID: sessions[session].sessionID
+						}
+					}).then(function(data) {
+
+						for (point in data) {
+							total += data[point].dataValues.rpm
+							console.log("BIKE POINNNNTTT FUCK YEAAAAA RPM: " + data[point].rpm);
+							console.log("BIKE POINNNNTTT FUCK YEAAAAA RPM WITH DATA VALUES: " + data[point].dataValues.rpm);
+						}
+						expectation = total/parseFloat(data.length)
+						console.log("IM EXPECTING SOME MAD DANK RIGHT HEREEEEEEE: " + expectation);
+						history_list[session].average_rpm = expectation
+						console.log("ENTRY FOR AVE: " + history_list[session].average_rpm);
+						history_list[session].distance = 0.0044*(sessions[session].stampEnd - sessions[session].stampStart) * milli_to_minutes * expectation
+						console.log("ENTRY FOR DURATION: " + history_list[session].distance);
+						history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
+						console.log("ENTRY FOR DATE: " + history_list[session].duration);
+						history_list[session].date = new Date(Date.parse(sessions[session].createdAt)).toDateString()
+						return -1;
+					})
+				)
 			}
-		});
+		}
+	})
+
+		// var promises = sessions.map(function(session) {
+		// 	if (session != null) {
+		// 		var milli_to_minutes = (1/60000.0)
+		// 		history_list.push({})
+
+		// 		total = 0
+		// 		//loop through all data values
+		// 		// for (point in past_workout.data){
+		// 		// 	total += past_workout.data[point].rpm
+		// 		// }
+		// 		return BikeData.findAll({
+		// 			where: {
+		// 				sessionID: session.sessionID
+		// 			}
+		// 		}).then(function(data) {
+		// 			for (point in data) {
+		// 				total += data[point].dataValues.rpm
+		// 				console.log("BIKE POINNNNTTT FUCK YEAAAAA RPM: " + data[point].rpm);
+		// 				console.log("BIKE POINNNNTTT FUCK YEAAAAA RPM WITH DATA VALUES: " + data[point].dataValues.rpm);
+		// 			}
+		// 			expectation = total/parseFloat(data.length)
+		// 			// console.log("IM EXPECTING SOME MAD DANK RIGHT HEREEEEEEE: " + expectation);
+		// 			history_list[session.sessionID].average_rpm = expectation
+		// 			// console.log("ENTRY FOR AVE: " + history_list[session].average_rpm);
+		// 			history_list[session].distance = 0.0044*(session.stampEnd - session.stampStart) * milli_to_minutes * expectation
+		// 			// console.log("ENTRY FOR DURATION: " + history_list[session].distance);
+		// 			history_list[session].duration = String(session.stampEnd - session.stampStart).toHHMMSS()
+		// 			// console.log("ENTRY FOR DATE: " + history_list[session].duration);
+		// 			history_list[session].date = new Date(Date.parse(session.createdAt)).toDateString()
+		// 			return -1;
+		// 		})
+		// 	}
+		// });
 		Promise.all(promises).then(function(session) {
 			res.send(history_list);
 		});
+});
 		// for (session in sessions) {
 		// 	// past_workout = sessions[session].dataValues
 		// 	console.log("PAST WORKOUTTTT: " + sessions[session]);
@@ -719,12 +764,12 @@ router.post("/history", function(req,res){
 		// 		})
 		// 	}
 		// }
-	})
+	// })
 	// .all(sessions).then(function() {
 	// 	console.log("THIS IS THE FUCKIN HISTORY LIST YEAAAAAA: " + history_list);
 	// 	res.send(history_list);
 	// })
-})
+// })
 
 
 module.exports = router;
