@@ -143,7 +143,7 @@ router.post("/average_duration", function(req, res){
 				}
 			}
 			if (count != 0) {
-				res.send({success: true, duration: String(total_dur / parseFloat(count*1000)).toHHMMSS()})
+				res.send({success: true, duration: String(total_dur / parseFloat(count)).toHHMMSS()})
 			}
 		})
 	})
