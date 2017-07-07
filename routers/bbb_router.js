@@ -653,10 +653,6 @@ router.post("/history", function(req,res){
 				var milli_to_minutes = (1/60000.0)
 				history_list.push({})
 
-				//loop through all data values
-				// for (point in past_workout.data){
-				// 	total += past_workout.data[point].rpm
-				// }
 				promises.push(
 					BikeData.findAll({
 						where: {
@@ -673,7 +669,7 @@ router.post("/history", function(req,res){
 						history_list[session].average_rpm = expectation
 						history_list[session].distance = 0.0044*(sessions[session].stampEnd - sessions[session].stampStart) * milli_to_minutes * expectation
 						history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
-						history_list[session].date = new Date(Date.parse(sessions[session].createdAt)).toDateString()
+						history_list[session].date = new Date(Date.parse(sessions[session].stampStart)).toDateString()
 						return -1;
 					})
 				)
