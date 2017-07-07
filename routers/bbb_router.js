@@ -93,7 +93,7 @@ router.post("/data/last", function(req,res){
 				],
 				where: {sessionID: session.sessionID}
 			}).then(function(bikeData){
-				console.log("last bike stamp", bikeData.stamp);
+				console.log("last bike stamp is", bikeData.stamp);
 				res.send({success: true, rpm: bikeData.rpm})
 			})
 		}
