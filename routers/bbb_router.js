@@ -80,23 +80,32 @@ router.get("/verifysecretcode", function(req,res){
 // get the last bike data point of a user in a session
 router.post("/data/last", function(req,res){
 	SessionData.findOne({
-		order: [
-			[sequelize.fn('max', sequelize.col('sessionID')), 'DESC']
-		],
-		where: {userID:req.body.userID}
+		where: {
+			userID:req.body.userID,
+			stampEnd: null
+		}
 	}).then(function(session){
+		if (session) {
 			console.log("session ID", session.sessionID);
 			BikeData.findOne({
 				order: [
 					[sequelize.fn('max', sequelize.col('stamp')), 'DESC']
 				],
 				where: {sessionID: session.sessionID}
+			}).then(function(bikeData){
+				console.log("rpm", bikeData.rpm);
+				res.send({success: true, rpm: bikeData.rpm})
 			})
-		}).then(function(list){
-		console.log("list",list);
-		res.setHeader('Content-Type', 'application/json');
-		res.send(list);
-	})
+		}
+		else {
+			res.send({success: false, rpm: 0.0})
+		}
+	}).
+	// 	then(function(list){
+	// 	console.log("list",list);
+	// 	res.setHeader('Content-Type', 'application/json');
+	// 	res.send(list);
+	// })
 })
 
 router.get("/sessionlisten", function(req, res){
