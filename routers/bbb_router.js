@@ -277,26 +277,14 @@ router.post("/sendresetpassword",function(req, res){
 	}).then(function(user){
 		if (user){
 			var resetcode = Math.floor((Math.random() * 99999) + 1);
-			bcrypt.genSalt(10,function(err,salt){
-				bcrypt.hash(resetcode.toString(), salt, function(err,hash){
-					User.update({
-						resetpasswordcode: hash
-					}, {
-						where: {
-							email: req.body.email
-						}
-					})
-				})
-			})
-
-			var ses_mail = "From: 'Digital Gym Reset Password' <" + req.body.email + ">\n";
+            var ses_mail = "From: 'Digital Gym Reset Password' <" + req.body.email + ">\n";
 			ses_mail = ses_mail + "To: " + req.body.email + "\n";
 			ses_mail = ses_mail + "Subject: Digital Gym Reset Password\n";
 			ses_mail = ses_mail + "MIME-Version: 1.0\n";
 			ses_mail = ses_mail + "Content-Type: multipart/mixed; boundary=\"NextPart\"\n\n";
 			ses_mail = ses_mail + "--NextPart\n";
 			ses_mail = ses_mail + "Content-Type: text/html; charset=us-ascii\n\n";
-			ses_mail = ses_mail + "Your secret code is: "+ resetcode.toString()+"\n\n This is an automated message. Please do not respond. \n\n";
+			ses_mail = ses_mail + "Your secret code is: "+ resetcode.toString()+"\n\n This code only works once. This is an automated message. Please do not respond. \n\n";
 			ses_mail = ses_mail + "--NextPart--";
 
 			var params = {
@@ -307,8 +295,20 @@ router.post("/sendresetpassword",function(req, res){
 
 			ses.sendRawEmail(params, function(err, data) {
 				if(err) {
+                    res.send({status: "failure"})
 					throw err}
 					else {
+                            bcrypt.genSalt(10,function(err,salt){
+                            bcrypt.hash(resetcode.toString(), salt, function(err,hash){
+                                User.update({
+                                    resetpasswordcode: hash
+                                }, {
+                                    where: {
+                                        email: req.body.email
+                                    }
+                                })
+                            })
+                        })
 						res.send({status: 200});
 					}
 				});
@@ -318,7 +318,6 @@ router.post("/sendresetpassword",function(req, res){
 			res.send({status: "failure"})
 	})
 })
-
 
 
 router.post("/changepassword", function(req, res){
