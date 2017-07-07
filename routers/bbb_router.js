@@ -82,8 +82,17 @@ router.post("/data/last", function(req,res){
 	SessionData.max('sessionID',{
 		where: {userID:req.body.userID}
 	}).then(function(sessionID){
+		console.log("session ID", sessionID);
 		BikeData.max('stamp',{
+			console.log('stamp', stamp);
 			where: {sessionID: sessionID}
+		})
+	}).then(function(stamp){
+		BikeData.findOne({
+			where: {
+				stamp: stamp,
+				sessionID: sessionID
+			}
 		})
 	}).then(function(list){
 		res.setHeader('Content-Type', 'application/json');
@@ -680,7 +689,7 @@ router.post("/history", function(req,res){
 		Promise.all(promises).then(function(session) {
 			res.send(history_list);
 		});
-	})	
+	})
 });
 
 
