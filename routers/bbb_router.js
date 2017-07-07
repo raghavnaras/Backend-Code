@@ -666,39 +666,34 @@ router.post("/history", function(req,res){
 		history_list = []
 		var promises = []
 
-		for (session in sessions) {
-			if (session != null) {
-				var milli_to_minutes = (1/60000.0)
+		for (var i = 0; i < sessions.length; i++) {
+			const session = i
+			var milli_to_minutes = (1/60000.0)
 
-				history_list.push({})
+			history_list.push({})
 
-				promises.push(
-					BikeData.findAll({
-						where: {
-							sessionID: sessions[session].sessionID
-						}
-					}).then(function(data) {
-						total = 0.00
+			promises.push(
+				BikeData.findAll({
+					where: {
+						sessionID: sessions[session].sessionID
+					}
+				}).then(function(data) {
+					total = 0.00
 
-						for (point in data) {
-							total += data[point].dataValues.rpm
-						}
+					for (point in data) {
+						total += data[point].dataValues.rpm
+					}
 
-						console.log("DATA LENGTH: " + data.length)
-						console.log("DATA LENGTH PARSED: " + parseFloat(data.length))
-						expectation = (data.length == 0) ? 0 : (total/data.length)
-						history_list[session].average_rpm = expectation.toFixed(2);
-						// ERROR: CANNOT MEASURE DISTANCE USING RPM
-						// history_list[session].distance = 0.0044*(sessions[session].stampEnd - sessions[session].stampStart) * milli_to_minutes * expectation
-						history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
+					expectation = (data.length == 0) ? 0 : (total/data.length)
+					history_list[session].average_rpm = expectation.toFixed(2);
+					history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
 
-						var dateTime = moment(parseInt(sessions[session].stampStart)).tz("America/Chicago").format("ddd MMM DD YYYY, h:mm A");
-						history_list[session].date = dateTime;
+					var dateTime = moment(parseInt(sessions[session].stampStart)).tz("America/Chicago").format("ddd MMM DD YYYY, h:mm A");
+					history_list[session].date = dateTime;
 
-						return -1;
-					})
-				)
-			}
+					return -1;
+				})
+			)
 		}
 		Promise.all(promises).then(function(session) {
 			res.send(history_list);
