@@ -75,14 +75,18 @@ router.post("/data/last", function(req,res){
 				],
 				where: {sessionID: session.sessionID}
 			}).then(function(list){
-				console.log("list is", list);
 				data = list[0];
-				console.log("rpm is", data.rpm);
-				res.send({success: true, rpm: data.rpm})
+				var current_time = new Date().getTime()
+				if (current_time - data.stamp < 1000) {
+					res.send({success: true, rpm: data.rpm})
+				}
+				else {
+					res.send({success: true, rpm: 0})
+				}
 			})
 		}
 		else {
-			res.send({success: false, rpm: 0.0})
+			res.send({success: false, rpm: 0})
 		}
 	})
 	// 	then(function(list){
