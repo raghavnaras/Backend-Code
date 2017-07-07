@@ -201,7 +201,7 @@ router.get("/get_last_workout", function(req, res){
 		}
 	}).then(function(workout) {
 		if (workout) {
-			res.send({status: "success", date: new Date(parseInt(workout.stampStart))})
+			res.send({status: "success", date: new Date(workout.stampStart).toDateString()})
 		} else {
 			res.send({status: "failure", date: ""})
 		}
