@@ -661,7 +661,7 @@ router.post("/history", function(req,res){
 							sessionID: sessions[session].sessionID
 						}
 					}).then(function(data) {
-						total = 0
+						total = 0.00
 
 						for (point in data) {
 							total += data[point].dataValues.rpm
@@ -669,7 +669,7 @@ router.post("/history", function(req,res){
 
 						console.log("DATA LENGTH: " + data.length)
 						console.log("DATA LENGTH PARSED: " + parseFloat(data.length))
-						expectation = (parseFloat(data.length) == 0.00) ? 0.00 : (total/parseFloat(data.length))
+						expectation = (data.length == 0) ? 0 : (total/data.length)
 						history_list[session].average_rpm = expectation
 						// ERROR: CANNOT MEASURE DISTANCE USING RPM
 						history_list[session].distance = 0.0044*(sessions[session].stampEnd - sessions[session].stampStart) * milli_to_minutes * expectation
