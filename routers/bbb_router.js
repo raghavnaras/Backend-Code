@@ -27,7 +27,7 @@
 
 // sets up authorization where it matters
 router.use('/users', jwtauth);
-router.use('/data', jwtauth);
+//router.use('/data', jwtauth);
 //router.use('/data/last', jwtauth);
 router.use('/sessionlisten', jwtauth);
 //router.use('/average_duration', jwtauth);
@@ -98,6 +98,7 @@ router.post("/data/last", function(req,res){
 			})
 		}
 		else {
+			console.log("can't find a session")
 			res.send({success: false, rpm: 0.0})
 		}
 	})
