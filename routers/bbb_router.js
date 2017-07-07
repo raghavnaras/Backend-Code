@@ -668,6 +668,7 @@ router.post("/history", function(req,res){
 							sessionID: sessions[session].sessionID
 						}
 					}).then(function(data) {
+						console.log("LENGTHHHHHHHHHHHHHHH: " + promises.length);
 
 						for (point in data) {
 							total += data[point].dataValues.rpm
