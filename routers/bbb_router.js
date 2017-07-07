@@ -87,6 +87,7 @@ router.post("/data/last", function(req,res){
 				where: {sessionID: sessionID}
 			})
 		}).then(function(list){
+		console.log("list",list);
 		res.setHeader('Content-Type', 'application/json');
 		res.send(list);
 	})
