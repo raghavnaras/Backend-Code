@@ -658,24 +658,23 @@ router.post("/history", function(req,res){
 				// }
 				return BikeData.findAll({
 					where: {
-						sessionID: sessions[session].sessionID
+						sessionID: session.sessionID
 					}
 				}).then(function(data) {
-
 					for (point in data) {
 						total += data[point].dataValues.rpm
 						console.log("BIKE POINNNNTTT FUCK YEAAAAA RPM: " + data[point].rpm);
 						console.log("BIKE POINNNNTTT FUCK YEAAAAA RPM WITH DATA VALUES: " + data[point].dataValues.rpm);
 					}
 					expectation = total/parseFloat(data.length)
-					console.log("IM EXPECTING SOME MAD DANK RIGHT HEREEEEEEE: " + expectation);
+					// console.log("IM EXPECTING SOME MAD DANK RIGHT HEREEEEEEE: " + expectation);
 					history_list[session].average_rpm = expectation
-					console.log("ENTRY FOR AVE: " + history_list[session].average_rpm);
-					history_list[session].distance = 0.0044*(sessions[session].stampEnd - sessions[session].stampStart) * milli_to_minutes * expectation
-					console.log("ENTRY FOR DURATION: " + history_list[session].distance);
-					history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
-					console.log("ENTRY FOR DATE: " + history_list[session].duration);
-					history_list[session].date = new Date(Date.parse(sessions[session].createdAt)).toDateString()
+					// console.log("ENTRY FOR AVE: " + history_list[session].average_rpm);
+					history_list[session].distance = 0.0044*(session.stampEnd - session.stampStart) * milli_to_minutes * expectation
+					// console.log("ENTRY FOR DURATION: " + history_list[session].distance);
+					history_list[session].duration = String(session.stampEnd - session.stampStart).toHHMMSS()
+					// console.log("ENTRY FOR DATE: " + history_list[session].duration);
+					history_list[session].date = new Date(Date.parse(session.createdAt)).toDateString()
 					return -1;
 				})
 			}
