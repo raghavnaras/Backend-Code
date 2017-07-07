@@ -647,9 +647,11 @@ router.post("/history", function(req,res){
 	}).then(function(sessions){
 		history_list = []
 		for (session in sessions) {
-			past_workout = sessions[session].dataValues
-			console.log("PAST WORKOUTTTT: " + past_workout);
-			if (past_workout != null) {
+			// past_workout = sessions[session].dataValues
+			console.log("PAST WORKOUTTTT: " + session);
+			console.log("PAST WORKOUTTTT START: " + session.stampStart);
+			console.log("PAST WORKOUTTTT START WITH DVALUES: " + session.dataValues.stampStart);
+			if (session != null) {
 				var milli_to_minutes = (1/60000.0)
 				history_list.push({})
 
@@ -668,9 +670,9 @@ router.post("/history", function(req,res){
 					}
 					expectation = total/parseFloat(data.length)
 					history_list[session].average_rpm = expectation
-					history_list[session].distance = 0.0044*(past_workout.stampEnd - past_workout.stampStart) * milli_to_minutes * expectation
-					history_list[session].duration = String(past_workout.stampEnd - past_workout.stampStart).toHHMMSS()
-					history_list[session].date = new Date(Date.parse(past_workout.createdAt)).toDateString()
+					history_list[session].distance = 0.0044*(session.stampEnd - session.stampStart) * milli_to_minutes * expectation
+					history_list[session].duration = String(session.stampEnd - session.stampStart).toHHMMSS()
+					history_list[session].date = new Date(Date.parse(session.createdAt)).toDateString()
 				})
 			}
 		}
