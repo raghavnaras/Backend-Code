@@ -67,20 +67,25 @@ router.post("/data/last", function(req,res){
 		}
 	}).then(function(session){
 		if (session) {
-			console.log("session ID", session.sessionID);
-			BikeData.findOne({
+			BikeData.findAll({
+				limit: 1,
 				order: [
-					[sequelize.fn('max', sequelize.col('stamp')), 'DESC']
+					['stamp', 'DESC']
 				],
 				where: {sessionID: session.sessionID}
-			}).then(function(bikeData){
-				console.log("last bike stamp is", bikeData.stamp);
-				res.send({success: true, rpm: bikeData.rpm})
+			}).then(function(list){
+				data = list[0];
+				var current_time = new Date().getTime()
+				if (current_time - data.stamp < 1000) {
+					res.send({success: true, rpm: data.rpm})
+				}
+				else {
+					res.send({success: true, rpm: 0})
+				}
 			})
 		}
 		else {
-			console.log("can't find a session")
-			res.send({success: false, rpm: 0.0})
+			res.send({success: false, rpm: 0})
 		}
 	})
 	// 	then(function(list){
