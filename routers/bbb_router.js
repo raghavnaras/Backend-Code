@@ -668,20 +668,24 @@ router.post("/history", function(req,res){
 
 					for (point in data) {
 						total += data[point].dataValues.rpm
-						console.log("BIKE POINNNNTTT FUCK YEAAAAA RPM: " + data[point].RPM);
-						console.log("BIKE POINNNNTTT FUCK YEAAAAA RPM WITH DATA VALUES: " + data[point].dataValues.RPM);
+						console.log("BIKE POINNNNTTT FUCK YEAAAAA RPM: " + data[point].rpm);
+						console.log("BIKE POINNNNTTT FUCK YEAAAAA RPM WITH DATA VALUES: " + data[point].dataValues.rpm);
 					}
 					expectation = total/parseFloat(data.length)
 					console.log("IM EXPECTING SOME MAD DANK RIGHT HEREEEEEEE: " + expectation);
 					history_list[session].average_rpm = expectation
+					console.log("ENTRY FOR AVE: " + history_list[session].average_rpm);
 					history_list[session].distance = 0.0044*(sessions[session].stampEnd - sessions[session].stampStart) * milli_to_minutes * expectation
+					console.log("ENTRY FOR DURATION: " + history_list[session].distance);
 					history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
+					console.log("ENTRY FOR DATE: " + history_list[session].duration);
 					history_list[session].date = new Date(Date.parse(sessions[session].createdAt)).toDateString()
 				})
 			}
 		}
 	}).then(function() {
-		res.send(history_list)
+		console.log("THIS IS THE FUCKIN HISTORY LIST YEAAAAAA: " + history_list);
+		res.send(history_list);
 	})
 })
 
