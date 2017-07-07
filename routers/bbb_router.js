@@ -689,6 +689,12 @@ router.post("/history", function(req,res){
 				)
 			}
 		}
+
+		Promise.all(promises).then(function(session) {
+			console.log("FUCKK YEAHH, HISTORY, BITCH!!!!!!!!!!!!!!!!!!");
+			res.send(history_list);
+		});
+
 	})
 
 		// var promises = sessions.map(function(session) {
@@ -724,10 +730,8 @@ router.post("/history", function(req,res){
 		// 		})
 		// 	}
 		// });
-		Promise.all(promises).then(function(session) {
-			console.log("FUCKK YEAHH, HISTORY, BITCH!!!!!!!!!!!!!!!!!!");
-			res.send(history_list);
-		});
+
+		
 });
 		// for (session in sessions) {
 		// 	// past_workout = sessions[session].dataValues
