@@ -1,28 +1,30 @@
- // Routers, Models, and Packages
+// Routers, Models, and Packages
 
- var express = require('express');
- var jwt = require ('jsonwebtoken');
- var router = express.Router();
- var models = require('../models');
- var jwtauth = require('../jwt_auth.js');
- var BikeData = models.BikeData;
- var User = models.User;
- var Tag = models.Tag;
- var RaspberryPi = models.RaspberryPi;
- var SessionData = models.SessionData;
- var spawn = require("child_process").spawn;
- var sequelize = require('sequelize');
- var bodyParser = require('body-parser');
- var bcrypt = require('bcryptjs');
+var express = require('express');
+var jwt = require ('jsonwebtoken');
+var router = express.Router();
+var models = require('../models');
+var jwtauth = require('../jwt_auth.js');
+var BikeData = models.BikeData;
+var User = models.User;
+var Tag = models.Tag;
+var RaspberryPi = models.RaspberryPi;
+var SessionData = models.SessionData;
+var spawn = require("child_process").spawn;
+var sequelize = require('sequelize');
+var bodyParser = require('body-parser');
+var bcrypt = require('bcryptjs');
+// var moment = require('moment');
+var moment = require('moment-timezone');
 
- var app = express();
+var app = express();
 
- var aws = require("aws-sdk");
- aws.config.update({
- 	region: "us-west-2",
- });
+var aws = require("aws-sdk");
+aws.config.update({
+	region: "us-west-2",
+});
 
- var ses = new aws.SES({"accessKeyId": "", "secretAccessKey":"","region":"us-west-2"})
+var ses = new aws.SES({"accessKeyId": "", "secretAccessKey":"","region":"us-west-2"})
 
 
 // sets up authorization where it matters
@@ -192,7 +194,9 @@ router.post("/get_last_workout", function(req, res){
 	}).then(function(stampStart) {
 		console.log("Workout: " + stampStart)
 		if (stampStart) {
-			res.send({status: "success", date: new Date(parseInt(stampStart)).toDateString()});
+			// subtract 5 hours (in ms) to account for time zone (i.e., CST)
+			var dateTime = moment(parseInt(stampStart)).tz(moment.tz.guess()).format("dddd, MMMM Do, h:mm A");
+			res.send({status: "success", date: dateTime});
 		} else {
 			res.send({status: "failure", date: ""})
 		}
@@ -682,11 +686,13 @@ router.post("/history", function(req,res){
 						console.log("DATA LENGTH: " + data.length)
 						console.log("DATA LENGTH PARSED: " + parseFloat(data.length))
 						expectation = (data.length == 0) ? 0 : (total/data.length)
-						history_list[session].average_rpm = expectation
+						history_list[session].average_rpm = expectation.toFixed(2);
 						// ERROR: CANNOT MEASURE DISTANCE USING RPM
-						history_list[session].distance = 0.0044*(sessions[session].stampEnd - sessions[session].stampStart) * milli_to_minutes * expectation
+						// history_list[session].distance = 0.0044*(sessions[session].stampEnd - sessions[session].stampStart) * milli_to_minutes * expectation
 						history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
-						history_list[session].date = new Date(parseInt(sessions[session].stampStart)).toDateString()
+
+						var dateTime = moment(parseInt(sessions[session].stampStart)).tz(moment.tz.guess()).format("ddd MMM DD YYYY, h:mm A");
+						history_list[session].date = dateTime;
 
 						return -1;
 					})
