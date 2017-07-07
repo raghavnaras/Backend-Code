@@ -186,28 +186,17 @@ router.post("/check_active_session", function(req, res){
 // the most recent workout is defined to be the one that was created most recently
 router.get("/get_last_workout", function(req, res){
 	console.log("Get Last Workout Information: " + JSON.stringify(req.headers));
-	SessionData.findAll(
-		{where: {
+	SessionData.max("stampStart", {
+		where: {
 			userID: req.body.userID,
 			stampEnd: {
 				$ne: null
 			}
-		}}).then(function(sessions){
-			var most_recent_date = -1
-			for (inc in sessions) {
-			// var date = Date.parse(sessions[inc].createdAt)
-			// if (date > most_recent_date) {
-			// 	most_recent_date = date
-			// }
 		}
-		if (most_recent_date > -1) {
-			// res.send({date: String((new Date(most_recent_date)).toDateString())})
-			res.send({date: ""})
-		} else {
-			res.send({date: ""})
-		}
+	}).then(function(workout) {
+		res.send({date: new Date(parseInt(stampStart))})
 	})
-	})
+})
 
 router.get("/test_connection", function(req, res) {
 	res.send({status: "success"});
