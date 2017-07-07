@@ -665,8 +665,10 @@ router.post("/history", function(req,res){
 						sessionID: sessions[session].sessionID
 					}
 				}).then(function(data) {
+
 					for (point in data) {
 						total += data[point].dataValues.rpm
+						console.log("BIKE POINNNNTTT FUCK YEAAAAA: " + data[point]);
 					}
 					expectation = total/parseFloat(data.length)
 					history_list[session].average_rpm = expectation
