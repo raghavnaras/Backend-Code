@@ -664,16 +664,14 @@ router.post("/history", function(req,res){
 							total += data[point].dataValues.rpm
 						}
 
-						if (total != 0) {
-							history_list.push({})
+						history_list.push({})
 
-							expectation = total/parseFloat(data.length)
-							history_list[session].average_rpm = expectation
-							history_list[session].distance = 0.0044*(sessions[session].stampEnd - sessions[session].stampStart) * milli_to_minutes * expectation
-							history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
-							history_list[session].date = new Date(parseInt(sessions[session].stampStart)).toDateString()
-						}
-						
+						expectation = total/parseFloat(data.length)
+						history_list[session].average_rpm = expectation
+						history_list[session].distance = 0.0044*(sessions[session].stampEnd - sessions[session].stampStart) * milli_to_minutes * expectation
+						history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
+						history_list[session].date = new Date(parseInt(sessions[session].stampStart)).toDateString()
+
 						return -1;
 					})
 				)
