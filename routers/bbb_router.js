@@ -194,7 +194,11 @@ router.get("/get_last_workout", function(req, res){
 			}
 		}
 	}).then(function(workout) {
-		res.send({date: new Date(parseInt(workout.stampStart))})
+		if (workout) {
+			res.send({status: "success", date: new Date(parseInt(workout.stampStart))})
+		} else {
+			res.send({status: "failure", date: ""})
+		}
 	})
 })
 
