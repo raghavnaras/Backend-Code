@@ -665,7 +665,7 @@ router.post("/history", function(req,res){
 					for (point in data) {
 						total += data[point].dataValues.rpm
 					}
-					expectation = total/parseFloat(past_workout.data.length)
+					expectation = total/parseFloat(data.length)
 					history_list[session].average_rpm = expectation
 					history_list[session].distance = 0.0044*(past_workout.stampEnd - past_workout.stampStart) * milli_to_minutes * expectation
 					history_list[session].duration = String(past_workout.stampEnd - past_workout.stampStart).toHHMMSS()
