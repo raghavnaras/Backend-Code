@@ -100,7 +100,7 @@ router.post("/data/last", function(req,res){
 		else {
 			res.send({success: false, rpm: 0.0})
 		}
-	}).
+	})
 	// 	then(function(list){
 	// 	console.log("list",list);
 	// 	res.setHeader('Content-Type', 'application/json');
