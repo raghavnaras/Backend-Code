@@ -27,7 +27,7 @@
 
 // sets up authorization where it matters
 router.use('/users', jwtauth);
-//router.use('/data', jwtauth);
+router.use('/data', jwtauth);
 //router.use('/data/last', jwtauth);
 router.use('/sessionlisten', jwtauth);
 //router.use('/average_duration', jwtauth);
@@ -58,6 +58,7 @@ router.get("/data", function(req, res){
 
 // get the last bike data point of a user in a session
 router.post("/data/last", function(req,res){
+	console.log("in data last");
 	SessionData.findOne({
 		where: {
 			userID:req.body.userID,
