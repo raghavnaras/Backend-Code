@@ -652,6 +652,8 @@ router.post("/history", function(req,res){
 			if (session != null) {
 				var milli_to_minutes = (1/60000.0)
 
+				history_list.push({})
+
 				promises.push(
 					BikeData.findAll({
 						where: {
@@ -663,8 +665,6 @@ router.post("/history", function(req,res){
 						for (point in data) {
 							total += data[point].dataValues.rpm
 						}
-
-						history_list.push({})
 
 						expectation = total/parseFloat(data.length)
 						history_list[session].average_rpm = expectation
