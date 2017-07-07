@@ -199,9 +199,7 @@ router.post("/check_active_session", function(req, res){
 })
 
 // the most recent workout is defined to be the one that was created most recently
-router.get("/get_last_workout", function(req, res){
-	console.log("Get Last Workout Information: " + JSON.stringify(req.headers));
-	console.log("USER ID - GET LAST WORKOUT:" + req.body.userID)
+router.post("/get_last_workout", function(req, res){
 	SessionData.max('stampStart', {
 		where: {
 			userID: req.body.userID,
@@ -211,7 +209,7 @@ router.get("/get_last_workout", function(req, res){
 		}
 	}).then(function(workout) {
 		if (workout) {
-			res.send({status: "success", date: new Date(parseInt(workout.stampStart)).toDateString()})
+			res.send({status: "success", date: String(new Date(workout.stampStart).toDateString())})
 		} else {
 			res.send({status: "failure", date: ""})
 		}
