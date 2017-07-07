@@ -651,7 +651,6 @@ router.post("/history", function(req,res){
 		for (session in sessions) {
 			if (session != null) {
 				var milli_to_minutes = (1/60000.0)
-				history_list.push({})
 
 				promises.push(
 					BikeData.findAll({
@@ -659,17 +658,22 @@ router.post("/history", function(req,res){
 							sessionID: sessions[session].sessionID
 						}
 					}).then(function(data) {
-
 						total = 0
 
 						for (point in data) {
 							total += data[point].dataValues.rpm
 						}
-						expectation = total/parseFloat(data.length)
-						history_list[session].average_rpm = expectation
-						history_list[session].distance = 0.0044*(sessions[session].stampEnd - sessions[session].stampStart) * milli_to_minutes * expectation
-						history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
-						history_list[session].date = new Date(parseInt(sessions[session].stampStart)).toDateString()
+
+						if (total != 0) {
+							history_list.push({})
+
+							expectation = total/parseFloat(data.length)
+							history_list[session].average_rpm = expectation
+							history_list[session].distance = 0.0044*(sessions[session].stampEnd - sessions[session].stampStart) * milli_to_minutes * expectation
+							history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
+							history_list[session].date = new Date(parseInt(sessions[session].stampStart)).toDateString()
+						}
+						
 						return -1;
 					})
 				)
