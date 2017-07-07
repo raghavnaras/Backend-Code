@@ -84,7 +84,6 @@ router.post("/data/last", function(req,res){
 	}).then(function(sessionID){
 		console.log("session ID", sessionID);
 		BikeData.max('stamp',{
-			console.log('stamp', stamp);
 			where: {sessionID: sessionID}
 		})
 	}).then(function(stamp){
