@@ -207,9 +207,10 @@ router.post("/get_last_workout", function(req, res){
 				$ne: null
 			}
 		}
-	}).then(function(workout) {
-		if (workout) {
-			res.send({status: "success", date: String(new Date(parseInt(workout.stampStart)).toDateString())})
+	}).then(function(stampStart) {
+		console.log("Workout: " + stampStart)
+		if (stampStart) {
+			res.send({status: "success", date: new Date(parseInt(stampStart)).toDateString()});
 		} else {
 			res.send({status: "failure", date: ""})
 		}
