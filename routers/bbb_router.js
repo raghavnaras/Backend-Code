@@ -118,17 +118,17 @@ router.get("/sessionlisten", function(req, res){
 // Helper Functions
 
 String.prototype.toHHMMSS = function () {
-	console.log(this)
-	// this should be in milliseconds, second parameter is the base (i.e., decimal)
-	var sec_num = parseInt(this, 10);
-	var hours   = Math.floor(sec_num / 3600);
-	var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
-	var seconds = Math.floor(sec_num - (hours * 3600) - (minutes * 60));
+    //console.log(this)
+    // this should be in milliseconds, second parameter is the base (i.e., decimal)
+    var sec_num = parseInt(this, 10) / 1000
+    var hours   = Math.floor(sec_num / 3600)
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60)
+    var seconds = Math.floor(sec_num - (hours * 3600) - (minutes * 60))
 
-	if (hours   < 10) {hours   = "0" + hours;}
-	if (minutes < 10) {minutes = "0" + minutes;}
-	if (seconds < 10) {seconds = "0" + seconds;}
-	return hours + ':' + minutes + ':' + seconds;
+    if (hours   < 10) {hours   = "0"+hours;}
+    if (minutes < 10) {minutes = "0"+minutes;}
+    if (seconds < 10) {seconds = "0"+seconds;}
+    return hours+':'+minutes+':'+seconds;
 }
 
 router.post("/average_duration", function(req, res){
@@ -674,7 +674,8 @@ router.post("/history", function(req,res){
 							total += data[point].dataValues.rpm
 						}
 
-						expectation = total/parseFloat(data.length)
+
+						expectation = (parseFloat(data.length) == 0.00) ? (total/parseFloat(data.length)) : 0.00
 						history_list[session].average_rpm = expectation
 						history_list[session].distance = 0.0044*(sessions[session].stampEnd - sessions[session].stampStart) * milli_to_minutes * expectation
 						history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
