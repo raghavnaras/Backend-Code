@@ -14,7 +14,6 @@ var spawn = require("child_process").spawn;
 var sequelize = require('sequelize');
 var bodyParser = require('body-parser');
 var bcrypt = require('bcryptjs');
-// var moment = require('moment');
 var moment = require('moment-timezone');
 
 var app = express();
@@ -191,10 +190,8 @@ router.post("/get_last_workout", function(req, res){
 			}
 		}
 	}).then(function(stampStart) {
-		console.log("Workout: " + stampStart)
 		if (stampStart) {
-			// subtract 5 hours (in ms) to account for time zone (i.e., CST)
-			var dateTime = moment(parseInt(stampStart)).tz(moment.tz.guess()).format("dddd, MMMM Do, h:mm A");
+			var dateTime = moment(parseInt(stampStart)).tz("America/Chicago").format("dddd MMMM Do, h:mm A");
 			res.send({status: "success", date: dateTime});
 		} else {
 			res.send({status: "failure", date: ""})
@@ -690,7 +687,7 @@ router.post("/history", function(req,res){
 						// history_list[session].distance = 0.0044*(sessions[session].stampEnd - sessions[session].stampStart) * milli_to_minutes * expectation
 						history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
 
-						var dateTime = moment(parseInt(sessions[session].stampStart)).tz(moment.tz.guess()).format("ddd MMM DD YYYY, h:mm A");
+						var dateTime = moment(parseInt(sessions[session].stampStart)).tz("America/Chicago").format("ddd MMM DD YYYY, h:mm A");
 						history_list[session].date = dateTime;
 
 						return -1;
