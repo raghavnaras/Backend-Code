@@ -648,6 +648,7 @@ router.post("/history", function(req,res){
 		history_list = []
 		for (session in sessions) {
 			past_workout = sessions[session].dataValues
+			console.log("PAST WORKOUTTTT: " + past_workout);
 			if (past_workout != null) {
 				var milli_to_minutes = (1/60000.0)
 				history_list.push({})
