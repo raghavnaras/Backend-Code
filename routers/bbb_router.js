@@ -194,7 +194,7 @@ router.get("/get_last_workout", function(req, res){
 			}
 		}
 	}).then(function(workout) {
-		res.send({date: new Date(parseInt(stampStart))})
+		res.send({date: new Date(parseInt(workout.stampStart))})
 	})
 })
 
