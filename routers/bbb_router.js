@@ -55,27 +55,6 @@ router.get("/data", function(req, res){
 });
 
 
-router.get("/verifysecretcode", function(req,res){
-	User.findOne({
-		where:{
-			email: req.body.email
-		}
-	}).then(function(user){
-		if (user){
-			bcrypt.compare((req.body.secretcode.toString()), String(user.resetpasswordcode), function(err, response) {
-				if (response){
-					res.send({status: 200})
-				}
-				else{
-					res.send({status: "failure"});
-				}
-			}
-			)}
-			else {
-				res.send({status: "failure"});
-			}
-		})
-})
 
 // get the last bike data point of a user in a session
 router.post("/data/last", function(req,res){
@@ -223,6 +202,28 @@ router.get("/test_connection", function(req, res) {
 });
 
 // POST REQUESTS
+
+router.post("/verifysecretcode", function(req,res){
+	User.findOne({
+		where:{
+			email: req.body.email
+		}
+	}).then(function(user){
+		if (user){
+			bcrypt.compare((req.body.secretcode.toString()), String(user.resetpasswordcode), function(err, response) {
+				if (response){
+					res.send({status: 200})
+				}
+				else{
+					res.send({status: "failure"});
+				}
+			}
+			)}
+			else {
+				res.send({status: "failure"});
+			}
+		})
+})
 
 router.post("/setup_account", function(req, res) {
 
