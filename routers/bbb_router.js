@@ -668,7 +668,7 @@ router.post("/history", function(req,res){
 					}
 					expectation = total/parseFloat(data.length)
 					// console.log("IM EXPECTING SOME MAD DANK RIGHT HEREEEEEEE: " + expectation);
-					history_list[session].average_rpm = expectation
+					history_list[session.sessionID].average_rpm = expectation
 					// console.log("ENTRY FOR AVE: " + history_list[session].average_rpm);
 					history_list[session].distance = 0.0044*(session.stampEnd - session.stampStart) * milli_to_minutes * expectation
 					// console.log("ENTRY FOR DURATION: " + history_list[session].distance);
