@@ -5,12 +5,12 @@ var User = models.User;
 
 module.exports = function(req, res, next) {
 	
-	console.log("Header: " + JSON.stringify(req.headers));
-	console.log("Body: " + JSON.stringify(req.body));
-	console.log("Header authorization: " + req.headers['authorization']);
+	// console.log("Header: " + JSON.stringify(req.headers));
+	// console.log("Body: " + JSON.stringify(req.body));
+	// console.log("Header authorization: " + req.headers['authorization']);
 
 	if (req.method == 'OPTIONS') {
-		console.log("OPTIONS REQUEST FOUND.")
+		// console.log("OPTIONS REQUEST FOUND.")
 		res.status(200).end();
 	}
 	
@@ -22,12 +22,12 @@ module.exports = function(req, res, next) {
 	if (token && req.method != 'OPTIONS') {
 		jwt.verify(token, 'ashu1234', function(err, decoded) {
 			if (err) {
-				console.log("Token could not be verified.");
+				// console.log("Token could not be verified.");
 				res.sendStatus(401);
 			}
 			else {
 				req.decoded = decoded;
-				console.log("Token has been decoded.");
+				// console.log("Token has been decoded.");
 				next();
 			}
 		});

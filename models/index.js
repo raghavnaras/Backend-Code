@@ -14,10 +14,10 @@ var sql = new Sql(config.db.schema, config.db.user, config.db.password, config.o
 //authenticates the connection
 sql.authenticate()
     .then(function(err) {
-        console.log('Connection has been established successfully.');
+        // console.log('Connection has been established successfully.');
     })
     .catch(function (err) {
-        console.log('Unable to connect to the database:', err);
+        // console.log('Unable to connect to the database:', err);
     });
 
 var fs = require("fs");
