@@ -693,6 +693,7 @@ router.post("/history", function(req,res){
 					history.duration = String(session.stampEnd - session.stampStart).toHHMMSS()
 					var dateTime = moment(parseInt(session.stampStart)).tz("America/Chicago").format("ddd MMM DD YYYY, h:mm A");
 					history.date = dateTime;
+					history.start = session.stampStart;
 
 					history_list.push(history);
 					console.log("HISTORY LIST AFTER PUSH: " + JSON.stringify(history_list));
