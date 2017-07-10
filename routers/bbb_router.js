@@ -59,7 +59,7 @@ router.get("/data", function(req, res){
 
 // get the last bike data point of a user in a session
 router.post("/data/last", function(req,res){
-	console.log("in data last");
+	// console.log("in data last");
 	SessionData.findOne({
 		where: {
 			userID:req.body.userID,
@@ -372,7 +372,7 @@ router.post("/login", function(req, res) {
 		if (user) {
 			bcrypt.compare(req.body.password, String(user.pswd), function(err, response) {
 				if (response){
-					console.log("Login UserID: " + user.id);
+					// console.log("Login UserID: " + user.id);
                 	// var expires = moment().add('days', 7).valueOf();
                 	var token = jwt.sign({userName: user.name, userID: user.id, email: user.email}, 'ashu1234');
                 	res.json({
@@ -404,7 +404,7 @@ router.post("/logout", function(req, res){
 });
 
 router.post("/start_workout", function(req, res) {
-	console.log("Entered start_workout");
+	// console.log("Entered start_workout");
 	RaspberryPi.findOne({
 		where: {
 			serialNumber: req.body.serialNumber
@@ -434,7 +434,7 @@ router.post("/start_workout", function(req, res) {
 })
 
 router.post("/end_workout", function(req, res) {
-	console.log("Entered end_workout");
+	// console.log("Entered end_workout");
 	RaspberryPi.findOne({
 		where: {
 			serialNumber: req.body.serialNumber
@@ -475,7 +475,7 @@ router.post("/end_workout", function(req, res) {
 // tag, but a new session is not created.
 
 router.post("/process_tag", function(req, res) {
-	console.log("Entered process_tag");
+	// console.log("Entered process_tag");
 	Tag.findOne({
 		where: {
 			RFID: req.body.RFID
@@ -497,8 +497,8 @@ router.post("/process_tag", function(req, res) {
 					}
 				}).then(function(pair) {
 					if (pair[0] == 0) {
-						console.log("UserID from Tag in process_tag: " + tag.dataValues.userID);
-						console.log("UserID from Tag in process_tag without dataValues: " + tag.userID);
+						// console.log("UserID from Tag in process_tag: " + tag.dataValues.userID);
+						// console.log("UserID from Tag in process_tag without dataValues: " + tag.userID);
 						SessionData.create({
 							RFID: req.body.RFID,
 							userID: tag.dataValues.userID,
@@ -507,8 +507,8 @@ router.post("/process_tag", function(req, res) {
 						})
 						res.send({status: "Created", message: "Session has been created since one is not in progress."})
 					} else {
-						console.log("UserID from Tag in process_tag second: " + tag.dataValues.userID);
-						console.log("UserID from Tag in process_tag without dataValues second: " + tag.userID);
+						// console.log("UserID from Tag in process_tag second: " + tag.dataValues.userID);
+						// console.log("UserID from Tag in process_tag without dataValues second: " + tag.userID);
 						res.send({status: "Updated", message: "Session in progress has been updated."});
 					}
 				})
@@ -533,7 +533,7 @@ router.post("/process_tag", function(req, res) {
 })
 
 router.post("/check_tag", function(req, res){
-	console.log("Req from check_tag: " + req.body.userID);
+	// console.log("Req from check_tag: " + req.body.userID);
 	Tag.update({
 		registered: true,
 		tagName: req.body.tagName,
@@ -666,9 +666,8 @@ router.post("/history", function(req,res){
 		console.log(sessions);
 		history_list = []
 		var promises = []
-		var i
 
-		for (i = 0; i < sessions.length; i++) {			
+		for (var i = 0; i < sessions.length; i++) {			
 			const session = i
 			console.log("SESSSION NUMBERRR IN LOOP: " + i)
 			var milli_to_minutes = (1/60000.0)
