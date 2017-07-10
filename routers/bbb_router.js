@@ -663,7 +663,7 @@ router.post("/history", function(req,res){
 			}
 		}
 	}).then(function(sessions) {
-		console.log(sessions);
+		//console.log(sessions);
 		history_list = []
 		var promises = []
 
