@@ -668,12 +668,14 @@ router.post("/history", function(req,res){
 		var promises = []
 
 		for (var i = 0; i < sessions.length; i++) {
+			console.log("iteration: " + i);
 			const session = i
 			var milli_to_minutes = (1/60000.0)
 
 			history_list.push({})
 
 			promises.push(
+				console.log("session iteration: " + session);
 				BikeData.findAll({
 					where: {
 						sessionID: sessions[session].sessionID
