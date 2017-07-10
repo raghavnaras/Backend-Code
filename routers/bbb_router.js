@@ -670,7 +670,7 @@ router.post("/history", function(req,res){
 
 		for (i = 0; i < sessions.length; i++) {			
 			const session = i
-			console.log("SESSSION NUMBERRR IN LOOP: " + session)
+			console.log("SESSSION NUMBERRR IN LOOP: " + i)
 			var milli_to_minutes = (1/60000.0)
 
 			history_list.push({})
