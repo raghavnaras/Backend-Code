@@ -675,12 +675,12 @@ router.post("/history", function(req,res){
 			history_list.push({})
 
 			promises.push(
-				console.log("SESSSION NUMBERRR IN PROMISE: " + session)
 				BikeData.findAll({
 					where: {
 						sessionID: sessions[session].sessionID
 					}
 				}).then(function(data) {
+					console.log("SESSSION NUMBERRR IN PROMISE: " + session)
 					total = 0.00
 
 					for (point in data) {
