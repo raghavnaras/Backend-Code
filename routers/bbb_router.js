@@ -676,7 +676,6 @@ router.post("/history", function(req,res){
 			history_list.push({})
 
 			promises.push(
-				console.log("session iteration: " + session);
 				BikeData.findAll({
 					where: {
 						sessionID: sessions[session].sessionID
