@@ -666,10 +666,11 @@ router.post("/history", function(req,res){
 		console.log(sessions);
 		history_list = []
 		var promises = []
+		var i
 
-		for (var i = 0; i < sessions.length; i++) {
-			console.log("SESSSION NUMBERRR IN LOOP: " + session)
+		for (i = 0; i < sessions.length; i++) {			
 			const session = i
+			console.log("SESSSION NUMBERRR IN LOOP: " + session)
 			var milli_to_minutes = (1/60000.0)
 
 			history_list.push({})
@@ -699,7 +700,7 @@ router.post("/history", function(req,res){
 			)
 		}
 		Promise.all(promises).then(function(session) {
-			console.log(history_list);
+			//console.log(history_list);
 			res.send(history_list);
 		});
 	})
