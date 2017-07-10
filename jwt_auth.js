@@ -10,7 +10,7 @@ module.exports = function(req, res, next) {
 	// console.log("Header authorization: " + req.headers['authorization']);
 
 	if (req.method == 'OPTIONS') {
-		// console.log("OPTIONS REQUEST FOUND.")
+		//console.log("OPTIONS REQUEST FOUND.")
 		res.status(200).end();
 	}
 	
