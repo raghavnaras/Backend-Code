@@ -663,6 +663,7 @@ router.post("/history", function(req,res){
 			}
 		}
 	}).then(function(sessions) {
+		console.log(sessions);
 		history_list = []
 		var promises = []
 
@@ -696,6 +697,7 @@ router.post("/history", function(req,res){
 			)
 		}
 		Promise.all(promises).then(function(session) {
+			console.log(history_list);
 			res.send(history_list);
 		});
 	})
