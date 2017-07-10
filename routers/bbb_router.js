@@ -663,6 +663,7 @@ router.post("/history", function(req,res){
 			}
 		}
 	}).then(function(sessions) {
+		console.log(sessions);
 		history_list = []
 		var promises = []
 
@@ -686,7 +687,7 @@ router.post("/history", function(req,res){
 						total += data[point].dataValues.rpm
 					}
 
-					expectation = (data.length == 0) ? 0 : (total/data.length)
+					expectation = (data.length == 0) ? 0.00 : (total/data.length)
 					history_list[session].average_rpm = expectation.toFixed(2);
 					history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
 
@@ -698,6 +699,7 @@ router.post("/history", function(req,res){
 			)
 		}
 		Promise.all(promises).then(function(session) {
+			console.log(history_list);
 			res.send(history_list);
 		});
 	})
