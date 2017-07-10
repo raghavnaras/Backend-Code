@@ -668,7 +668,7 @@ router.post("/history", function(req,res){
 		var promises = []
 
 		for (var i = 0; i < sessions.length; i++) {
-			console.log("iteration: " + i);
+			console.log("SESSSION NUMBERRR IN LOOP: " + session)
 			const session = i
 			var milli_to_minutes = (1/60000.0)
 
@@ -681,6 +681,7 @@ router.post("/history", function(req,res){
 						sessionID: sessions[session].sessionID
 					}
 				}).then(function(data) {
+					console.log("SESSSION NUMBERRR IN PROMISE: " + session)
 					total = 0.00
 
 					for (point in data) {
