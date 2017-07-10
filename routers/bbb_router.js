@@ -695,6 +695,7 @@ router.post("/history", function(req,res){
 					history.date = dateTime;
 
 					history_list.push(history);
+					console.log("HISTORY LIST AFTER PUSH: " + JSON.stringify(history_list));
 
 					return -1;
 				})
