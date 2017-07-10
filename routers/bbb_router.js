@@ -670,11 +670,15 @@ router.post("/history", function(req,res){
 
 		Promise.all(
 			sessions.map(function(session) {
+				console.log("SESSION INSIDE PROMISE: " + JSON.stringify(session));
+				console.log("SESSION INDEX INSIDE PROMISE: " + sessions.indexOf(session));
+				console.log("HISTORY INSIDE PROMISE: " + JSON.stringify(history_list));
 				BikeData.findAll({
 					where: {
 						sessionID: session.sessionID
 					}
 				}).then(function(data) {
+
 					total = 0.0
 
 					history = {}
@@ -696,6 +700,7 @@ router.post("/history", function(req,res){
 				})
 			})
 		).then(function(session) {
+			console.log("HISTORY LIST: " + JSON.stringify(history_list));
 			res.send(history_list);
 		});
 
