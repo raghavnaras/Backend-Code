@@ -666,42 +666,74 @@ router.post("/history", function(req,res){
 		//console.log(sessions);
 		history_list = []
 		var promises = []
+		var milli_to_minutes = (1/60000.0)
 
-		for (var i = 0; i < sessions.length; i++) {			
-			const session = i
-			console.log("SESSSION NUMBERRR IN LOOP: " + i)
-			var milli_to_minutes = (1/60000.0)
-
-			history_list.push({})
-
-			promises.push(
+		Promise.all(
+			sessions.map(function(session) {
 				BikeData.findAll({
 					where: {
-						sessionID: sessions[session].sessionID
+						sessionID: session.sessionID
 					}
 				}).then(function(data) {
-					console.log("SESSSION NUMBERRR IN PROMISE: " + session)
-					total = 0.00
+					total = 0.0
+
+					history = {}
 
 					for (point in data) {
 						total += data[point].dataValues.rpm
 					}
 
 					expectation = (data.length == 0) ? 0.00 : (total/data.length)
-					history_list[session].average_rpm = expectation.toFixed(2);
-					history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
 
-					var dateTime = moment(parseInt(sessions[session].stampStart)).tz("America/Chicago").format("ddd MMM DD YYYY, h:mm A");
-					history_list[session].date = dateTime;
+					history.average_rpm = expectation.toFixed(2);
+					history.duration = String(session.stampEnd - session.stampStart).toHHMMSS()
+					var dateTime = moment(parseInt(session.stampStart)).tz("America/Chicago").format("ddd MMM DD YYYY, h:mm A");
+					history.date = dateTime;
+
+					history_list.push(history);
 
 					return -1;
 				})
-			)
-		}
-		Promise.all(promises).then(function(session) {
-			//console.log(history_list);
+			})
+		).then(function(session) {
 			res.send(history_list);
 		});
+
+		// for (var i = 0; i < sessions.length; i++) {			
+		// 	const session = i
+		// 	console.log("SESSSION NUMBERRR IN LOOP: " + i)
+		// 	var milli_to_minutes = (1/60000.0)
+
+		// 	history_list.push({})
+
+		// 	promises.push(
+		// 		BikeData.findAll({
+		// 			where: {
+		// 				sessionID: sessions[session].sessionID
+		// 			}
+		// 		}).then(function(data) {
+		// 			console.log("SESSSION NUMBERRR IN PROMISE: " + session)
+		// 			total = 0.00
+
+		// 			for (point in data) {
+		// 				total += data[point].dataValues.rpm
+		// 			}
+
+		// 			expectation = (data.length == 0) ? 0.00 : (total/data.length)
+		// 			history_list[session].average_rpm = expectation.toFixed(2);
+		// 			history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
+
+		// 			var dateTime = moment(parseInt(sessions[session].stampStart)).tz("America/Chicago").format("ddd MMM DD YYYY, h:mm A");
+		// 			history_list[session].date = dateTime;
+
+		// 			return -1;
+		// 		})
+		// 	)
+		// }
+		// Promise.all(promises).then(function(session) {
+		// 	//console.log(history_list);
+		// 	res.send(history_list);
+		// });
 	})
 })
 
