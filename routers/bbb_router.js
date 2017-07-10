@@ -684,7 +684,7 @@ router.post("/history", function(req,res){
 						total += data[point].dataValues.rpm
 					}
 
-					expectation = (data.length == 0) ? 0 : (total/data.length)
+					expectation = (data.length == 0) ? 0.00 : (total/data.length)
 					history_list[session].average_rpm = expectation.toFixed(2);
 					history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
 
