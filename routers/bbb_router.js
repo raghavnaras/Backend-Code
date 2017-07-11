@@ -411,12 +411,12 @@ router.post("/logout", function(req, res){
 	})
 });
 
-function createSession(machineID, RFID=null, userID=null) {
+function createSession(machineID, RFID, userID) {
 	SessionData.create({
 		RFID: RFID,
 		userID: userID,
 		machineID: machineID,
-		stampStart: new Date().getTime();
+		stampStart: new Date().getTime()
 	})
 }
 
@@ -437,7 +437,7 @@ router.post("/start_workout", function(req, res) {
 				if (session) {
 					res.send({status: "Exists", message: "Session is in progress."})
 				} else {
-					createSession(RaspPi.machineID);
+					createSession(RaspPi.machineID, null, null);
 					// SessionData.create({
 					// 	stampStart: new Date().getTime(),
 					// 	machineID: RaspPi.machineID
