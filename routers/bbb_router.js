@@ -59,25 +59,29 @@ router.get("/data", function(req, res){
 
 // get the last bike data point of a user in a session
 router.post("/data/last", function(req,res){
-	// console.log("in data last");
 	SessionData.findOne({
 		where: {
 			userID:req.body.userID,
 			stampEnd: null
 		}
 	}).then(function(session){
+		console.log(session);
 		if (session) {
 			BikeData.findAll({
-				limit: 1,
+				limit: 3,
 				order: [
 					['stamp', 'DESC']
 				],
 				where: {sessionID: session.sessionID}
 			}).then(function(list){
+				var avg_rpm = 0
+				for data in list:
+					avg_rpm = avg_rpm + data.rpm
+				avg_rpm = avg_rpm / 3
 				data = list[0];
 				var current_time = new Date().getTime()
-				if (current_time - data.stamp < 1000) {
-					res.send({success: true, rpm: data.rpm})
+				if (current_time - data.stamp < 1500) {
+					res.send({success: true, rpm: avg_rpm})
 				}
 				else {
 					res.send({success: true, rpm: 0})
@@ -706,7 +710,7 @@ router.post("/history", function(req,res){
 			res.send(history_list);
 		});
 
-		// for (var i = 0; i < sessions.length; i++) {			
+		// for (var i = 0; i < sessions.length; i++) {
 		// 	const session = i
 		// 	console.log("SESSSION NUMBERRR IN LOOP: " + i)
 		// 	var milli_to_minutes = (1/60000.0)
