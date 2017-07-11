@@ -403,10 +403,12 @@ router.post("/end_workout", function(req, res) {
 router.post("/process_tag", function(req, res) {
 	utils.findTag(req.body.RFID).then(function(tag) {
 		if (tag) {
-			// if (/*session in progress and RPM in last 10 seconds*/) {
-			// 	send response: session already exists and is in progress
+			// if (utils.isCurrentSession()) {
+				// if session in progress and RPM in last 10 seconds
+				// send response: session already exists and is in progress
 			// } else /*session in progress and no RPM in last 10 seconds*/ {
 				utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
+					console.log("PROCESS TAG IS CURRENT SESSION: " + utils.isCurrentSession(RaspPi.machineID))
 					utils.addTagToSession(req.body.RFID, tag.dataValues.userID, RaspPi.machineID).then(function(pair) {
 						if (pair[0] == 0) {
 							utils.createSession(RaspPi.machineID, req.body.RFID, tag.dataValues.userID);

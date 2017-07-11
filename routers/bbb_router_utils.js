@@ -109,13 +109,10 @@ function findCurrentSessionUsingMachineID(machineID) {
 	})
 }
 
-function isCurrentSessionUsingMachineID(machineID) {
-	return SessionData.findOne({
-		where: {
-			machineID: machineID,
-			stampEnd: null
-		}
-	})
+function isCurrentSession(machineID) {
+	return Promise.resolve(findCurrentSessionUsingMachineID(machineID).then(function(session) {
+		return session ? true : false
+	}))
 }
 
 function findTag(RFID) {
