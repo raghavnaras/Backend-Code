@@ -18,7 +18,7 @@ module.exports = {
 			bikeID: bikeID,
 			sessionID: sessionID
 		})
-	}
+	},
 
 	createSession: function(machineID, RFID, userID) {
 		return SessionData.create({
@@ -27,7 +27,7 @@ module.exports = {
 			machineID: machineID,
 			stampStart: new Date().getTime()
 		})
-	}
+	},
 
 	createTag: function(RFID, tagName, userID, machineID, registered) {
 		return Tag.create({
@@ -37,7 +37,7 @@ module.exports = {
 			machineID: machineID,
 			registered: registered
 		})
-	}
+	},
 
 	createUser: function(name, email, pswd, gender, weight, age, height, RFID, resetpasswordcode) {
 		return User.create({
@@ -51,7 +51,7 @@ module.exports = {
 			RIFD: RFID,
 			resetpasswordcode: resetpasswordcode
 		})
-	}
+	},
 
 	// Helper functions for updating model instances
 
@@ -66,7 +66,7 @@ module.exports = {
 				registered: false
 			}
 		})
-	}
+	},
 
 	addTagToSession: function(RFID, userID, machineID) {
 		return SessionData.update({
@@ -78,7 +78,7 @@ module.exports = {
 				stampEnd: null
 			}
 		})
-	}
+	},
 
 	endSession: function(machineID) {
 		return SessionData.update({
@@ -89,7 +89,7 @@ module.exports = {
 				stampEnd: null
 			}
 		})
-	}
+	},
 
 	// Helper functions for reading model instances
 
@@ -99,7 +99,7 @@ module.exports = {
 				serialNumber: serialNumber
 			}
 		})
-	}
+	},
 
 	findCurrentSessionUsingMachineID: function(machineID) {
 		return SessionData.findOne({
@@ -108,7 +108,7 @@ module.exports = {
 				stampEnd: null
 			}
 		})
-	}
+	},
 
 	findTag: function(RFID) {
 		return Tag.findOne({
@@ -116,7 +116,7 @@ module.exports = {
 				RFID: RFID
 			}
 		})
-	}
+	},
 
 	findUserUsingEmail: function(email) {
 		return User.findOne({
