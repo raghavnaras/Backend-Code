@@ -15,6 +15,7 @@ var sequelize = require('sequelize');
 var bodyParser = require('body-parser');
 var bcrypt = require('bcryptjs');
 var moment = require('moment-timezone');
+var utils = require('./bbb_router_utils.js')
 
 var app = express();
 
@@ -55,8 +56,7 @@ router.get("/data", function(req, res){
 	})
 });
 
-
-
+// THIS FUNCTION IS BROKEN! (PROBABLY!)
 // get the last bike data point of a user in a session
 router.post("/data/last", function(req,res){
 	// console.log("in data last");
@@ -411,15 +411,6 @@ router.post("/logout", function(req, res){
 	})
 });
 
-function createSession(machineID, RFID, userID) {
-	SessionData.create({
-		RFID: RFID,
-		userID: userID,
-		machineID: machineID,
-		stampStart: new Date().getTime()
-	})
-}
-
 router.post("/start_workout", function(req, res) {
 	// console.log("Entered start_workout");
 	RaspberryPi.findOne({
@@ -437,7 +428,7 @@ router.post("/start_workout", function(req, res) {
 				if (session) {
 					res.send({status: "Exists", message: "Session is in progress."})
 				} else {
-					createSession(RaspPi.machineID, null, null);
+					utils.createSession(RaspPi.machineID, null, null);
 					// SessionData.create({
 					// 	stampStart: new Date().getTime(),
 					// 	machineID: RaspPi.machineID
