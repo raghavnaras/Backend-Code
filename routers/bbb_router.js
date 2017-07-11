@@ -408,7 +408,7 @@ router.post("/process_tag", function(req, res) {
 				// send response: session already exists and is in progress
 			// } else /*session in progress and no RPM in last 10 seconds*/ {
 				utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
-					console.log("PROCESS TAG IS CURRENT SESSION: " + utils.isCurrentSession(RaspPi.machineID))
+					console.log("PROCESS TAG IS CURRENT SESSION: " + JSON.stringify(utils.isCurrentSession(RaspPi.machineID)))
 					utils.addTagToSession(req.body.RFID, tag.dataValues.userID, RaspPi.machineID).then(function(pair) {
 						if (pair[0] == 0) {
 							utils.createSession(RaspPi.machineID, req.body.RFID, tag.dataValues.userID);
