@@ -29,10 +29,10 @@ var ses = new aws.SES({"accessKeyId": "", "secretAccessKey":"","region":"us-west
 // sets up authorization where it matters
 router.use('/users', jwtauth);
 router.use('/data', jwtauth);
-//router.use('/data/last', jwtauth);
+router.use('/data/last', jwtauth);
 router.use('/sessionlisten', jwtauth);
-//router.use('/average_duration', jwtauth);
-//router.use('/workout_duration', jwtauth);
+router.use('/average_duration', jwtauth);
+router.use('/workout_duration', jwtauth);
 router.use('/get_last_workout', jwtauth);
 router.use('/logout', jwtauth);
 router.use('/check_tag', jwtauth);
@@ -97,13 +97,21 @@ router.post("/data/last", function(req,res){
 
 router.get("/sessionlisten", function(req, res){
 	SessionData.findOne({
-		where: {stampEnd: null}
-	}).then(function(list){
-		if(list){
+		where: {
+			stampEnd: null
+		}
+	}).then(function(sessions){
+		if (sessions) {
 			Tag.findOne({
-				where: {id: list.dataValues.RFID}
-			}).then(function(RFID){
-				res.send({status: "success", tag: RFID})
+				where: {
+					id: sessions.dataValues.RFID
+				}
+			}).then(function(tag){
+				if (tag) {
+					res.send({status: "success", tag: tag.RFID})
+				} else {
+					res.send({status: "failure"})
+				}
 			})
 		} else {
 			res.send({status: "failure"})
@@ -403,6 +411,15 @@ router.post("/logout", function(req, res){
 	})
 });
 
+function createSession(machineID, RFID=null, userID=null) {
+	SessionData.create({
+		RFID: RFID,
+		userID: userID,
+		machineID: machineID,
+		stampStart: new Date().getTime();
+	})
+}
+
 router.post("/start_workout", function(req, res) {
 	// console.log("Entered start_workout");
 	RaspberryPi.findOne({
@@ -420,10 +437,11 @@ router.post("/start_workout", function(req, res) {
 				if (session) {
 					res.send({status: "Exists", message: "Session is in progress."})
 				} else {
-					SessionData.create({
-						stampStart: new Date().getTime(),
-						machineID: RaspPi.machineID
-					})
+					createSession(RaspPi.machineID);
+					// SessionData.create({
+					// 	stampStart: new Date().getTime(),
+					// 	machineID: RaspPi.machineID
+					// })
 					res.send({status: "Created", message: "Session has been created."})
 				}
 			})
@@ -663,16 +681,12 @@ router.post("/history", function(req,res){
 			}
 		}
 	}).then(function(sessions) {
-		//console.log(sessions);
 		history_list = []
 		var promises = []
 		var milli_to_minutes = (1/60000.0)
 
 		Promise.all(
 			sessions.map(function(session) {
-				console.log("SESSION INSIDE PROMISE: " + JSON.stringify(session));
-				console.log("SESSION INDEX INSIDE PROMISE: " + sessions.indexOf(session));
-				console.log("HISTORY INSIDE PROMISE: " + JSON.stringify(history_list));
 				return BikeData.findAll({
 					where: {
 						sessionID: session.sessionID
@@ -696,51 +710,12 @@ router.post("/history", function(req,res){
 					history.start = session.stampStart;
 
 					history_list.push(history);
-					console.log("HISTORY LIST AFTER PUSH: " + JSON.stringify(history_list));
-
 					return
 				})
 			})
 		).then(function(session) {
-			console.log("HISTORY LIST: " + JSON.stringify(history_list));
 			res.send(history_list);
 		});
-
-		// for (var i = 0; i < sessions.length; i++) {			
-		// 	const session = i
-		// 	console.log("SESSSION NUMBERRR IN LOOP: " + i)
-		// 	var milli_to_minutes = (1/60000.0)
-
-		// 	history_list.push({})
-
-		// 	promises.push(
-		// 		BikeData.findAll({
-		// 			where: {
-		// 				sessionID: sessions[session].sessionID
-		// 			}
-		// 		}).then(function(data) {
-		// 			console.log("SESSSION NUMBERRR IN PROMISE: " + session)
-		// 			total = 0.00
-
-		// 			for (point in data) {
-		// 				total += data[point].dataValues.rpm
-		// 			}
-
-		// 			expectation = (data.length == 0) ? 0.00 : (total/data.length)
-		// 			history_list[session].average_rpm = expectation.toFixed(2);
-		// 			history_list[session].duration = String(sessions[session].stampEnd - sessions[session].stampStart).toHHMMSS()
-
-		// 			var dateTime = moment(parseInt(sessions[session].stampStart)).tz("America/Chicago").format("ddd MMM DD YYYY, h:mm A");
-		// 			history_list[session].date = dateTime;
-
-		// 			return -1;
-		// 		})
-		// 	)
-		// }
-		// Promise.all(promises).then(function(session) {
-		// 	//console.log(history_list);
-		// 	res.send(history_list);
-		// });
 	})
 })
 
