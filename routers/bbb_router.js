@@ -428,7 +428,12 @@ router.post("/process_tag", function(req, res) {
 
 router.post("/check_tag", function(req, res) {
 	registerTag(req.body.tagName, req.body.userID, req.body.machineID).then(function(pair) {
-		res.send({status: (pair[0] > 0) ? "success" : "failure"});
+		if (pair[0] > 0) {
+			res.send({status: "success"})
+		} else {
+			res.send({status: "failure"})
+		}
+		// res.send({status: (pair[0] > 0) ? "success" : "failure"});
 	})
 })
 
