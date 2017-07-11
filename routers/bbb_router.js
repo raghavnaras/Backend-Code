@@ -403,17 +403,22 @@ router.post("/end_workout", function(req, res) {
 router.post("/process_tag", function(req, res) {
 	utils.findTag(req.body.RFID).then(function(tag) {
 		if (tag) {
-			utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
-				utils.addTagToSession(req.body.RFID, tag.dataValues.userID, RaspPi.machineID).then(function(pair) {
-					if (pair[0] == 0) {
-						utils.createSession(RaspPi.machineID, req.body.RFID, tag.dataValues.userID);
-						res.send({status: "Created", message: "Session has been created since one is not in progress."})
-					} else {
-						res.send({status: "Updated", message: "Session in progress has been updated."});
-					}
+			// if (/*session in progress and RPM in last 10 seconds*/) {
+			// 	send response: session already exists and is in progress
+			// } else /*session in progress and no RPM in last 10 seconds*/ {
+				utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
+					utils.addTagToSession(req.body.RFID, tag.dataValues.userID, RaspPi.machineID).then(function(pair) {
+						if (pair[0] == 0) {
+							utils.createSession(RaspPi.machineID, req.body.RFID, tag.dataValues.userID);
+							res.send({status: "Created", message: "Session has been created since one is not in progress."})
+						} else {
+							res.send({status: "Updated", message: "Session in progress has been updated."});
+						}
+					})
 				})
-			})
+			// }
 		} else {
+			// TODO: Should tag still be created if there is another session in progress on this machine's Pi?
 			utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
 				if (RaspPi) {
 					utils.createTag(req.body.RFID, null, null, RaspPi.machineID, false);
@@ -426,6 +431,9 @@ router.post("/process_tag", function(req, res) {
 	})
 })
 
+// TODO: Register no more than one tag for a user per machine (at the moment, all unregistered tages on a machine are
+// are registered in this function). One potential solution is to add a "stamp" attribute to the Tag table in the database
+// and register the most recent tag scanned (and deleted all previous unregistered tags).
 router.post("/check_tag", function(req, res) {
 	utils.registerTag(req.body.tagName, req.body.userID, req.body.machineID).then(function(pair) {
 		console.log("CHECK TAG PAIR: " + pair);
