@@ -75,8 +75,9 @@ router.post("/data/last", function(req,res){
 				where: {sessionID: session.sessionID}
 			}).then(function(list){
 				var avg_rpm = 0
-				for data in list:
+				for (data in list) {
 					avg_rpm = avg_rpm + data.rpm
+				}					
 				avg_rpm = avg_rpm / 3
 				data = list[0];
 				var current_time = new Date().getTime()
