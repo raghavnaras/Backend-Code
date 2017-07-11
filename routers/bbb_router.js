@@ -26,8 +26,8 @@ aws.config.update({
 
 var ses = new aws.SES({"accessKeyId": "", "secretAccessKey":"","region":"us-west-2"})
 
-
 // sets up authorization where it matters
+// TODO: Condense this into a function that excludes certain paths
 router.use('/users', jwtauth);
 router.use('/data', jwtauth);
 router.use('/data/last', jwtauth);
@@ -59,7 +59,6 @@ router.get("/data", function(req, res){
 // THIS FUNCTION IS BROKEN! (PROBABLY!)
 // get the last bike data point of a user in a session
 router.post("/data/last", function(req,res){
-	// console.log("in data last");
 	SessionData.findOne({
 		where: {
 			userID:req.body.userID,
@@ -95,32 +94,9 @@ router.post("/data/last", function(req,res){
 	// })
 })
 
-router.get("/sessionlisten", function(req, res){
-	SessionData.findOne({
-		where: {
-			stampEnd: null
-		}
-	}).then(function(sessions){
-		if (sessions) {
-			Tag.findOne({
-				where: {
-					id: sessions.dataValues.RFID
-				}
-			}).then(function(tag){
-				if (tag) {
-					res.send({status: "success", tag: tag.RFID})
-				} else {
-					res.send({status: "failure"})
-				}
-			})
-		} else {
-			res.send({status: "failure"})
-		}
-	})
-})
-
 // Helper Functions
 
+// TODO: Move this function to "bbb_router_utils.js" if possible
 String.prototype.toHHMMSS = function () {
     //console.log(this)
     // this should be in milliseconds, second parameter is the base (i.e., decimal)
@@ -129,10 +105,10 @@ String.prototype.toHHMMSS = function () {
     var minutes = Math.floor((sec_num - (hours * 3600)) / 60)
     var seconds = Math.floor(sec_num - (hours * 3600) - (minutes * 60))
 
-    if (hours   < 10) {hours   = "0"+hours;}
-    if (minutes < 10) {minutes = "0"+minutes;}
-    if (seconds < 10) {seconds = "0"+seconds;}
-    return hours+':'+minutes+':'+seconds;
+    if (hours   < 10) {hours   = "0" + hours;}
+    if (minutes < 10) {minutes = "0" + minutes;}
+    if (seconds < 10) {seconds = "0" + seconds;}
+    return (hours + ':' + minutes + ':' + seconds);
 }
 
 router.post("/average_duration", function(req, res){
@@ -219,39 +195,23 @@ router.get("/test_connection", function(req, res) {
 // POST REQUESTS
 
 router.post("/verifysecretcode", function(req,res){
-	User.findOne({
-		where:{
-			email: req.body.email
+	utils.findUserUsingEmail(req.body.email).then(function(user) {
+		if (user) {
+			bcrypt.compare(req.body.secretcode.toString(), String(user.resetpasswordcode), function(err, response) {
+				res.send({status: response ? 200 : "failure"})
+			})
+		} else {
+			res.send({status: "failure"});
 		}
-	}).then(function(user){
-		if (user){
-			bcrypt.compare((req.body.secretcode.toString()), String(user.resetpasswordcode), function(err, response) {
-				if (response){
-					res.send({status: 200})
-				}
-				else{
-					res.send({status: "failure"});
-				}
-			}
-			)}
-			else {
-				res.send({status: "failure"});
-			}
-		})
+	})
 })
 
 router.post("/setup_account", function(req, res) {
 
 	bcrypt.genSalt(10, function(err, salt) {
 		bcrypt.hash(req.body.password, salt, function(err, hash) {
-			User.create({
-				name: req.body.name,
-				email: req.body.email,
-				pswd: hash
-			}).then(function(list){
-				res.send({status: "success"});
-			}).error(function(e){
-				res.send({status: "failure"})
+			utils.createUser(req.body.name, req.body.email, hash, null, null, null, null, null, null).then(function(user){
+				res.send({status: user ? "success" : "failure"})
 			})
 		});
 	});
@@ -260,11 +220,7 @@ router.post("/setup_account", function(req, res) {
 
 
 router.post("/forgotpasswordchange", function(req, res){
-	User.findOne({
-		where: {
-			email: req.body.email
-		}
-	}).then(function(user){
+	utils.findUserUsingEmail(req.body.email).then(function(user) {
 		if (user) {
 			bcrypt.genSalt(10,function(err,salt){
 				bcrypt.hash(req.body.password, salt, function(err,hash){
@@ -287,11 +243,7 @@ router.post("/forgotpasswordchange", function(req, res){
 });
 
 router.post("/sendresetpassword",function(req, res){
-	User.findOne({
-		where:{
-			email: req.body.email
-		}
-	}).then(function(user){
+	utils.findUserUsingEmail(req.body.email).then(function(user){
 		if (user){
 			var resetcode = Math.floor((Math.random() * 99999) + 1);
             var ses_mail = "From: 'Digital Gym Reset Password' <" + req.body.email + ">\n";
@@ -338,7 +290,6 @@ router.post("/sendresetpassword",function(req, res){
 
 
 router.post("/changepassword", function(req, res){
-
 	User.findOne({
 		where: {
 			id: req.body.userId
@@ -368,12 +319,7 @@ router.post("/changepassword", function(req, res){
 });
 
 router.post("/login", function(req, res) {
-	// console.log("Login Information: " + JSON.stringify(req.headers));
-	User.findOne({
-		where: {
-			email: req.body.email
-		}
-	}).then(function(user) {
+	utils.findUserUsingEmail(req.body.email).then(function(user) {
 		if (!user) {
 			return res.send({status: 403});
 		}
@@ -403,75 +349,40 @@ router.post("/login", function(req, res) {
 
 router.post("/logout", function(req, res){
 	User.findOne({
-		where:{
+		where: {
 			id: req.body.userID
 		}
-	}).then(function(user){
-		res.send({status: "success"});
+	}).then(function(user) {
+		res.send({status: user ? "success" : "failure"});
 	})
 });
 
 router.post("/start_workout", function(req, res) {
-	// console.log("Entered start_workout");
-	RaspberryPi.findOne({
-		where: {
-			serialNumber: req.body.serialNumber
-		}
-	}).then(function(RaspPi) {
+	utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
 		if (RaspPi) {
-			SessionData.findOne({
-				where: {
-					machineID: RaspPi.machineID,
-					stampEnd: null
-				}
-			}).then(function(session) {
+			utils.findCurrentSessionUsingMachineID(RaspPi.machineID).then(function(session) {
 				if (session) {
 					res.send({status: "Exists", message: "Session is in progress."})
 				} else {
 					utils.createSession(RaspPi.machineID, null, null);
-					// SessionData.create({
-					// 	stampStart: new Date().getTime(),
-					// 	machineID: RaspPi.machineID
-					// })
 					res.send({status: "Created", message: "Session has been created."})
 				}
 			})
 		} else {
-			res.send({status: "None found", message: "Could not find machine (Pi)."})
+			res.send({status: "No Pi", message: "Could not find machine (RaspPi)."})
 		}
 	})
 })
 
 router.post("/end_workout", function(req, res) {
-	// console.log("Entered end_workout");
-	RaspberryPi.findOne({
-		where: {
-			serialNumber: req.body.serialNumber
-		}
-	}).then(function(RaspPi) {
+	utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
 		if (RaspPi) {
-			SessionData.update({
-				stampEnd: new Date().getTime()
-			}, {
-				where: {
-					machineID: RaspPi.machineID,
-					stampEnd: null
-				}
-			}).then(function(pair) {
-				if (pair[0] != 1) {
-					res.send({status: "failure1"});
-				}
-				else {
-					res.send({status: "success"});
-				}
-			}).error(function(error) {
-				res.send({status: "failure2"});
+			utils.endSession(RaspPi.machineID).then(function(pair) {
+				res.send({status: pair[0] == 1 ? "success" : (pair[0] < 1 ? "No session ended" : "More than one session ended")})
 			})
 		} else {
-			res.send({status: "failure3"});
+			res.send({status: "No Pi", message: "Could not find machine (RaspPi)."})
 		}
-	}).error(function(error) {
-		res.send({status: "failure4"});
 	})
 });
 
@@ -479,178 +390,48 @@ router.post("/end_workout", function(req, res) {
 
 // TODO: Change code so that in case that a session is in progress, and someone scans a
 // tag that is different from the tag that had been scanned for the session in progress,
-// the session in progress should end and another session should be created. At the moment,
-// the tag of the session in progress is updated with the RFID of the most recently scanned
-// tag, but a new session is not created.
+// the session in progress should continue **unless** the session in progress has not 
+// registered an RPM in the last 10 seconds. At the moment, the tag of the session in progress 
+// is updated with the RFID of the most recently scanned tag.
 
 router.post("/process_tag", function(req, res) {
-	// console.log("Entered process_tag");
-	Tag.findOne({
-		where: {
-			RFID: req.body.RFID
-		}
-	}).then(function(tag) {
+	utils.findTag(req.body.RFID).then(function(tag) {
 		if (tag) {
-			RaspberryPi.findOne({
-				where: {
-					serialNumber: req.body.serialNumber
-				}
-			}).then(function(RaspPi) {
-				SessionData.update({
-					RFID: req.body.RFID,
-					userID: tag.dataValues.userID
-				}, {
-					where: {
-						machineID: RaspPi.machineID,
-						stampEnd: null
-					}
-				}).then(function(pair) {
+			utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
+				utils.addTagToSession(req.body.RFID, tag.dataValues.userID, RaspPi.machineID).then(function(pair) {
 					if (pair[0] == 0) {
-						// console.log("UserID from Tag in process_tag: " + tag.dataValues.userID);
-						// console.log("UserID from Tag in process_tag without dataValues: " + tag.userID);
-						SessionData.create({
-							RFID: req.body.RFID,
-							userID: tag.dataValues.userID,
-							machineID: RaspPi.machineID,
-							stampStart: new Date().getTime()
-						})
+						utils.createSession(RaspPi.machineID, req.body.RFID, tag.dataValues.userID);
 						res.send({status: "Created", message: "Session has been created since one is not in progress."})
 					} else {
-						// console.log("UserID from Tag in process_tag second: " + tag.dataValues.userID);
-						// console.log("UserID from Tag in process_tag without dataValues second: " + tag.userID);
 						res.send({status: "Updated", message: "Session in progress has been updated."});
 					}
 				})
 			})
 		} else {
-			RaspberryPi.findOne({
-				where: {
-					serialNumber: req.body.serialNumber
+			utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
+				if (RaspPi) {
+					utils.createTag(req.body.RFID, null, null, RaspPi.machineID, false);
+					res.send({status: "Tag created"});					
+				} else {
+					res.send({status: "No Pi", message: "Could not find machine (RaspPi)."})
 				}
-			}).then(function(RaspPi) {
-				Tag.create({
-					RFID: req.body.RFID,
-					machineID: RaspPi.machineID,
-					registered: false
-				})
 			})
-			res.send({status: "new"});
 		}
-	}).error(function(e) {
-		res.send({status: "failure"})
 	})
 })
 
 router.post("/check_tag", function(req, res){
-	// console.log("Req from check_tag: " + req.body.userID);
-	Tag.update({
-		registered: true,
-		tagName: req.body.tagName,
-		userID: req.body.userID
-	}, {
-		where: {
-			machineID: req.body.machineID,
-			registered: false
-		}
-	}).then(function(pair) {
-		if (pair[0] > 0) {
-			res.send({status: 'success'});
-		}
-		else {
-			res.send({status: 'failure'});
-		}
-	}).error(function(e) {
-		res.send({status: 'failure'});
-	})
+	registerTag(req.body.tagName, req.body.userID, req.body.machineID).then(function(pair) {
+		res.send({status: pair[0] > 0 ? "success" : "failure"});
+	}
 })
 
-// router.post("/addsession", function(req, res) {
-//     SessionData.findAll({
-//     	where: {
-//             stampEnd: null
-//         }
-//     }).then(function(list) {
-//         if(list.length == 0){
-// 	        User.findAll({
-// 	            where: {
-// 	            	userId: req.body.userId
-//             	}
-// 	        }).then(function(list) {
-// 	            if (list.length == 0) {
-// 	                User.update({
-// 	                    RFID: req.body.tag
-// 	                }).then(function(user) {
-// 	                    console.log(user)
-// 	                    SessionData.create({
-// 	                        stampStart: new Date().getTime(),
-// 	                        userId: user.dataValues.id
-// 	                    })
-// 	                    res.send({
-// 	                        status: "new"
-// 	                    })
-// 	                })
-// 	            } else {
-// 	                res.send({
-// 	                    status: "old",
-// 	                    user: list[0]
-// 	                })
-// 	                SessionData.create({
-// 	                    stampStart: new Date().getTime(),
-// 	                    userId: list[0].dataValues.id
-// 	                })
-// 	            }
-//         	})
-//     	}
-//     	else {
-//     		res.send({status: "busy"})
-//     	}
-// 	})
-// })
-
-// router.post("/addname", function(req, res){
-// 	User.update({
-//   	name: req.body.name,
-// },{
-// 		where:
-// 			[{id: req.body.userID}]
-// 	}).then(function(list){
-//         res.send({status: "success"});
-// 	}).error(function(e){
-// 		res.send({status: "failure"})
-// 	})
-// });
-// router.post("/addemailgender", function(req, res){
-// 	User.update({
-//  	email: req.body.name,
-//  	gender: req.body.gender
-// },{
-// 		where:
-// 			[{id: req.body.userID}]
-// 	}).then(function(list){
-//         res.send({status: "success"});
-// 	}).error(function(e){
-// 		res.send({status: "failure"})
-// 	})
-// });
-
 router.post("/bike", function(req, res){
-	RaspberryPi.findOne({
-		where: {serialNumber: req.body.serialNumber}
-	}).then(function(RaspPi) {
+	utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
 		if (RaspPi) {
-			SessionData.findOne({
-				where: {
-					stampEnd: null,
-					machineID: RaspPi.machineID
-				}
-			}).then(function(session) {
+			utils.findCurrentSessionUsingMachineID(RaspPi.machineID).then(function(session) {
 				if (session) {
-					BikeData.create({
-						stamp: new Date().getTime(),
-						rpm: req.body.rpm,
-						bikeID: RaspPi.machineID,
-						sessionID: session.sessionID
-					});
+					utils.createBikeData(req.body.rpm, RaspPi.machineID, session.sessionID);
 					res.send({status: "success"});
 				} else {
 					res.send({status: "failure"});
