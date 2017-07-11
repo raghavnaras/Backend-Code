@@ -65,18 +65,24 @@ router.post("/data/last", function(req,res){
 			stampEnd: null
 		}
 	}).then(function(session){
+		console.log(session);
 		if (session) {
 			BikeData.findAll({
-				limit: 1,
+				limit: 3,
 				order: [
 					['stamp', 'DESC']
 				],
 				where: {sessionID: session.sessionID}
 			}).then(function(list){
+				var avg_rpm = 0
+				for (data in list) {
+					avg_rpm = avg_rpm + data.rpm
+				}					
+				avg_rpm = avg_rpm / 3
 				data = list[0];
 				var current_time = new Date().getTime()
-				if (current_time - data.stamp < 1000) {
-					res.send({success: true, rpm: data.rpm})
+				if (current_time - data.stamp < 1500) {
+					res.send({success: true, rpm: avg_rpm})
 				}
 				else {
 					res.send({success: true, rpm: 0})
