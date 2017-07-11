@@ -427,7 +427,7 @@ router.post("/process_tag", function(req, res) {
 })
 
 router.post("/check_tag", function(req, res) {
-	registerTag(req.body.tagName, req.body.userID, req.body.machineID).then(function(pair) {
+	utils.registerTag(req.body.tagName, req.body.userID, req.body.machineID).then(function(pair) {
 		console.log("CHECK TAG PAIR: " + pair);
 		if (pair[0] > 0) {
 			res.send({status: "success"})
