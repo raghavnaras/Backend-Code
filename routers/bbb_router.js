@@ -399,9 +399,14 @@ router.post("/end_workout", function(req, res) {
 // the session in progress should continue **unless** the session in progress has not 
 // registered an RPM in the last 10 seconds. At the moment, the tag of the session in progress 
 // is updated with the RFID of the most recently scanned tag.
+// RESOLVED BUT REQUIRES TESTING
 
 // TODO: Resolve issue of scanning the same original tag during a session in progress that had
 // been used to create that session in the first place.
+// RESOLVED BUT REQUIRES TESTING
+
+// TODO: What if user scans a different tag associated with his account 15s after last rpm?
+// Ask Ashu
 
 router.post("/process_tag", function(req, res) {
 	utils.findTag(req.body.RFID).then(function(tag) {
@@ -414,15 +419,19 @@ router.post("/process_tag", function(req, res) {
 									if (datum) {
 										res.send({status: "failure", message: "Tag not processed! Session in progress!"})
 									} else {
-										utils.endSession(RaspPi.machineID).then(function(endedSession) {
-											if (endedSession[0] > 0) {
-												utils.createSession(RaspPi.machineID, tag.RFID, tag.userID).then(function(createdSession) {
-													res.send({status: createdSession ? "success" : "failure"})
-												})
-											} else {
-												res.send({status: "failure", message: "Could not end session in progress."})
-											}
-										})
+										if (session.RFID != tag.RFID) {
+											utils.endSession(RaspPi.machineID).then(function(endedSession) {
+												if (endedSession[0] > 0) {
+													utils.createSession(RaspPi.machineID, tag.RFID, tag.userID).then(function(createdSession) {
+														res.send({status: createdSession ? "success" : "failure"})
+													})
+												} else {
+													res.send({status: "failure", message: "Could not end session in progress."})
+												}
+											})
+										} else {
+											res.send({status: "failure", message: "Same tag has been scanned again."})
+										}
 									}
 								} else {
 									/*Associate scanned tag with current session*/
