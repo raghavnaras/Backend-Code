@@ -252,7 +252,7 @@ router.post("/sendresetpassword",function(req, res){
 	utils.findUserUsingEmail(req.body.email).then(function(user){
 		if (user){
 			var resetcode = Math.floor((Math.random() * 99999) + 1);
-            var ses_mail = "From: 'Digital Gym Reset Password' <" + req.body.email + ">\n";
+            var ses_mail = "From: 'Digital Gym Reset Password' < rice.sensor@gmail.com >\n";
 			ses_mail = ses_mail + "To: " + req.body.email + "\n";
 			ses_mail = ses_mail + "Subject: Digital Gym Reset Password\n";
 			ses_mail = ses_mail + "MIME-Version: 1.0\n";
@@ -265,7 +265,7 @@ router.post("/sendresetpassword",function(req, res){
 			var params = {
 				RawMessage: { Data: new Buffer(ses_mail) },
 				Destinations: [ req.body.email ],
-				Source: "'Digital Gym Reset Password' <" + req.body.email + ">'"
+				Source: "'Digital Gym Reset Password' < rice.sensor@gmail.com >'"
 			};
 
 			ses.sendRawEmail(params, function(err, data) {
