@@ -400,25 +400,45 @@ router.post("/end_workout", function(req, res) {
 // registered an RPM in the last 10 seconds. At the moment, the tag of the session in progress 
 // is updated with the RFID of the most recently scanned tag.
 
+// TODO: Resolve issue of scanning the same original tag during a session in progress that had
+// been used to create that session in the first place.
+
 router.post("/process_tag", function(req, res) {
 	utils.findTag(req.body.RFID).then(function(tag) {
 		if (tag) {
-			// if (utils.isCurrentSession()) {
-				// if session in progress and RPM in last 10 seconds
-				// send response: session already exists and is in progress
-			// } else /*session in progress and no RPM in last 10 seconds*/ {
 				utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
-					console.log("PROCESS TAG IS CURRENT SESSION: " + JSON.stringify(utils.isCurrentSession(RaspPi.machineID)))
-					utils.addTagToSession(req.body.RFID, tag.dataValues.userID, RaspPi.machineID).then(function(pair) {
-						if (pair[0] == 0) {
-							utils.createSession(RaspPi.machineID, req.body.RFID, tag.dataValues.userID);
-							res.send({status: "Created", message: "Session has been created since one is not in progress."})
+					utils.findCurrentSessionUsingMachineID(RaspPi.machineID).then(function(session) {
+						if (session) {
+							utils.findRecentBikeData(10).then(function(datum) {
+								if (session.RFID) {
+									if (datum) {
+										res.send({status: "failure", message: "Tag not processed! Session in progress!"})
+									} else {
+										utils.endSession(RaspPi.machineID).then(function(endedSession) {
+											if (endedSession[0] > 0) {
+												utils.createSession(RaspPi.machineID, tag.RFID, tag.userID).then(function(createdSession) {
+													res.send({status: createdSession ? "success" : "failure"})
+												})
+											} else {
+												res.send({status: "failure", message: "Could not end session in progress."})
+											}
+										})
+									}
+								} else {
+									/*Associate scanned tag with current session*/
+									utils.addTagToSession(req.body.RFID, tag.dataValues.userID, RaspPi.machineID).then(function(updatedSession) {
+										res.send({status: (updatedSession[0] == 1) ? "updated" : "failure", 
+											message: (updatedSession[0] == 1) ? "Session in progress has been updated." : "Session in progress could not be updated."})
+									})
+								}
+							})
 						} else {
-							res.send({status: "Updated", message: "Session in progress has been updated."});
+							utils.createSession(RaspPi.machineID, tag.RFID, tag.userID).then(function(createdSession) {
+								res.send({status: createdSession ? "success" : "failure"})
+							})
 						}
-					})
+					})			
 				})
-			// }
 		} else {
 			// TODO: Should tag still be created if there is another session in progress on this machine's Pi?
 			utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {

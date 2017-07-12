@@ -92,6 +92,16 @@ function endSession(machineID) {
 
 // Helper functions for reading model instances
 
+function findRecentBikeData(seconds) {
+	return BikeData.findOne({
+		where: {
+			stamp: {
+				$gt: new Date().getTime() - (seconds * 1000)
+			} 
+		}
+	})
+}
+
 function findRaspPiUsingSerial(serialNumber) {
 	return RaspberryPi.findOne({
 		where: {
@@ -109,11 +119,11 @@ function findCurrentSessionUsingMachineID(machineID) {
 	})
 }
 
-function isCurrentSession(machineID) {
-	return Promise.resolve(findCurrentSessionUsingMachineID(machineID).then(function(session) {
-		return session ? true : false
-	}))
-}
+// function isCurrentSession(machineID) {
+// 	return findCurrentSessionUsingMachineID(machineID).then(function(session) {
+// 		return session ? true : false
+// 	})
+// }
 
 function findTag(RFID) {
 	return Tag.findOne({
@@ -141,9 +151,9 @@ module.exports = {
 	registerTag: registerTag,
 	addTagToSession: addTagToSession,
 	endSession: endSession,
+	findRecentBikeData: findRecentBikeData,
 	findRaspPiUsingSerial: findRaspPiUsingSerial,
 	findCurrentSessionUsingMachineID: findCurrentSessionUsingMachineID,
-	isCurrentSession: isCurrentSession,
 	findTag: findTag,
 	findUserUsingEmail: findUserUsingEmail
 }
