@@ -213,16 +213,32 @@ router.post("/verifysecretcode", function(req,res){
 })
 
 router.post("/setup_account", function(req, res) {
-
-	bcrypt.genSalt(10, function(err, salt) {
+    utils.findUserUsingEmail(req.body.email).then(function(user) {
+		if (user) {
+            res.send({status: "409"})
+        }
+	else {bcrypt.genSalt(10, function(err, salt) {
 		bcrypt.hash(req.body.password, salt, function(err, hash) {
 			utils.createUser(req.body.name, req.body.email, hash, null, null, null, null, null, null).then(function(user){
-				res.send({status: user ? "success" : "failure"})
+                if (user){
+                    var token = jwt.sign({userName: user.name, userID: user.id, email: user.email}, 'ashu1234');
+                	res.send({
+                		token: token,
+                		userName: user.name,
+                		userID: user.id,
+                		email: user.email,
+                        status: "success"
+				    });
+                }
+                else{
+                    res.send({status: "failure"})
+                }
 			})
 		});
-	});
-
+	})};
+})
 });
+
 
 
 router.post("/forgotpasswordchange", function(req, res){
