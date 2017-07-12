@@ -499,17 +499,6 @@ router.post("/check_rpm", function(req, res) {
 						if (!data) {
 							utils.endSession(RaspPi.machineID)
 						}
-						// if (data) {
-						// 	res.send({status: "failure", message: "Session not ended, as RPM has been found."})
-						// } else {
-						// 	utils.endSession(RaspPi.machineID).then(function(endedSession) {
-						// 		if (endedSession[0] == 1) {
-						// 			res.send({status: "success", message: "Session has been ended."})
-						// 		} else {
-						// 			res.send({status: "failure", message: "Sessions ended: " + endedSession[0]})
-						// 		}
-						// 	})
-						// }
 					})
 				}	
 			})
