@@ -172,5 +172,6 @@ module.exports = {
 	findRaspPiUsingSerial: findRaspPiUsingSerial,
 	findCurrentSessionUsingMachineID: findCurrentSessionUsingMachineID,
 	findTag: findTag,
-	findUserUsingEmail: findUserUsingEmail
+	findUserUsingEmail: findUserUsingEmail,
+	findCurrentSessionUsingUserID: findCurrentSessionUsingUserID
 }
