@@ -436,7 +436,7 @@ router.post("/process_tag", function(req, res) {
 						//either finds a session in existence or...
 						if (session) {
 							//checks the last 10 seconds of bike data
-							utils.findRecentBikeData(10).then(function(datum) {
+							utils.findRecentBikeData(session.sessionID, 10).then(function(datum) {
 								//checks if the current session is tied to a tag
 								if (session.RFID) {
 									//if there was activity in the last 10 seconds, do nothing
@@ -487,6 +487,33 @@ router.post("/process_tag", function(req, res) {
 			})
 		}
 	})
+})
+
+router.post("/check_rpm", function(req, res) {
+	res.send({status: "received"})
+	setTimeout(function() {
+		utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
+			utils.findCurrentSessionUsingMachineID(RaspPi.machineID).then(function(session) {
+				utils.findRecentBikeData(session.sessionID, 30).then(function(data) {
+					if (!data) {
+						console.log("INSIDE THE !DATA STATEMENT!!!!!!!!!!!!")
+						utils.endSession(RaspPi.machineID)
+					}
+					// if (data) {
+					// 	res.send({status: "failure", message: "Session not ended, as RPM has been found."})
+					// } else {
+					// 	utils.endSession(RaspPi.machineID).then(function(endedSession) {
+					// 		if (endedSession[0] == 1) {
+					// 			res.send({status: "success", message: "Session has been ended."})
+					// 		} else {
+					// 			res.send({status: "failure", message: "Sessions ended: " + endedSession[0]})
+					// 		}
+					// 	})
+					// }
+				})
+			})
+		})
+	}, 30000)	
 })
 
 router.post("/check_tag", function(req, res) {

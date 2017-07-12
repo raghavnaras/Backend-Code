@@ -99,9 +99,10 @@ function endSession(machineID) {
 
 // Helper functions for reading model instances
 
-function findRecentBikeData(seconds) {
+function findRecentBikeData(sessionID, seconds) {
 	return BikeData.findOne({
 		where: {
+			sessionID: sessionID,
 			stamp: {
 				$gt: new Date().getTime() - (seconds * 1000)
 			} 
