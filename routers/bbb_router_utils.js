@@ -149,6 +149,15 @@ function findUserUsingEmail(email) {
 	})
 }
 
+function findCurrentSessionUsingUserID(userID) {
+	return SessionData.findOne({
+		where: {
+			userID: userID,
+			stampEnd: null
+		}
+	});
+}
+
 
 
 module.exports = {

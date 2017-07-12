@@ -142,36 +142,21 @@ router.post("/average_duration", function(req, res){
 	})
 
 router.post("/workout_duration", function(req, res){
-	SessionData.findOne(
-		{where: {
-			userID: req.body.userID,
-			stampEnd: null
-		}}).then(function(ses) {
-
-			if (ses) {
-				var start = parseInt(ses.stampStart)
-				var end = new Date().getTime()
-				res.send({success: true, duration: end - start})
-			}
-			else {
-				res.send({success: false, duration: ""})
-			}
-		});
-	})
-
-router.post("/check_active_session", function(req, res){
-	SessionData.findOne({
-		where: {
-			userID: req.body.userID,
-			stampEnd: null
-		}
-	}).then(function(session){
-		if (session) {
-			res.send({active: true})
+	utils.findCurrentSessionUsingUserID(req.body.userID).then(function(ses) {
+		if (ses) {
+			var start = parseInt(ses.stampStart)
+			var end = new Date().getTime()
+			res.send({success: true, duration: end - start})
 		}
 		else {
-			res.send({active: false})
+			res.send({success: false, duration: ""})
 		}
+	});
+})
+
+router.post("/check_active_session", function(req, res){
+	utils.findCurrentSessionUsingUserID(req.body.userID).then(function(session){
+		res.send({active: (session ? false : true)})
 	})
 })
 
