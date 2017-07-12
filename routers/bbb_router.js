@@ -410,15 +410,24 @@ router.post("/end_workout", function(req, res) {
 
 router.post("/process_tag", function(req, res) {
 	utils.findTag(req.body.RFID).then(function(tag) {
+		//if that tag exists
 		if (tag) {
+				//finds the current machine
 				utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
+					//*** scope of current machine ***
+					//finds current session
 					utils.findCurrentSessionUsingMachineID(RaspPi.machineID).then(function(session) {
+						//either finds a session in existence or...
 						if (session) {
+							//checks the last 10 seconds of bike data
 							utils.findRecentBikeData(10).then(function(datum) {
+								//checks if the current session is tied to a tag
 								if (session.RFID) {
+									//if there was activity in the last 10 seconds, do nothing
 									if (datum) {
 										res.send({status: "failure", message: "Tag not processed! Session in progress!"})
 									} else {
+										//if a new tag is scanned, end the current session and start a new one with the scanned tag
 										if (session.RFID != tag.RFID) {
 											utils.endSession(RaspPi.machineID).then(function(endedSession) {
 												if (endedSession[0] > 0) {
@@ -429,18 +438,20 @@ router.post("/process_tag", function(req, res) {
 													res.send({status: "failure", message: "Could not end session in progress."})
 												}
 											})
+										//do nothing if the same tag is scanned again
 										} else {
 											res.send({status: "failure", message: "Same tag has been scanned again."})
 										}
 									}
 								} else {
-									/*Associate scanned tag with current session*/
+									//associates scanned tag with current session
 									utils.addTagToSession(req.body.RFID, tag.dataValues.userID, RaspPi.machineID).then(function(updatedSession) {
 										res.send({status: (updatedSession[0] == 1) ? "updated" : "failure", 
 											message: (updatedSession[0] == 1) ? "Session in progress has been updated." : "Session in progress could not be updated."})
 									})
 								}
 							})
+						//creates a session
 						} else {
 							utils.createSession(RaspPi.machineID, tag.RFID, tag.userID).then(function(createdSession) {
 								res.send({status: createdSession ? "success" : "failure"})
@@ -462,18 +473,13 @@ router.post("/process_tag", function(req, res) {
 	})
 })
 
-// TODO: Register no more than one tag for a user per machine (at the moment, all unregistered tages on a machine are
-// are registered in this function). One potential solution is to add a "stamp" attribute to the Tag table in the database
-// and register the most recent tag scanned (and deleted all previous unregistered tags).
 router.post("/check_tag", function(req, res) {
 	utils.registerTag(req.body.tagName, req.body.userID, req.body.machineID).then(function(pair) {
-		console.log("CHECK TAG PAIR: " + pair);
 		if (pair[0] > 0) {
 			res.send({status: "success"})
 		} else {
 			res.send({status: "failure"})
 		}
-		// res.send({status: (pair[0] > 0) ? "success" : "failure"});
 	})
 })
 
