@@ -55,7 +55,7 @@ function createUser(name, email, pswd, gender, weight, age, height, RFID, resetp
 // Helper functions for updating model instances
 
 function registerTag(tagName, userID, machineID) {
-	Tag.max('createdAt', {
+	return Tag.max('createdAt', {
 		where: {
 			registered: 0
 		}
