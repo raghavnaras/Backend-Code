@@ -494,23 +494,24 @@ router.post("/check_rpm", function(req, res) {
 	setTimeout(function() {
 		utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
 			utils.findCurrentSessionUsingMachineID(RaspPi.machineID).then(function(session) {
-				utils.findRecentBikeData(session.sessionID, 30).then(function(data) {
-					if (!data) {
-						console.log("INSIDE THE !DATA STATEMENT!!!!!!!!!!!!")
-						utils.endSession(RaspPi.machineID)
-					}
-					// if (data) {
-					// 	res.send({status: "failure", message: "Session not ended, as RPM has been found."})
-					// } else {
-					// 	utils.endSession(RaspPi.machineID).then(function(endedSession) {
-					// 		if (endedSession[0] == 1) {
-					// 			res.send({status: "success", message: "Session has been ended."})
-					// 		} else {
-					// 			res.send({status: "failure", message: "Sessions ended: " + endedSession[0]})
-					// 		}
-					// 	})
-					// }
-				})
+				if (session) {
+					utils.findRecentBikeData(session.sessionID, 30).then(function(data) {
+						if (!data) {
+							utils.endSession(RaspPi.machineID)
+						}
+						// if (data) {
+						// 	res.send({status: "failure", message: "Session not ended, as RPM has been found."})
+						// } else {
+						// 	utils.endSession(RaspPi.machineID).then(function(endedSession) {
+						// 		if (endedSession[0] == 1) {
+						// 			res.send({status: "success", message: "Session has been ended."})
+						// 		} else {
+						// 			res.send({status: "failure", message: "Sessions ended: " + endedSession[0]})
+						// 		}
+						// 	})
+						// }
+					})
+				}	
 			})
 		})
 	}, 30000)	
