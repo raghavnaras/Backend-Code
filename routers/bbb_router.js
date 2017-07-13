@@ -496,8 +496,6 @@ router.post("/bike", function(req, res){
 router.post("/history", function(req,res){
 	utils.findEndedSessionsUsingUserID(req.body.userID).then(function(sessions) {
 		history_list = []
-		var promises = []
-		var milli_to_minutes = (1/60000.0)
 
 		Promise.all(
 			sessions.map(function(session) {
