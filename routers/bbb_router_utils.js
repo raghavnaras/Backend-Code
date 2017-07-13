@@ -127,11 +127,14 @@ function findCurrentSessionUsingMachineID(machineID) {
 	})
 }
 
-// function isCurrentSession(machineID) {
-// 	return findCurrentSessionUsingMachineID(machineID).then(function(session) {
-// 		return session ? true : false
-// 	})
-// }
+function findCurrentSessionUsingUserID(userID) {
+	return SessionData.findOne({
+		where: {
+			userID: userID,
+			stampEnd: null
+		}
+	});
+}
 
 function findTag(RFID) {
 	return Tag.findOne({
@@ -147,15 +150,6 @@ function findUserUsingEmail(email) {
 			email: email
 		}
 	})
-}
-
-function findCurrentSessionUsingUserID(userID) {
-	return SessionData.findOne({
-		where: {
-			userID: userID,
-			stampEnd: null
-		}
-	});
 }
 
 
