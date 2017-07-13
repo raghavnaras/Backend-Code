@@ -72,12 +72,19 @@ router.post("/data/last", function(req, res){
 					sessionID: session.sessionID
 				}
 			}).then(function(data){
-				var avg_rpm = 0
-				for (data_point in data) {
-					avg_rpm += data_point.rpm
-				}					
-				var current_time = new Date().getTime()
-				res.send({status: "success", rpm: (current_time - data[0].stamp < 1500) ? (avg_rpm / 3) : 0})
+				if (data) {
+					console.log("DATA SIZE: " + data.length)
+					var avg_rpm = 0
+					for (data_point in data) {
+						avg_rpm += data_point.rpm
+						console.log("DATA POINT RPM: " + data_point.rpm)
+					}
+					console.log("AVRAGE RPM: " + average_rpm)					
+					var current_time = new Date().getTime()
+					res.send({status: "success", rpm: (current_time - parseInt(data[0].stamp) < 1500) ? (avg_rpm / 3) : 0})
+				} else {
+					res.send({status: "failure", rpm: 0})
+				}
 			})
 		}
 		else {
