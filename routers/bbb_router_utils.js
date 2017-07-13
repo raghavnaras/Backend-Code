@@ -159,7 +159,6 @@ function findCurrentSessionUsingUserID(userID) {
 }
 
 
-
 module.exports = {
 	createBikeData: createBikeData,
 	createSession: createSession,
