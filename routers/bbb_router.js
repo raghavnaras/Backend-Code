@@ -56,10 +56,7 @@ router.get("/data", function(req, res){
 	})
 });
 
-// THIS FUNCTION IS BROKEN! (PROBABLY!)
 // get the last bike data point of a user in a session
-	// NEED THIS CODE????
-	// res.setHeader('Content-Type', 'application/json');
 router.post("/data/last", function(req, res){
 	utils.findCurrentSessionUsingUserID(req.body.userID).then(function(session) {
 		if (session) {
@@ -73,14 +70,10 @@ router.post("/data/last", function(req, res){
 				}
 			}).then(function(data){
 				if (data) {
-					console.log("DATA: " + JSON.stringify(data))
-					console.log("DATA SIZE: " + data.length)
 					var avg_rpm = 0
 					for (data_point in data) {
 						avg_rpm += data[data_point].rpm
-						console.log("DATA POINT RPM: " + data_point.rpm)
 					}
-					console.log("AVERAGE RPM: " + avg_rpm)					
 					var current_time = new Date().getTime()
 					res.send({status: "success", rpm: (current_time - parseInt(data[0].stamp) < 1500) ? (avg_rpm / 3) : 0})
 				} else {
