@@ -70,12 +70,14 @@ router.post("/data/last", function(req, res){
 				}
 			}).then(function(data){
 				if (data) {
-					var avg_rpm = 0
-					for (data_point in data) {
-						avg_rpm += data[data_point].rpm
+					if (data.length > 0) {
+						var avg_rpm = 0
+						for (var i = 0; i < data.length; i++) {
+							avg_rpm += data[i].rpm
+						}
+						var current_time = new Date().getTime()
+						res.send({status: "success", rpm: (current_time - parseInt(data[0].stamp) < 1500) ? (avg_rpm / 3) : 0})
 					}
-					var current_time = new Date().getTime()
-					res.send({status: "success", rpm: (current_time - parseInt(data[0].stamp) < 1500) ? (avg_rpm / 3) : 0})
 				} else {
 					res.send({status: "failure", rpm: 0})
 				}
