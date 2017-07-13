@@ -60,7 +60,7 @@ router.get("/data", function(req, res){
 // get the last bike data point of a user in a session
 	// NEED THIS CODE????
 	// res.setHeader('Content-Type', 'application/json');
-router.post("/data/last", function(req,res){
+router.post("/data/last", function(req, res){
 	utils.findCurrentSessionUsingUserID(req.body.userID).then(function(session) {
 		if (session) {
 			BikeData.findAll({
