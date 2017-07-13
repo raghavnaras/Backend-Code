@@ -58,46 +58,32 @@ router.get("/data", function(req, res){
 
 // THIS FUNCTION IS BROKEN! (PROBABLY!)
 // get the last bike data point of a user in a session
+	// NEED THIS CODE????
+	// res.setHeader('Content-Type', 'application/json');
 router.post("/data/last", function(req,res){
-	SessionData.findOne({
-		where: {
-			userID:req.body.userID,
-			stampEnd: null
-		}
-	}).then(function(session){
-		console.log(session);
+	utils.findCurrentSessionUsingUserID(req.body.userID).then(function(session) {
 		if (session) {
 			BikeData.findAll({
 				limit: 3,
 				order: [
 					['stamp', 'DESC']
 				],
-				where: {sessionID: session.sessionID}
-			}).then(function(list){
+				where: {
+					sessionID: session.sessionID
+				}
+			}).then(function(data){
 				var avg_rpm = 0
-				for (data in list) {
-					avg_rpm = avg_rpm + data.rpm
+				for (data_point in data) {
+					avg_rpm += data_point.rpm
 				}					
-				avg_rpm = avg_rpm / 3
-				data = list[0];
 				var current_time = new Date().getTime()
-				if (current_time - data.stamp < 1500) {
-					res.send({success: true, rpm: avg_rpm})
-				}
-				else {
-					res.send({success: true, rpm: 0})
-				}
+				res.send({status: "success", rpm: (current_time - data[0].stamp < 1500) ? (avg_rpm / 3) : 0})
 			})
 		}
 		else {
-			res.send({success: false, rpm: 0})
+			res.send({status: "failure", rpm: 0})
 		}
 	})
-	// 	then(function(list){
-	// 	console.log("list",list);
-	// 	res.setHeader('Content-Type', 'application/json');
-	// 	res.send(list);
-	// })
 })
 
 // Helper Functions
