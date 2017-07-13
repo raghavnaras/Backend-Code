@@ -76,7 +76,7 @@ router.post("/data/last", function(req, res){
 					console.log("DATA SIZE: " + data.length)
 					var avg_rpm = 0
 					for (data_point in data) {
-						avg_rpm += data_point.rpm
+						avg_rpm += data[data_point].rpm
 						console.log("DATA POINT RPM: " + data_point.rpm)
 					}
 					console.log("AVRAGE RPM: " + average_rpm)					
