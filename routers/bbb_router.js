@@ -56,7 +56,7 @@ router.get("/data", function(req, res){
 	})
 });
 
-// get the last bike data point of a user in a session
+// get the last three bike data points of a user in a current session
 router.post("/data/last", function(req, res){
 	utils.findCurrentSessionUsingUserID(req.body.userID).then(function(session) {
 		if (session) {
