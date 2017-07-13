@@ -105,28 +105,22 @@ String.prototype.toHHMMSS = function () {
 }
 
 router.post("/average_duration", function(req, res){
-	SessionData.findAll({
-		where: {
-			userID: req.body.userID,
-			stampEnd: {
-				$ne: null
+	utils.findEndedSessionsUsingUserID(req.body.userID).then(function(sessions){
+		var total_dur = 0
+		var count = 0
+		for(inc in sessions){
+			var start = sessions[inc].stampStart
+			var end = sessions[inc].stampEnd
+			if (start != null && end != null) {
+				count = count + 1
+				total_dur = total_dur + parseInt(end - start)
 			}
-		}}).then(function(sessions){
-			var total_dur = 0
-			var count = 0
-			for(inc in sessions){
-				var start = sessions[inc].stampStart
-				var end = sessions[inc].stampEnd
-				if (start != null && end != null) {
-					count = count + 1
-					total_dur = total_dur + parseInt(end - start)
-				}
-			}
-			if (count != 0) {
-				res.send({success: true, duration: String(total_dur / parseFloat(count)).toHHMMSS()})
-			}
-		})
+		}
+		if (count != 0) {
+			res.send({success: true, duration: String(total_dur / parseFloat(count)).toHHMMSS()})
+		}
 	})
+})
 
 router.post("/workout_duration", function(req, res){
 	utils.findCurrentSessionUsingUserID(req.body.userID).then(function(ses) {
@@ -149,14 +143,7 @@ router.post("/check_active_session", function(req, res){
 
 // the most recent workout is defined to be the one that was created most recently
 router.post("/get_last_workout", function(req, res){
-	SessionData.max('stampStart', {
-		where: {
-			userID: req.body.userID,
-			stampEnd: {
-				$ne: null
-			}
-		}
-	}).then(function(stampStart) {
+	utils.findStartTimeOfLatestEndedSessionUsingUserID(req.body.userID).then(function(stampStart) {
 		if (stampStart) {
 			var dateTime = moment(parseInt(stampStart)).tz("America/Chicago").format("dddd MMMM Do, h:mm A");
 			res.send({status: "success", date: dateTime});
@@ -507,26 +494,14 @@ router.post("/bike", function(req, res){
 
 
 router.post("/history", function(req,res){
-	SessionData.findAll({
-		where: {
-			userID: req.body.userID,
-			stampEnd: {
-				$ne: null
-			}
-		}
-	}).then(function(sessions) {
+	utils.findEndedSessionsUsingUserID(req.body.userID).then(function(sessions) {
 		history_list = []
 		var promises = []
 		var milli_to_minutes = (1/60000.0)
 
 		Promise.all(
 			sessions.map(function(session) {
-				return BikeData.findAll({
-					where: {
-						sessionID: session.sessionID
-					}
-				}).then(function(data) {
-
+				return utils.findBikeData(session.sessionID).then(function(data) {
 					total = 0.0
 
 					history = {}

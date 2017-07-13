@@ -99,6 +99,15 @@ function endSession(machineID) {
 
 // Helper functions for reading model instances
 
+function findBikeData(sessionID) {
+	return BikeData.findAll({
+		where: {
+			sessionID: sessionID
+		}
+	});
+}
+
+
 function findRecentBikeData(sessionID, seconds) {
 	return BikeData.findOne({
 		where: {
@@ -152,6 +161,32 @@ function findUserUsingEmail(email) {
 	})
 }
 
+function findEndedSessionsUsingUserID(userID) {
+	return SessionData.findAll({
+		where: {
+			userID: userID,
+			stampEnd: {
+				$ne: null
+			}
+		}
+	});
+}
+
+function findStartTimeOfLatestEndedSessionUsingUserID(userID) {
+	return SessionData.max('stampStart', {
+		where: {
+			userID: userID,
+			stampEnd: {
+				$ne: null
+			}
+		}
+	});
+}
+
+
+
+
+
 
 module.exports = {
 	createBikeData: createBikeData,
@@ -161,10 +196,13 @@ module.exports = {
 	registerTag: registerTag,
 	addTagToSession: addTagToSession,
 	endSession: endSession,
+	findBikeData: findBikeData,
 	findRecentBikeData: findRecentBikeData,
 	findRaspPiUsingSerial: findRaspPiUsingSerial,
 	findCurrentSessionUsingMachineID: findCurrentSessionUsingMachineID,
 	findTag: findTag,
 	findUserUsingEmail: findUserUsingEmail,
-	findCurrentSessionUsingUserID: findCurrentSessionUsingUserID
+	findCurrentSessionUsingUserID: findCurrentSessionUsingUserID,
+	findEndedSessionsUsingUserID: findEndedSessionsUsingUserID,
+	findStartTimeOfLatestEndedSessionUsingUserID: findStartTimeOfLatestEndedSessionUsingUserID
 }
