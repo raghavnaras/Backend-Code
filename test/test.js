@@ -1,4 +1,4 @@
-var assert = require('assert');
+var assert = require('chai').assert;
 
 describe('Array', function() {
   describe('#indexOf()', function() {
@@ -7,3 +7,11 @@ describe('Array', function() {
     });
   });
 });
+
+describe('Server Connections' function() {
+	describe('test_connection', function() {
+		it('should return \"success\"', function() {
+			assert.equal()
+		})
+	})
+})
