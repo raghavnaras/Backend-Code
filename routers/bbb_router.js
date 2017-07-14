@@ -205,7 +205,9 @@ router.post("/setup_account", function(req, res) {
 router.post("/forgotpasswordchange", function(req, res){
 	utils.findUserUsingEmail(req.body.email).then(function(user) {
 		if (user) {
-			bcrypt.genSalt(10,function(err,salt){
+            bcrypt.compare(req.body.secretcode.toString(), String(user.resetpasswordcode), function(err, response) {
+                if (response){
+                bcrypt.genSalt(10,function(err,salt){
 				bcrypt.hash(req.body.password, salt, function(err,hash){
 					User.update({
 						pswd: hash,
@@ -218,6 +220,14 @@ router.post("/forgotpasswordchange", function(req, res){
 				})
 			})
 			res.send({status:200})
+                }
+            else{
+                res.send({status:"failure"})
+            }
+
+			})
+            
+
 		}
 		else{
 			res.send({status:"failure"})
