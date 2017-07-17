@@ -22,9 +22,21 @@ describe('Server Connections', function() {
      				assert.equal(res.body.status, "success");
      				done();
 				})
-
 		});
 	});
+	describe('login', function() {
+		it('should create a token correctly', function(done) {
+			chai.request(API_ENDPOINT)
+				.post('/login')
+				.send({email: 'jmb23@rice.edu', password: 'llamasu'})
+				.end(function (err, res) {
+					expect(err).to.be.null;
+					expect(res).to.have.status(200);
+     				assert.equal(res.body.token, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IkphY29iIEJ1cmdlciIsInVzZXJJRCI6MiwiZW1haWwiOiJqbWIyM0ByaWNlLmVkdSJ9.Ulcpu5wK6cv_FtutaCBLx4RL9ZFEBxqU2GE_jzUFGS8');
+     				done();
+				})
+		})
+	})
 });
 
 // 
