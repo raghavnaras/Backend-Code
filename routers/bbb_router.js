@@ -19,6 +19,7 @@ var bodyParser = require('body-parser');
 var bcrypt = require('bcryptjs');
 var moment = require('moment-timezone');
 var utils = require('./bbb_router_utils.js')
+var config = require('../dev-config');
 
 var app = express();
 
@@ -30,7 +31,8 @@ aws.config.update({
 var ses = new aws.SES({"accessKeyId": "", "secretAccessKey":"","region":"us-west-2"})
 
 
-var test = true
+var test = config.db.test
+console.log("TESTTTTTTTTTTTTTTTTT: " + test);
 
 // sets up authorization where it matters
 // TODO: Condense this into a function that excludes certain paths

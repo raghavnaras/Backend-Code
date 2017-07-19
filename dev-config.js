@@ -2,12 +2,11 @@ var config = {};
 
 var db = {};
 
-// Testing boolean
-var test = true;
 
+db.test = false; // testing boolean
 db.user = 'digitalgym';
 db.password = 'ashu1234';
-db.schema = test ? 'DigitalGymTest' : 'DigitalGym';
+db.schema = db.test ? 'DigitalGymTest' : 'DigitalGym';
 
 var opts = {
     host: 'digitalgym.cq4d8vjo7uoe.us-west-2.rds.amazonaws.com',

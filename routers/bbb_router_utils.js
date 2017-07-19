@@ -6,8 +6,10 @@ var Tag = models.Tag;
 var User = models.User;
 var sequelize = require('sequelize');
 var bodyParser = require('body-parser');
+var config = require('../dev-config');
 
-var test = true;
+var test = config.db.test
+console.log("TESTTTTTTTTTTTTTTTTT: " + test);
 
 
 // Helper functions for creating model instances
