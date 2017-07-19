@@ -26,6 +26,9 @@ aws.config.update({
 
 var ses = new aws.SES({"accessKeyId": "", "secretAccessKey":"","region":"us-west-2"})
 
+
+var test = true
+
 // sets up authorization where it matters
 // TODO: Condense this into a function that excludes certain paths
 router.use('/users', jwtauth);
@@ -547,23 +550,49 @@ router.post("/history", function(req,res){
 // TEST ROUTES
 
 router.post("/add_test_data", function(req, res) {
-	var values = req.body.values
-	switch(req.body.table) {
-		case "BikeData":
-			utils.createBikeData(values.rpm, values.bikeID, values.sessionID)
-			break
-		case "RaspberryPi":
-			utils.createRaspberryPi(values.serialNumber, values.machineID, values.machineType)
-			break
-		case "SessionData":
-			utils.createSession(values.machineID, values.RFID, values.userID)
-			break
-		case "Tag":
-			utils.createTag(values.RFID, values.tagName, values.userID, values.machineID, values.registered)
-			break
-		case "User":
-			utils.createUser(values.name, values.email, values.pswd, values.gender, values.weight, values.age, values.height, values.RFID, values.resetpasswordcode)
-			break
+	if (test) {
+		var values = req.body.values
+		switch(req.body.table) {
+			case "BikeData":
+				utils.createBikeData(values.rpm, values.bikeID, values.sessionID)
+				res.send({status: "success"})
+				break
+			case "RaspberryPi":
+				console.log("GETSSS TOOO THE RaspberryPi STATEMENTTTTTTTTT!!!!!!!!???????!!!!!!???????")
+				utils.createRaspberryPi(values.serialNumber, values.machineID, values.machineType)
+				res.send({status: "success"})
+				break
+			case "SessionData":
+				utils.createSession(values.machineID, values.RFID, values.userID)
+				res.send({status: "success"})
+				break
+			case "Tag":
+				utils.createTag(values.RFID, values.tagName, values.userID, values.machineID, values.registered)
+				res.send({status: "success"})
+				break
+			case "User":
+				utils.createUser(values.name, values.email, values.pswd, values.gender, values.weight, values.age, values.height, values.RFID, values.resetpasswordcode)
+				res.send({status: "success"})
+				break
+			default:
+				res.send({status: "failure"})
+
+		}
+	} else {
+		res.send({status: "failure"})
+	}	
+})
+
+router.post("/clear_test_tables", function(req, res) {
+	if (test) {
+		utils.clearDataBaseTable(BikeData);
+		utils.clearDataBaseTable(RaspberryPi);
+		utils.clearDataBaseTable(SessionData);
+		utils.clearDataBaseTable(Tag);
+		utils.clearDataBaseTable(User);
+		res.send({status: "success"})
+	} else {
+		res.send({status: "failure"})
 	}
 })
 
