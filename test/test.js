@@ -98,7 +98,6 @@ describe('DB Modification Functions', function() {
 			// });
 		})
 	})
-
 })
 
 // test_connection
