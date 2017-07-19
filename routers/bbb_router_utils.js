@@ -7,7 +7,7 @@ var User = models.User;
 var sequelize = require('sequelize');
 var bodyParser = require('body-parser');
 
-var test = true;
+var test = false;
 
 
 // Helper functions for creating model instances
@@ -142,7 +142,7 @@ function findRecentBikeData(sessionID, seconds) {
 			sessionID: sessionID,
 			stamp: {
 				$gt: new Date().getTime() - (seconds * 1000)
-			} 
+			}
 		}
 	})
 }

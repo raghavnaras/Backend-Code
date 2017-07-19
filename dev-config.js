@@ -3,7 +3,7 @@ var config = {};
 var db = {};
 
 // Testing boolean
-var test = true;
+var test = false;
 
 db.user = 'digitalgym';
 db.password = 'ashu1234';

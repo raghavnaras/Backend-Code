@@ -30,7 +30,7 @@ aws.config.update({
 var ses = new aws.SES({"accessKeyId": "", "secretAccessKey":"","region":"us-west-2"})
 
 
-var test = true
+var test = false
 
 // sets up authorization where it matters
 // TODO: Condense this into a function that excludes certain paths
