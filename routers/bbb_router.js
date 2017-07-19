@@ -1,5 +1,8 @@
 // Routers, Models, and Packages
 
+// "Life is unfair, and then you die, motherfucker!" - Jacob Burger & Hamza Nauman
+// Rushi Bhalani's idea ^
+
 var express = require('express');
 var jwt = require ('jsonwebtoken');
 var router = express.Router();
@@ -553,28 +556,37 @@ router.post("/add_test_data", function(req, res) {
 		var values = req.body.values
 		switch(req.body.table) {
 			case "BikeData":
-				utils.createBikeData(values.rpm, values.bikeID, values.sessionID)
-				res.send({status: "success"})
+				utils.createBikeData(values.rpm, values.bikeID, values.sessionID).then(function() {
+					res.send({status: "success"})
+				})
+				// res.send({status: "success"})
 				break
 			case "RaspberryPi":
-				console.log("GETSSS TOOO THE RaspberryPi STATEMENTTTTTTTTT!!!!!!!!???????!!!!!!???????")
-				utils.createRaspberryPi(values.serialNumber, values.machineID, values.machineType)
-				res.send({status: "success"})
+				utils.createRaspberryPi(values.serialNumber, values.machineID, values.machineType).then(function() {
+					res.send({status: "success"})
+				})
+				// res.send({status: "success"})
 				break
 			case "SessionData":
-				utils.createSession(values.machineID, values.RFID, values.userID)
-				res.send({status: "success"})
+				utils.createSession(values.machineID, values.RFID, values.userID).then(function() {
+					res.send({status: "success"})
+				})
+				// res.send({status: "success"})
 				break
 			case "Tag":
-				utils.createTag(values.RFID, values.tagName, values.userID, values.machineID, values.registered)
-				res.send({status: "success"})
+				utils.createTag(values.RFID, values.tagName, values.userID, values.machineID, values.registered).then(function() {
+					res.send({status: "success"})
+				})
+				// res.send({status: "success"})
 				break
 			case "User":
-				utils.createUser(values.name, values.email, values.pswd, values.gender, values.weight, values.age, values.height, values.RFID, values.resetpasswordcode)
-				res.send({status: "success"})
+				utils.createUser(values.name, values.email, values.pswd, values.gender, values.weight, values.age, values.height, values.RFID, values.resetpasswordcode).then(function() {
+					res.send({status: "success"})
+				})
+				// res.send({status: "success"})
 				break
 			default:
-				res.send({status: "failure"})
+				res.status(404).send({status: "failure"})
 
 		}
 	} else {
@@ -584,12 +596,15 @@ router.post("/add_test_data", function(req, res) {
 
 router.post("/clear_test_tables", function(req, res) {
 	if (test) {
-		utils.clearDataBaseTable(BikeData);
-		utils.clearDataBaseTable(RaspberryPi);
-		utils.clearDataBaseTable(SessionData);
-		utils.clearDataBaseTable(Tag);
-		utils.clearDataBaseTable(User);
-		res.send({status: "success"})
+		Promise.all([
+			utils.clearDataBaseTable(BikeData),
+			utils.clearDataBaseTable(RaspberryPi),
+			utils.clearDataBaseTable(SessionData),
+			utils.clearDataBaseTable(Tag),
+			utils.clearDataBaseTable(User)
+		]).then(function() {
+			res.send({status: "success"})
+		})
 	} else {
 		res.send({status: "failure"})
 	}

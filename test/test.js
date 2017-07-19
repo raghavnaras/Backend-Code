@@ -1,5 +1,6 @@
 var chai = require('chai');
 var chaiHTTP = require('chai-http');
+var utils = require('../routers/bbb_router_utils.js')
 var API_ENDPOINT = "http://127.0.0.1:8000/bbb";
 
 chai.use(chaiHTTP);
@@ -8,7 +9,97 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 
-// GET REQUESTS
+describe('DB Modification Functions', function() {
+	describe('should add test data to DB', function() {
+		it('should add bike data to DB', function(done) {
+			chai.request(API_ENDPOINT)
+				.post('/add_test_data')
+				.send({table: "BikeData", values: {rpm: 9000.1, bikeID: 3, sessionID: 2}})
+				.end(function(err, res) {
+					expect(err).to.be.null;
+					expect(res).to.have.status(200);
+					assert.equal(res.body.status, "success");
+					done()
+				})
+			// utils.createBikeData(9000.1, 3, 2).then(function() {
+			// 	done();
+			// });
+
+		})
+		it('should add Raspberry Pi to DB', function(done) {
+			chai.request(API_ENDPOINT)
+				.post('/add_test_data')
+				.send({table: "RaspberryPi", values: {serialNumber: 447553254, machineID: 6, machineType: "Bike"}})
+				.end(function(err, res) {
+					expect(err).to.be.null;
+					expect(res).to.have.status(200);
+					assert.equal(res.body.status, "success");
+					done()
+				})
+			// utils.createRaspberryPi(447553254, 6, "Bike").then(function() {
+			// 	done();
+			// });
+		})
+		it('should add session data to DB', function(done) {
+			chai.request(API_ENDPOINT)
+				.post('/add_test_data')
+				.send({table: "SessionData", values: {machineID: 9001, RFID: 120000, userID: 5}})
+				.end(function(err, res) {
+					expect(err).to.be.null;
+					expect(res).to.have.status(200);
+					done()
+				})
+			// utils.createSession(9001, 120000, 5).then(function() {
+			// 	done();
+			// });
+		})
+		it('should add tag to DB', function(done) {
+			chai.request(API_ENDPOINT)
+				.post('/add_test_data')
+				.send({table: "Tag", values: {RFID: 120000, tagName: "Ginyu", userID: 5, machineID: 9001, registered: false}})
+				.end(function(err, res) {
+					expect(err).to.be.null;
+					expect(res).to.have.status(200);
+					assert.equal(res.body.status, "success");
+					done()
+				})
+			// utils.createTag(120000, "Ginyu", 5, 9001, false).then(function() {
+			// 	done();
+			// });
+		})
+		it('should add user to DB', function(done) {
+			chai.request(API_ENDPOINT)
+				.post('/add_test_data')
+				.send({table: "User", values: {name: "Frieza", email: "fc@rice.edu", pswd: "fucksaiyans"}})
+				.end(function(err, res) {
+					expect(err).to.be.null;
+					expect(res).to.have.status(200);
+					assert.equal(res.body.status, "success");
+					done()
+				})
+			// utils.createUser("Frieza", "fc@rice.edu", "fucksaiyans", null, null, null, null, null, null).then(function() {
+			// 	done();
+			// });
+		})
+	})
+
+	describe('clear_test_tables', function() {
+		it('should empty the tables in the test DB',function(done) {
+			chai.request(API_ENDPOINT)
+				.post('/clear_test_tables')
+				.end(function(err, res) {
+					expect(err).to.be.null;
+					expect(res).to.have.status(200);
+					assert.equal(res.body.status, "success");
+					done();
+				})
+			// utils.clearTestTables().then(function() {
+			// 	done()
+			// });
+		})
+	})
+
+})
 
 // test_connection
 describe('Server Connections', function() {
@@ -24,7 +115,7 @@ describe('Server Connections', function() {
 				})
 		});
 	});
-	describe('login', function() {
+	// describe('login', function() {
 		// it('should create a token correctly', function(done) {
 			// chai.request(API_ENDPOINT)
 			// 	.post('/login')
@@ -36,75 +127,8 @@ describe('Server Connections', function() {
    //   				done();
 			// 	})
 		// })
-	});
-	describe('add_test_data', function() {
-		it('should add bike data to DB', function(done) {
-			chai.request(API_ENDPOINT)
-				.post('/add_test_data')
-				.send({table: "BikeData", values: {rpm: 9000.1, bikeID: 3, sessionID: 2}})
-				.end(function(err, res) {
-					expect(err).to.be.null;
-					expect(res).to.have.status(200);
-					assert.equal(res.body.status, "success");
-					done()
-				})
-		})
-		it('should add Raspberry Pi to DB', function(done) {
-			chai.request(API_ENDPOINT)
-				.post('/add_test_data')
-				.send({table: "RaspberryPi", values: {serialNumber: 447553254, machineID: 6, machineType: "Bike"}})
-				.end(function(err, res) {
-					expect(err).to.be.null;
-					expect(res).to.have.status(200);
-					assert.equal(res.body.status, "success");
-					done()
-				})
-		})
-		it('should add session data to DB', function(done) {
-			chai.request(API_ENDPOINT)
-				.post('/add_test_data')
-				.send({table: "SessionData", values: {machineID: 9001, RFID: 120000, userID: 5}})
-				.end(function(err, res) {
-					expect(err).to.be.null;
-					expect(res).to.have.status(200);
-					done()
-				})
-		})
-		it('should add tag to DB', function(done) {
-			chai.request(API_ENDPOINT)
-				.post('/add_test_data')
-				.send({table: "Tag", values: {RFID: 120000, tagName: "Ginyu", userID: 5, machineID: 9001, registered: false}})
-				.end(function(err, res) {
-					expect(err).to.be.null;
-					expect(res).to.have.status(200);
-					assert.equal(res.body.status, "success");
-					done()
-				})
-		})
-		it('should add user to DB', function(done) {
-			chai.request(API_ENDPOINT)
-				.post('/add_test_data')
-				.send({table: "User", values: {name: "Frieza", email: "fc@rice.edu", pswd: "fucksaiyans"}})
-				.end(function(err, res) {
-					expect(err).to.be.null;
-					expect(res).to.have.status(200);
-					assert.equal(res.body.status, "success");
-					done()
-				})
-		})
-	})
-	describe('clear the test DB', function() {
-		it('should empty the tables in the test DB',function(done) {
-			chai.request(API_ENDPOINT)
-				.post('/clear_test_tables')
-				.end(function(err, res) {
-					expect(err).to.be.null;
-					expect(res).to.have.status(200);
-					assert.equal(res.body.status, "success");
-					done();
-				})
-		})
-	})
+	// });
+	
 });
 
 // 
