@@ -2,6 +2,7 @@ var config = {};
 
 var db = {};
 
+// Testing boolean
 var test = true;
 
 db.user = 'digitalgym';
