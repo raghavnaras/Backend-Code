@@ -20,6 +20,7 @@ function createBikeData(rpm, bikeID, sessionID) {
 }
 
 function createRaspberryPi(serialNumber, machineID, machineType) {
+	console.log("GETSSS TOOO THE RaspberryPi STATEMENTTTTTTTTT!!!!!!!!???????!!!!!!???????")
 	return RaspberryPi.create({
 		serialNumber: serialNumber,
 		machineID: machineID,
@@ -190,6 +191,10 @@ function findStartTimeOfLatestEndedSessionUsingUserID(userID) {
 		}
 	});
 }
+
+function clearDataBaseTable(model) {
+	model.truncate()
+} 
 
 
 
