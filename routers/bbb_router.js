@@ -129,6 +129,7 @@ router.post("/workout_duration", function(req, res){
 		if (ses) {
 			var start = parseInt(ses.stampStart)
 			var end = new Date().getTime()
+			console.log(ses.sessionID)
 			res.send({success: true, duration: end - start})
 		}
 		else {
@@ -226,7 +227,7 @@ router.post("/forgotpasswordchange", function(req, res){
             }
 
 			})
-            
+
 
 		}
 		else{
@@ -387,8 +388,8 @@ router.post("/end_workout", function(req, res) {
 
 // TODO: Change code so that in case that a session is in progress, and someone scans a
 // tag that is different from the tag that had been scanned for the session in progress,
-// the session in progress should continue **unless** the session in progress has not 
-// registered an RPM in the last 10 seconds. At the moment, the tag of the session in progress 
+// the session in progress should continue **unless** the session in progress has not
+// registered an RPM in the last 10 seconds. At the moment, the tag of the session in progress
 // is updated with the RFID of the most recently scanned tag.
 // RESOLVED BUT REQUIRES TESTING
 
@@ -437,7 +438,7 @@ router.post("/process_tag", function(req, res) {
 								} else {
 									//associates scanned tag with current session
 									utils.addTagToSession(req.body.RFID, tag.dataValues.userID, RaspPi.machineID).then(function(updatedSession) {
-										res.send({status: (updatedSession[0] == 1) ? "updated" : "failure", 
+										res.send({status: (updatedSession[0] == 1) ? "updated" : "failure",
 											message: (updatedSession[0] == 1) ? "Session in progress has been updated." : "Session in progress could not be updated."})
 									})
 								}
@@ -448,14 +449,14 @@ router.post("/process_tag", function(req, res) {
 								res.send({status: createdSession ? "success" : "failure"})
 							})
 						}
-					})			
+					})
 				})
 		} else {
 			// TODO: Should tag still be created if there is another session in progress on this machine's Pi?
 			utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
 				if (RaspPi) {
 					utils.createTag(req.body.RFID, null, null, RaspPi.machineID, false);
-					res.send({status: "Tag created"});					
+					res.send({status: "Tag created"});
 				} else {
 					res.send({status: "No Pi", message: "Could not find machine (RaspPi)."})
 				}
@@ -475,10 +476,10 @@ router.post("/check_rpm", function(req, res) {
 							utils.endSession(RaspPi.machineID)
 						}
 					})
-				}	
+				}
 			})
 		})
-	}, 30000)	
+	}, 30000)
 })
 
 router.post("/check_tag", function(req, res) {
