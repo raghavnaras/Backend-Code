@@ -549,7 +549,7 @@ router.post("/add_test_data", function(req, res) {
 	var values = req.body.values
 	switch(req.body.table) {
 		case "BikeData":
-			utils.createBikeData(values.rpm)
+			utils.createBikeData(values.rpm, values.bikeID, values.sessionID)
 			break
 		case "RaspberryPi":
 			utils.createRaspberryPi(values.serialNumber, values.machineID, values.machineType)
