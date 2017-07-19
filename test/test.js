@@ -1,6 +1,6 @@
 var chai = require('chai');
 var chaiHTTP = require('chai-http');
-var API_ENDPOINT = "http://0.0.0.0:8000/bbb";
+var API_ENDPOINT = "http://127.0.0.1:8000/bbb";
 
 chai.use(chaiHTTP);
 
@@ -45,6 +45,7 @@ describe('Server Connections', function() {
 				.end(function(err, res) {
 					expect(err).to.be.null;
 					expect(res).to.have.status(200);
+					assert.equal(res.body.status, "success");
 					done()
 				})
 		})
@@ -55,6 +56,7 @@ describe('Server Connections', function() {
 				.end(function(err, res) {
 					expect(err).to.be.null;
 					expect(res).to.have.status(200);
+					assert.equal(res.body.status, "success");
 					done()
 				})
 		})
@@ -75,6 +77,7 @@ describe('Server Connections', function() {
 				.end(function(err, res) {
 					expect(err).to.be.null;
 					expect(res).to.have.status(200);
+					assert.equal(res.body.status, "success");
 					done()
 				})
 		})
@@ -85,7 +88,20 @@ describe('Server Connections', function() {
 				.end(function(err, res) {
 					expect(err).to.be.null;
 					expect(res).to.have.status(200);
+					assert.equal(res.body.status, "success");
 					done()
+				})
+		})
+	})
+	describe('clear the test DB', function() {
+		it('should empty the tables in the test DB',function(done) {
+			chai.request(API_ENDPOINT)
+				.post('/clear_test_tables')
+				.end(function(err, res) {
+					expect(err).to.be.null;
+					expect(res).to.have.status(200);
+					assert.equal(res.body.status, "success");
+					done();
 				})
 		})
 	})
