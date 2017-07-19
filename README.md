@@ -1,2 +1,2 @@
-# Digital-Gym-Backend
+# Digital Gym Backend
 Backend code

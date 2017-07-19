@@ -15,9 +15,12 @@
   "author": "Aidan Curtis",
   "license": "MIT",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "mocha"
   },
   "devDependencies": {
-    "socket.io": "^1.5.1"
+    "mocha": "*",
+    "socket.io": "^1.5.1",
+    "chai" : "*"
   }
 }
