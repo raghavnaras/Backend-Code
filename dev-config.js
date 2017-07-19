@@ -12,6 +12,7 @@ db.schema = test ? 'DigitalGymTest' : 'DigitalGym';
 var opts = {
     host: 'digitalgym.cq4d8vjo7uoe.us-west-2.rds.amazonaws.com',
     dialect: 'mysql',
+    // logging: false,
     pool: {
         max: 5,
         min: 0,
