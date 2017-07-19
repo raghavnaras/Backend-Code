@@ -19,6 +19,14 @@ function createBikeData(rpm, bikeID, sessionID) {
 	})
 }
 
+function createRaspberryPi(serialNumber, machineID, machineType) {
+	return RaspberryPi.create({
+		serialNumber: serialNumber,
+		machineID: machineID,
+		machineType: machineType
+	})
+}
+
 function createSession(machineID, RFID, userID) {
 	return SessionData.create({
 		RFID: RFID,
@@ -182,9 +190,6 @@ function findStartTimeOfLatestEndedSessionUsingUserID(userID) {
 		}
 	});
 }
-
-
-
 
 
 

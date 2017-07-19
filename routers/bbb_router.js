@@ -543,4 +543,28 @@ router.post("/history", function(req,res){
 })
 
 
+// TEST ROUTES
+
+router.post("/add_test_data", function(req, res) {
+	var values = req.body.values
+	switch(req.body.table) {
+		case "BikeData":
+			utils.createBikeData(values.rpm)
+			break
+		case "RaspberryPi":
+			utils.createRaspberryPi(values.serialNumber, values.machineID, values.machineType)
+			break
+		case "SessionData":
+			utils.createSession(values.machineID, values.RFID, values.userID)
+			break
+		case "Tag":
+			utils.createTag(values.RFID, values.tagName, values.userID, values.machineID, values.registered)
+			break
+		case "User":
+			utils.createUser(values.name, values.email, values.pswd, values.gender, values.weight, values.age, values.height, values.RFID, values.resetpasswordcode)
+			break
+	}
+})
+
+
 module.exports = router;
