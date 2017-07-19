@@ -25,6 +25,8 @@ function createRaspberryPi(serialNumber, machineID, machineType) {
 		serialNumber: serialNumber,
 		machineID: machineID,
 		machineType: machineType
+	}).error(function(error) {
+		console.log("ERRRORRRRRRRR: " + error);
 	})
 }
 
@@ -200,6 +202,7 @@ function clearDataBaseTable(model) {
 
 module.exports = {
 	createBikeData: createBikeData,
+	createRaspberryPi: createRaspberryPi,
 	createSession: createSession,
 	createTag: createTag,
 	createUser: createUser,
@@ -214,5 +217,6 @@ module.exports = {
 	findUserUsingEmail: findUserUsingEmail,
 	findCurrentSessionUsingUserID: findCurrentSessionUsingUserID,
 	findEndedSessionsUsingUserID: findEndedSessionsUsingUserID,
-	findStartTimeOfLatestEndedSessionUsingUserID: findStartTimeOfLatestEndedSessionUsingUserID
+	findStartTimeOfLatestEndedSessionUsingUserID: findStartTimeOfLatestEndedSessionUsingUserID,
+	clearDataBaseTable: clearDataBaseTable
 }
