@@ -314,14 +314,18 @@ router.post("/changepassword", function(req, res){
 router.post("/login", function(req, res) {
 	utils.findUserUsingEmail(req.body.email).then(function(user) {
 		if (!user) {
+			console.log("MADE IT HERE 1");
 			return res.send({status: 403});
 		}
 		if (user) {
+			console.log("MADE IT HERE 2");
 			bcrypt.compare(req.body.password, String(user.pswd), function(err, response) {
 				if (response){
+					console.log("MADE IT HERE 3");
 					// console.log("Login UserID: " + user.id);
                 	// var expires = moment().add('days', 7).valueOf();
-                	var token = jwt.sign({userName: user.name, userID: user.id, email: user.email}, 'ashu1234');
+                	var token = jwt.sign({userName: user.name, userID: user.id, email: user.email}, 'ashu1234', {noTimestamp: true});
+                	console.log("MADE IT HERE 4");
                 	res.json({
                 		token: token,
                 		userName: user.name,
