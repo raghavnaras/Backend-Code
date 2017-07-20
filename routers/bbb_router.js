@@ -146,9 +146,8 @@ router.post("/workout_duration", function(req, res){
 })
 
 router.post("/check_active_session", function(req, res){
-	console.log("GOTTTT HEERRRREEEEEEEEEEEEEEEEEE!?!?")
 	utils.findCurrentSessionUsingUserID(req.body.userID).then(function(session){
-		res.send({active: (session ? false : true)})
+		res.send({active: (session ? true : false)})
 	})
 })
 
@@ -555,7 +554,6 @@ router.post("/history", function(req,res){
 // TEST ROUTES
 
 router.post("/add_test_data", function(req, res) {
-	console.log("GETS INSIDE ADD TEST DATA");
 	if (test) {
 		var values = req.body.values
 		switch(req.body.table) {
