@@ -1,5 +1,8 @@
 // Routers, Models, and Packages
 
+// "Life is unfair, and then you die, motherfucker!" - Jacob Burger & Hamza Nauman
+// Rushi Bhalani's idea ^
+
 var express = require('express');
 var jwt = require ('jsonwebtoken');
 var router = express.Router();
@@ -16,6 +19,7 @@ var bodyParser = require('body-parser');
 var bcrypt = require('bcryptjs');
 var moment = require('moment-timezone');
 var utils = require('./bbb_router_utils.js')
+var config = require('../dev-config');
 
 var app = express();
 
@@ -27,7 +31,7 @@ aws.config.update({
 var ses = new aws.SES({"accessKeyId": "", "secretAccessKey":"","region":"us-west-2"})
 
 
-var test = true
+var test = config.db.test
 
 // sets up authorization where it matters
 // TODO: Condense this into a function that excludes certain paths
@@ -132,6 +136,7 @@ router.post("/workout_duration", function(req, res){
 		if (ses) {
 			var start = parseInt(ses.stampStart)
 			var end = new Date().getTime()
+			console.log(ses.sessionID)
 			res.send({success: true, duration: end - start})
 		}
 		else {
@@ -229,7 +234,7 @@ router.post("/forgotpasswordchange", function(req, res){
             }
 
 			})
-            
+
 
 		}
 		else{
@@ -390,8 +395,8 @@ router.post("/end_workout", function(req, res) {
 
 // TODO: Change code so that in case that a session is in progress, and someone scans a
 // tag that is different from the tag that had been scanned for the session in progress,
-// the session in progress should continue **unless** the session in progress has not 
-// registered an RPM in the last 10 seconds. At the moment, the tag of the session in progress 
+// the session in progress should continue **unless** the session in progress has not
+// registered an RPM in the last 10 seconds. At the moment, the tag of the session in progress
 // is updated with the RFID of the most recently scanned tag.
 // RESOLVED BUT REQUIRES TESTING
 
@@ -440,7 +445,7 @@ router.post("/process_tag", function(req, res) {
 								} else {
 									//associates scanned tag with current session
 									utils.addTagToSession(req.body.RFID, tag.dataValues.userID, RaspPi.machineID).then(function(updatedSession) {
-										res.send({status: (updatedSession[0] == 1) ? "updated" : "failure", 
+										res.send({status: (updatedSession[0] == 1) ? "updated" : "failure",
 											message: (updatedSession[0] == 1) ? "Session in progress has been updated." : "Session in progress could not be updated."})
 									})
 								}
@@ -451,14 +456,14 @@ router.post("/process_tag", function(req, res) {
 								res.send({status: createdSession ? "success" : "failure"})
 							})
 						}
-					})			
+					})
 				})
 		} else {
 			// TODO: Should tag still be created if there is another session in progress on this machine's Pi?
 			utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
 				if (RaspPi) {
 					utils.createTag(req.body.RFID, null, null, RaspPi.machineID, false);
-					res.send({status: "Tag created"});					
+					res.send({status: "Tag created"});
 				} else {
 					res.send({status: "No Pi", message: "Could not find machine (RaspPi)."})
 				}
@@ -478,10 +483,10 @@ router.post("/check_rpm", function(req, res) {
 							utils.endSession(RaspPi.machineID)
 						}
 					})
-				}	
+				}
 			})
 		})
-	}, 30000)	
+	}, 30000)
 })
 
 router.post("/check_tag", function(req, res) {
@@ -553,28 +558,37 @@ router.post("/add_test_data", function(req, res) {
 		var values = req.body.values
 		switch(req.body.table) {
 			case "BikeData":
-				utils.createBikeData(values.rpm, values.bikeID, values.sessionID)
-				res.send({status: "success"})
+				utils.createBikeData(values.rpm, values.bikeID, values.sessionID).then(function() {
+					res.send({status: "success"})
+				})
+				// res.send({status: "success"})
 				break
 			case "RaspberryPi":
-				console.log("GETSSS TOOO THE RaspberryPi STATEMENTTTTTTTTT!!!!!!!!???????!!!!!!???????")
-				utils.createRaspberryPi(values.serialNumber, values.machineID, values.machineType)
-				res.send({status: "success"})
+				utils.createRaspberryPi(values.serialNumber, values.machineID, values.machineType).then(function() {
+					res.send({status: "success"})
+				})
+				// res.send({status: "success"})
 				break
 			case "SessionData":
-				utils.createSession(values.machineID, values.RFID, values.userID)
-				res.send({status: "success"})
+				utils.createSession(values.machineID, values.RFID, values.userID).then(function() {
+					res.send({status: "success"})
+				})
+				// res.send({status: "success"})
 				break
 			case "Tag":
-				utils.createTag(values.RFID, values.tagName, values.userID, values.machineID, values.registered)
-				res.send({status: "success"})
+				utils.createTag(values.RFID, values.tagName, values.userID, values.machineID, values.registered).then(function() {
+					res.send({status: "success"})
+				})
+				// res.send({status: "success"})
 				break
 			case "User":
-				utils.createUser(values.name, values.email, values.pswd, values.gender, values.weight, values.age, values.height, values.RFID, values.resetpasswordcode)
-				res.send({status: "success"})
+				utils.createUser(values.name, values.email, values.pswd, values.gender, values.weight, values.age, values.height, values.RFID, values.resetpasswordcode).then(function() {
+					res.send({status: "success"})
+				})
+				// res.send({status: "success"})
 				break
 			default:
-				res.send({status: "failure"})
+				res.status(404).send({status: "failure"})
 
 		}
 	} else {
@@ -582,6 +596,24 @@ router.post("/add_test_data", function(req, res) {
 	}	
 })
 
+<<<<<<< HEAD
+=======
+router.post("/clear_test_tables", function(req, res) {
+	if (test) {
+		Promise.all([
+			utils.clearDataBaseTable(BikeData),
+			utils.clearDataBaseTable(RaspberryPi),
+			utils.clearDataBaseTable(SessionData),
+			utils.clearDataBaseTable(Tag),
+			utils.clearDataBaseTable(User)
+		]).then(function() {
+			res.send({status: "success"})
+		})
+	} else {
+		res.send({status: "failure"})
+	}
+})
+>>>>>>> d7335b75c5173294b8d232a2826770fcbe6246c3
 
 
 module.exports = router;

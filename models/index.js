@@ -3,7 +3,7 @@
 // built in node modules used for file and DB management
 var Sql = require('sequelize');
 var path = require("path");
-var config= require('../dev-config');
+var config = require('../dev-config');
 
 // creates a db variable
 var db = {};

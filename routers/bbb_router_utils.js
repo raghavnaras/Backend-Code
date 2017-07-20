@@ -6,6 +6,9 @@ var Tag = models.Tag;
 var User = models.User;
 var sequelize = require('sequelize');
 var bodyParser = require('body-parser');
+var config = require('../dev-config');
+
+var test = config.db.test
 
 
 // Helper functions for creating model instances
@@ -20,7 +23,6 @@ function createBikeData(rpm, bikeID, sessionID) {
 }
 
 function createRaspberryPi(serialNumber, machineID, machineType) {
-	console.log("GETSSS TOOO THE RaspberryPi STATEMENTTTTTTTTT!!!!!!!!???????!!!!!!???????")
 	return RaspberryPi.create({
 		serialNumber: serialNumber,
 		machineID: machineID,
@@ -106,6 +108,22 @@ function endSession(machineID) {
 			stampEnd: null
 		}
 	})
+}
+
+function clearDataBaseTable(model) {
+	return model.truncate();
+}
+
+function clearTestTables() {
+	if (test) {
+		return Promise.all([
+			BikeData.truncate(),
+			RaspberryPi.truncate(),
+			SessionData.truncate(),
+			Tag.truncate(),
+			User.truncate()
+		])
+	}
 }
 
 // Helper functions for reading model instances
@@ -194,9 +212,6 @@ function findStartTimeOfLatestEndedSessionUsingUserID(userID) {
 	});
 }
 
-function clearDataBaseTable(model) {
-	model.truncate()
-} 
 
 
 
@@ -209,6 +224,8 @@ module.exports = {
 	registerTag: registerTag,
 	addTagToSession: addTagToSession,
 	endSession: endSession,
+	clearDataBaseTable: clearDataBaseTable,
+	clearTestTables: clearTestTables,
 	findBikeData: findBikeData,
 	findRecentBikeData: findRecentBikeData,
 	findRaspPiUsingSerial: findRaspPiUsingSerial,
@@ -218,5 +235,4 @@ module.exports = {
 	findCurrentSessionUsingUserID: findCurrentSessionUsingUserID,
 	findEndedSessionsUsingUserID: findEndedSessionsUsingUserID,
 	findStartTimeOfLatestEndedSessionUsingUserID: findStartTimeOfLatestEndedSessionUsingUserID,
-	clearDataBaseTable: clearDataBaseTable
 }
