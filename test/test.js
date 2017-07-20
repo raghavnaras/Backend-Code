@@ -253,8 +253,6 @@ describe('Server Connections', function() {
 		})
 	})
 
-}
-
 
 
 // 

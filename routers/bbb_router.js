@@ -596,8 +596,7 @@ router.post("/add_test_data", function(req, res) {
 	}	
 })
 
-<<<<<<< HEAD
-=======
+
 router.post("/clear_test_tables", function(req, res) {
 	if (test) {
 		Promise.all([
@@ -613,7 +612,6 @@ router.post("/clear_test_tables", function(req, res) {
 		res.send({status: "failure"})
 	}
 })
->>>>>>> d7335b75c5173294b8d232a2826770fcbe6246c3
 
 
 module.exports = router;
