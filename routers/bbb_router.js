@@ -32,7 +32,6 @@ var ses = new aws.SES({"accessKeyId": "", "secretAccessKey":"","region":"us-west
 
 
 var test = config.db.test
-console.log("TESTTTTTTTTTTTTTTTTT: " + test);
 
 // sets up authorization where it matters
 // TODO: Condense this into a function that excludes certain paths

@@ -9,6 +9,29 @@ chai.use(chaiHTTP);
 var assert = chai.assert;
 var expect = chai.expect;
 
+function send_add_to_db_request(options) {
+	return chai.request(API_ENDPOINT)
+		.post('/add_test_data')
+		.send(options)
+		.end(function (err, res) {
+ 			expect(err).to.be.null;
+     		expect(res).to.have.status(200);
+     		assert.equal(res.body.status, "success");
+		});
+}
+
+function clear_db(done) {
+	chai.request(API_ENDPOINT)
+	.post('/clear_test_tables')
+	.end(function(err, res) {
+		expect(err).to.be.null;
+		expect(res).to.have.status(200);
+		assert.equal(res.body.status, "success");
+		done()
+	})
+	
+}
+
 
 describe('DB Modification Functions', function() {
 	describe('should add test data to DB', function() {
@@ -115,6 +138,39 @@ describe('Server Connections', function() {
 				})
 		});
 	});
+
+	describe('/check_active_session', function() {
+		it('should return true if active session exists', function(done) {
+			send_add_to_db_request({table: "SessionData", values: {machineID: 1, RFID: 69, userID: 1}})
+			.then(function() {
+				chai.request(API_ENDPOINT)
+					.post('/check_active_session')
+					.send({userID: 1})
+					.end(function (err, res) {
+	 					expect(err).to.be.null;
+	     				expect(res).to.have.status(200);
+	     				console.log("STATUS: " + res.body.active)
+	     				assert.equal(res.body.active, false);
+	     				clear_db(done);
+					});
+			})	
+		})
+		// it('should return false if active session doesn\'t exists', function(done) {
+		// 	send_add_to_db_request({table: "SessionData", values: {machineID: 1, RFID: 69, userID: 1}}, done)
+		// 	utils.endSession(1).then(function() {
+		// 		chai.request(API_ENDPOINT)
+		// 		.post('/check_active_session')
+		// 		.send({userID: 1})
+		// 		.end(function (err, res) {
+ 	// 				expect(err).to.be.null;
+  //    				expect(res).to.have.status(200);
+  //    				assert.equal(res.body.active, true);
+		// 		});
+		// 	clear_db(done);
+		// 	done()
+		// 	})
+		// })
+	})
 	// describe('login', function() {
 		// it('should create a token correctly', function(done) {
 			// chai.request(API_ENDPOINT)

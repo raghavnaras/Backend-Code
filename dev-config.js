@@ -3,7 +3,7 @@ var config = {};
 var db = {};
 
 
-db.test = false; // testing boolean
+db.test = true; // testing boolean
 db.user = 'digitalgym';
 db.password = 'ashu1234';
 db.schema = db.test ? 'DigitalGymTest' : 'DigitalGym';
@@ -11,7 +11,7 @@ db.schema = db.test ? 'DigitalGymTest' : 'DigitalGym';
 var opts = {
     host: 'digitalgym.cq4d8vjo7uoe.us-west-2.rds.amazonaws.com',
     dialect: 'mysql',
-    // logging: false,
+    logging: false,
     pool: {
         max: 5,
         min: 0,
