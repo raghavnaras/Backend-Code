@@ -149,8 +149,8 @@ describe('Server Connections', function() {
 					.end(function (err, res) {
 	 					expect(err).to.be.null;
 	     				expect(res).to.have.status(200);
-	     				console.log("STATUS: " + res.body.active)
 	     				assert.equal(res.body.active, false);
+
 	     				clear_db(done);
 					});
 			})	
