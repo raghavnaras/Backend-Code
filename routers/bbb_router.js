@@ -134,7 +134,9 @@ router.post("/workout_duration", function(req, res){
 	utils.findCurrentSessionUsingUserID(req.body.userID).then(function(ses) {
 		if (ses) {
 			var start = parseInt(ses.stampStart)
+			console.log("stampStart", start);
 			var end = new Date().getTime()
+			console.log("stampEnd", end);
 			console.log("session ID", ses.sessionID);
 			res.send({success: true, duration: end - start})
 		}
