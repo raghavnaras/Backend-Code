@@ -66,6 +66,7 @@ router.get("/data", function(req, res){
 router.post("/data/last", function(req, res){
 	utils.findCurrentSessionUsingUserID(req.body.userID).then(function(session) {
 		if (session) {
+			console.log("there is a session!!!");
 			BikeData.findAll({
 				limit: 3,
 				order: [
