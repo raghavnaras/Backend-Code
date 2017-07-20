@@ -183,8 +183,76 @@ describe('Server Connections', function() {
    //   				done();
 			// 	})
 		// })
-	// });
-	
-});
+	});
+	describe('add_test_data', function() {
+		it('should add bike data to DB', function(done) {
+			chai.request(API_ENDPOINT)
+				.post('/add_test_data')
+				.send({table: "BikeData", values: {rpm: 9000.1, bikeID: 3, sessionID: 2}})
+				.end(function(err, res) {
+					expect(err).to.be.null;
+					expect(res).to.have.status(200);
+					// assert.equal(res.body.status, "success");
+					done()
+				})
+		})
+		it('should add Raspberry Pi to DB', function(done) {
+			chai.request(API_ENDPOINT)
+				.post('/add_test_data')
+				.send({table: "RaspberryPi", values: {serialNumber: 447553254, machineID: 6, machineType: "Bike"}})
+				.end(function(err, res) {
+					expect(err).to.be.null;
+					expect(res).to.have.status(200);
+					// assert.equal(res.body.status, "success");
+					done()
+				})
+		})
+		it('should add session data to DB', function(done) {
+			chai.request(API_ENDPOINT)
+				.post('/add_test_data')
+				.send({table: "SessionData", values: {machineID: 9001, RFID: 120000, userID: 5}})
+				.end(function(err, res) {
+					expect(err).to.be.null;
+					expect(res).to.have.status(200);
+					done()
+				})
+		})
+		it('should add tag to DB', function(done) {
+			chai.request(API_ENDPOINT)
+				.post('/add_test_data')
+				.send({table: "Tag", values: {RFID: 120000, tagName: "Ginyu", userID: 5, machineID: 9001, registered: false}})
+				.end(function(err, res) {
+					expect(err).to.be.null;
+					expect(res).to.have.status(200);
+					// assert.equal(res.body.status, "success");
+					done()
+				})
+		})
+		it('should add user to DB', function(done) {
+			chai.request(API_ENDPOINT)
+				.post('/add_test_data')
+				.send({table: "User", values: {name: "Frieza", email: "fc@rice.edu", pswd: "fucksaiyans"}})
+				.end(function(err, res) {
+					expect(err).to.be.null;
+					expect(res).to.have.status(200);
+					// assert.equal(res.body.status, "success");
+					done()
+				})
+		})
+	})
+	describe('clear the test DB', function() {
+		it('should empty the tables in the test DB',function(done) {
+			chai.request(API_ENDPOINT)
+				.post('/clear_test_tables')
+				.end(function(err, res) {
+					expect(err).to.be.null;
+					expect(res).to.have.status(200);
+					// assert.equal(res.body.status, "success");
+					done();
+				})
+		})
+	})
+
+
 
 // 

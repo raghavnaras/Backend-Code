@@ -596,6 +596,7 @@ router.post("/add_test_data", function(req, res) {
 	}	
 })
 
+
 router.post("/clear_test_tables", function(req, res) {
 	if (test) {
 		Promise.all([
