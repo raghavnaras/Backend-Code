@@ -272,6 +272,41 @@ describe('Server Connections', function() {
 				})
 			})
 		})
+
+		it('should end multiple sessions if they exists, and give appropriate status', function(done) {
+			send_add_to_db_request(defaultSession1).then(function() {
+				send_add_to_db_request(defaultSession2).then(function() {
+					send_add_to_db_request(defaultRaspPi1).then(function() {
+						chai.request(API_ENDPOINT)
+						.post('/end_workout')
+						.send({serialNumber: defaultRaspPi1.values.serialNumber})
+						.end(function(err, res) {
+							expect(err).to.be.null;
+			     			expect(res).to.have.status(200);
+			     			assert.equal(res.body.status, "More than one session ended")
+			     			utils.findCurrentSessionUsingMachineID(defaultSession1.values.machineID).then(function(session) {
+			     				assert.notExists(session)
+			     				clear_db().then(done())
+			     			})
+						})
+					})
+				})
+			})
+		})
+
+		it('should give the appropriate status if no sessions exist', function(done) {
+			send_add_to_db_request(defaultRaspPi1).then(function() {
+				chai.request(API_ENDPOINT)
+				.post('/end_workout')
+				.send({serialNumber: defaultRaspPi1.values.serialNumber})
+				.end(function(err, res) {
+					expect(err).to.be.null;
+	     			expect(res).to.have.status(200);
+	     			assert.equal(res.body.status, "No session ended")
+	     			clear_db().then(done())
+				})
+			})
+		})
 	})
 });
 	
