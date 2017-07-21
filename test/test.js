@@ -171,7 +171,7 @@ describe('Server Connections', function() {
 	describe('/start_workout', function() {
 		it('should start workout if rasp pi exists and no current session', function(done) {
 			send_add_to_db_request(defaultRaspPi1).then(function() {
-				utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.serialNumber).then(function(session) {
+				utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.machineID).then(function(session) {
 					assert.notExists(session)
 				}).then(function() {
 					chai.request(API_ENDPOINT)
@@ -231,11 +231,48 @@ describe('Server Connections', function() {
 
 	})
 
-	// describe('/end_workout', function() {
-	// 	it('should end workout if there is one active session and rasp pi exists', function(done) {
-			
-	// 	})
-	// })
+	describe('/end_workout', function() {
+		it('should end workout if there is one active session and rasp pi exists', function(done) {
+			send_add_to_db_request(defaultRaspPi1).then(function() {
+				send_add_to_db_request(defaultSession1).then(function() {
+					utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.machineID).then(function(session) {
+						assert.exists(session)
+					}).then(function() {
+						chai.request(API_ENDPOINT)
+						.post('/end_workout')
+						.send({serialNumber: defaultRaspPi1.values.serialNumber})
+						.end(function(err, res) {
+							expect(err).to.be.null;
+			     			expect(res).to.have.status(200);
+			     			assert.equal(res.body.status, "success")
+			     			utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.machineID).then(function(session) {
+			     				assert.notExists(session)
+			     				clear_db().then(done())
+			     			})
+						})
+					})
+				})
+			})
+		})
+
+		it('should not end workout if no rasp pi exists', function(done) {
+			send_add_to_db_request(defaultSession1).then(function() {
+				chai.request(API_ENDPOINT)
+				.post('/end_workout')
+				.send({serialNumber: defaultRaspPi1.values.serialNumber})
+				.end(function(err, res) {
+					expect(err).to.be.null;
+	     			expect(res).to.have.status(200);
+	     			assert.equal(res.body.status, "No Pi")
+	     			assert.equal(res.body.message, "Could not find machine (RaspPi).")
+	     			utils.findCurrentSessionUsingMachineID(defaultSession1.values.machineID).then(function(session) {
+	     				assert.exists(session)
+	     				clear_db().then(done())
+	     			})
+				})
+			})
+		})
+	})
 });
 	
 
