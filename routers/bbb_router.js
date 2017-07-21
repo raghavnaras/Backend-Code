@@ -84,7 +84,6 @@ router.post("/data/last", function(req, res){
 						}
 						var current_time = new Date().getTime()
 						res.send({status: "success", rpm: (current_time - parseInt(data[0].stamp) < 1500) ? (avg_rpm / 3) : 0})
-						console.log("rpm", rpm);
 					}
 				} else {
 					console.log("failure 1");
