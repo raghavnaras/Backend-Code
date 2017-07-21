@@ -369,8 +369,9 @@ router.post("/start_workout", function(req, res) {
 				if (session) {
 					res.send({status: "Exists", message: "Session is in progress."})
 				} else {
-					utils.createSession(RaspPi.machineID, null, null);
-					res.send({status: "Created", message: "Session has been created."})
+					utils.createSession(RaspPi.machineID, null, null).then(function() {
+						res.send({status: "Created", message: "Session has been created."})
+					})
 				}
 			})
 		} else {

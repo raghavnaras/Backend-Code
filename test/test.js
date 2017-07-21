@@ -12,25 +12,17 @@ var expect = chai.expect;
 function send_add_to_db_request(options) {
 	return chai.request(API_ENDPOINT)
 	.post('/add_test_data')
-	.send(options)
-	// .end(function (err, res) {
-	// 	expect(err).to.be.null;
-	// 	expect(res).to.have.status(200);
-	// 	assert.equal(res.body.status, "success");
-	// });
+	.send(options);
 }
 
 function clear_db() {
 	return chai.request(API_ENDPOINT)
-	.post('/clear_test_tables')
-	// .end(function(err, res) {
-	// 	expect(err).to.be.null;
-	// 	expect(res).to.have.status(200);
-	// 	assert.equal(res.body.status, "success");
-	// })
-	
+	.post('/clear_test_tables')	
 }
 
+var defaultRaspPi1 = {table: "RaspberryPi", values: {serialNumber: 100, machineID: 1, machineType: "Bike"}}
+var defaultSession1 = {table: "SessionData", values: {machineID: 1, RFID: 69, userID: 1}}
+var defaultSession2 = {table: "SessionData", values: {machineID: 1, RFID: 70, userID: 2}}
 
 describe('DB Modification Functions', function() {
 	describe('should add test data to DB', function() {
@@ -143,7 +135,7 @@ describe('Server Connections', function() {
 	describe('/check_active_session', function() {
 
 		it('should return true if active session exists', function(done) {
-			send_add_to_db_request({table: "SessionData", values: {machineID: 1, RFID: 69, userID: 1}})
+			send_add_to_db_request(defaultSession1)
 			.then(function() {
 				chai.request(API_ENDPOINT)
 				.post('/check_active_session')
@@ -151,31 +143,99 @@ describe('Server Connections', function() {
 				.end(function (err, res) {
 					expect(err).to.be.null;
 					expect(res).to.have.status(200);
-					assert.equal(res.body.active, true);
+					assert.isTrue(res.body.active);
 					clear_db().then(done());
 				});
 			})	
 		})
 
 		it('should return false if active session doesn\'t exists', function(done) {
-			send_add_to_db_request({table: "SessionData", values: {machineID: 1, RFID: 69, userID: 1}}, done)
+			send_add_to_db_request(defaultSession1)
 			.then(function() {
-				utils.endSession(1).then(function() {
+				utils.endSession(defaultSession1.values.machineID).then(function() {
 					chai.request(API_ENDPOINT)
 					.post('/check_active_session')
 					.send({userID: 1})
 					.end(function (err, res) {
 	 					expect(err).to.be.null;
 	     				expect(res).to.have.status(200);
-	     				assert.equal(res.body.active, false);
+	     				assert.isFalse(res.body.active);
 	     				clear_db().then(done());
 					});
 				})
 			})
-			
 		})
 
 	})
+
+	describe('/start_workout', function() {
+		it('should start workout if rasp pi exists and no current session', function(done) {
+			send_add_to_db_request(defaultRaspPi1).then(function() {
+				utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.serialNumber).then(function(session) {
+					assert.notExists(session)
+				}).then(function() {
+					chai.request(API_ENDPOINT)
+					.post('/start_workout')
+					.send({serialNumber: defaultRaspPi1.values.serialNumber})
+					.end(function(err, res) {
+						expect(err).to.be.null;
+		     			expect(res).to.have.status(200);
+		     			assert.equal(res.body.status, "Created")
+		     			assert.equal(res.body.message, "Session has been created.")
+		     			utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.machineID).then(function(session) {
+		     				assert.exists(session)
+		     				clear_db().then(done())
+		     			})
+					})
+				})	
+			})
+		})
+
+
+		it('shouldnt start workout if no rasp pi exists', function(done) {
+			chai.request(API_ENDPOINT)
+			.post('/start_workout')
+			.send({serialNumber: defaultRaspPi1.values.serialNumber})
+			.end(function(err, res) {
+				expect(err).to.be.null;
+		     	expect(res).to.have.status(200);
+		     	assert.equal(res.body.status, "No Pi")
+		     	assert.equal(res.body.message, "Could not find machine (RaspPi).")
+		     	utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.machineID).then(function(session) {
+		     		assert.notExists(session)
+		     		clear_db().then(done())
+		     	})
+			})
+		})
+
+
+		it('shouldnt start workout if there is already an active session', function(done) {
+			send_add_to_db_request(defaultRaspPi1).then(function() {
+				send_add_to_db_request(defaultSession2).then(function() {
+					chai.request(API_ENDPOINT)
+					.post('/start_workout')
+					.send({serialNumber: defaultRaspPi1.values.serialNumber})
+					.end(function(err, res) {
+						expect(err).to.be.null;
+			     		expect(res).to.have.status(200);
+			     		assert.equal(res.body.status, "Exists")
+			     		assert.equal(res.body.message, "Session is in progress.")
+			     		utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.machineID).then(function(session) {
+			     			assert.notEqual(session.userID, defaultSession1.values.userID)
+			     			clear_db().then(done())
+			     		})
+					})
+				})	
+			})
+		})
+
+	})
+
+	// describe('/end_workout', function() {
+	// 	it('should end workout if there is one active session and rasp pi exists', function(done) {
+			
+	// 	})
+	// })
 });
 	
 
