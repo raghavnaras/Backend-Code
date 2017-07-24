@@ -131,6 +131,35 @@ router.post("/average_duration", function(req, res){
 	})
 })
 
+router.post("/deleteaccount", function(req,res){
+    User.findOne({
+		where: {
+			id: req.body.id
+		}
+	}).then(function(user){
+     bcrypt.compare(req.body.password, String(user.pswd), function(err, response) {
+				if (response){
+                   User.destroy({
+                    where: {
+                       id: req.body.id
+                    }
+                }) 
+                Tag.destroy({
+                    where: {
+                       userID: req.body.id
+                    }
+                })
+                SessionData.destroy({
+                    where: {
+                       userID: req.body.id
+                    }
+                }) 
+            res.send({status: "success"})
+                }   
+    })
+})
+})
+
 router.post("/workout_duration", function(req, res){
 	utils.findCurrentSessionUsingUserID(req.body.userID).then(function(ses) {
 		if (ses) {
