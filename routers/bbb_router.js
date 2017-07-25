@@ -675,14 +675,12 @@ router.post("/add_test_data", function(req, res) {
 
 router.post("/clear_test_tables", function(req, res) {
 	if (test) {
-		Promise.all([
-			utils.clearDataBaseTable(BikeData),
-			utils.clearDataBaseTable(RaspberryPi),
-			utils.clearDataBaseTable(SessionData),
-			utils.clearDataBaseTable(Tag),
-			utils.clearDataBaseTable(User)
-		]).then(function() {
-			res.send({status: "success"})
+		utils.clearTestTables().then(function(promise) {
+			if (promise) {
+				res.send({status: "success"})
+			} else {
+				res.send({status: "failure"})
+			}
 		})
 	} else {
 		res.send({status: "failure"})

@@ -117,12 +117,14 @@ function clearDataBaseTable(model) {
 function clearTestTables() {
 	if (test) {
 		return Promise.all([
-			BikeData.truncate(),
-			RaspberryPi.truncate(),
-			SessionData.truncate(),
-			Tag.truncate(),
-			User.truncate()
+			clearDataBaseTable(BikeData),
+			clearDataBaseTable(RaspberryPi),
+			clearDataBaseTable(SessionData),
+			clearDataBaseTable(Tag),
+			clearDataBaseTable(User)
 		])
+	} else {
+		return null
 	}
 }
 
@@ -236,6 +238,7 @@ function findEndedSessionsOnMachine(machineID) {
 		}
 	})
 }
+
 
 
 
