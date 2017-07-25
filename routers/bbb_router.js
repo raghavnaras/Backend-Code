@@ -195,11 +195,11 @@ router.post("/get_last_workout", function(req, res){
 // POST REQUESTS
 
 router.post("/test_connection", function(req, res) {
-	utils.updatePingTime(req.body.serialNumber, moment(new Date().getTime()).tz("America/Chicago").format("ddd, YYYY-MM-DD HH:mm:ss")).then(function(pair) {
+	utils.updatePingTime(req.body.serialNumber, moment(new Date().getTime()).tz("America/Chicago").format("ddd, YYYY-MM-DD h:mm:ss A ")).then(function(pair) {
 		if (pair[0] == 1) {
 			res.send({status: "success"});
 		} else {
-			res.send({status: "failure"})
+			res.send({status: "No Pi"})
 		}
 	})
 });

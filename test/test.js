@@ -125,15 +125,38 @@ describe('DB Modification Functions', function() {
 // test_connection
 describe('Server Connections', function() {
 	describe('/test_connection', function() {
-		it('should return status 200 and \"success\"', function(done) {
+		it('should return appropriate status if no rasp pi', function(done) {
 			chai.request(API_ENDPOINT)
-			.get('/test_connection')
+			.post('/test_connection')
 			.end(function (err, res) {
 				expect(err).to.be.null;
 				expect(res).to.have.status(200);
-				assert.equal(res.body.status, "success");
+				assert.equal(res.body.status, "No Pi");
 				done();
 			})
+		});
+
+		it('should return status and update last ping', function(done) {
+			send_add_to_db_request(defaultRaspPi1).then(function() {
+				utils.findRaspPiUsingSerial(defaultRaspPi1.values.serialNumber).then(function(RaspPi) {
+					assert.exists(RaspPi);
+					assert.isNull(RaspPi.lastPing);
+				}).then(function() {
+					chai.request(API_ENDPOINT)
+					.post('/test_connection')
+					.send({serialNumber: defaultRaspPi1.values.serialNumber})
+					.end(function (err, res) {
+						expect(err).to.be.null;
+						expect(res).to.have.status(200);
+						assert.equal(res.body.status, "success");
+						utils.findRaspPiUsingSerial(defaultRaspPi1.values.serialNumber).then(function(RaspPi) {
+							assert.exists(RaspPi);
+							assert.isNotNull(RaspPi.lastPing)
+							clear_db().then(done());
+						})
+					})
+				})	
+			})	
 		});
   	});
 
