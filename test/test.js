@@ -1,6 +1,7 @@
 var chai = require('chai');
 var chaiHTTP = require('chai-http');
 var utils = require('../routers/bbb_router_utils.js')
+var moment = require('moment-timezone');
 var API_ENDPOINT = "http://127.0.0.1:8000/bbb";
 // var API_ENDPOINT = "http://52.34.141.31:8000/bbb"
 
@@ -152,6 +153,7 @@ describe('Server Connections', function() {
 						utils.findRaspPiUsingSerial(defaultRaspPi1.values.serialNumber).then(function(RaspPi) {
 							assert.exists(RaspPi);
 							assert.isNotNull(RaspPi.lastPing)
+							assert.approximately(moment(new Date().getTime()).tz("America/Chicago").valueOf(), new Date(RaspPi.lastPing).getTime(), 2000)
 							clear_db().then(done());
 						})
 					})
