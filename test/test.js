@@ -416,7 +416,7 @@ describe('Admin Routes', function() {
 													.end(function(err, res) {
 														expect(err).to.be.null;
 				     									expect(res).to.have.status(200);
-				     									console.log(res.body)
+				     									// console.log(res.body)
 				     									assert.lengthOf(res.body[defaultRaspPi1.values.machineID], 2);
 	     												assert.lengthOf(res.body[defaultRaspPi2.values.machineID], 1);
 				     									assert.equal(res.body[defaultRaspPi1.values.machineID][0].avg_rpm, 75);
