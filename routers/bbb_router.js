@@ -579,9 +579,49 @@ router.post("/history", function(req,res){
 		});
 	})
 })
+// session_data.id = session.sessionID
+// session_data.machineID = session.machineID
+// session_data.userID = session.userID
+router.post("/admin_data", function(req, res) {
+	utils.findAllPis().then(function(bikes) {
+		admin_data = {}
+		Promise.all(
+			bikes.map(function(bike) {
+				admin_data[(bike.machineID)] = []
+				return utils.findEndedSessionsOnMachine(bike.machineID).then(function(sessions) {
+					return Promise.all(
+						sessions.map(function(session) {
+							return utils.findBikeData(session.sessionID).then(function(data) {
+								var total = 0
+								for (datum in data) {
+									total += data[datum].rpm
+								}
+								session_data = {}
+								session_data.avg_rpm = (data.length == 0) ? 0 : total / data.length
+								session_data.duration = (parseInt(session.stampEnd) - parseInt(session.stampStart)) / 1000.0
+								session_data.date = moment(parseInt(session.stampStart)).tz("America/Chicago").format("YYYY-MM-DD HH:mm:ss:SSS");
+								session_data.day = moment(parseInt(session.stampStart)).tz("America/Chicago").format("ddd")
+		
+								admin_data[(bike.machineID)].push(session_data)
+							})	
+						})
+					).then(function() {
+						admin_data[(bike.machineID)].sort(function(a, b) {
+							var d1 = new Date(a.date).getTime();
+							var d2 = new Date(b.date).getTime();
+							return d2 < d1;
+						})
+					})	
+				})
+			})
+		).then(function() {
+			res.send(admin_data);
+		})	
+	})
+})
 
 
-// TEST ROUTES
+// TESTING ROUTES
 
 router.post("/add_test_data", function(req, res) {
 	if (test) {

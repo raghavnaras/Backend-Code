@@ -21,8 +21,13 @@ function clear_db() {
 }
 
 var defaultRaspPi1 = {table: "RaspberryPi", values: {serialNumber: 100, machineID: 1, machineType: "Bike"}}
+var defaultRaspPi2 = {table: "RaspberryPi", values: {serialNumber: 101, machineID: 2, machineType: "Bike"}}
 var defaultSession1 = {table: "SessionData", values: {machineID: 1, RFID: 69, userID: 1}}
 var defaultSession2 = {table: "SessionData", values: {machineID: 1, RFID: 70, userID: 2}}
+var defaultSession3 = {table: "SessionData", values: {machineID: 2, RFID: 70, userID: 2}}
+var defaultRPM1 = {table: "BikeData", values: {rpm: 50, bikeID: 1, sessionID: 1}}
+var defaultRPM2 = {table: "BikeData", values: {rpm: 100, bikeID: 1, sessionID: 1}}
+var defaultRPM3 = {table: "BikeData", values: {rpm: 90, bikeID: 2, sessionID: 3}}
 
 describe('DB Modification Functions', function() {
 	describe('should add test data to DB', function() {
@@ -309,6 +314,135 @@ describe('Server Connections', function() {
 		})
 	})
 });
+
+describe('Admin Routes', function() {
+	describe('/admin_data', function() {
+		it('should return an empty JSON object with no data in any table', function(done) {
+			chai.request(API_ENDPOINT)
+				.post('/admin_data')
+				.end(function(err, res) {
+					expect(err).to.be.null;
+	     			expect(res).to.have.status(200);
+	     			assert.deepEqual(res.body, {})
+	     			clear_db().then(done())
+				})
+		})
+
+		it('should return empty 2D JSON object with just RaspPi tables', function(done) {
+			send_add_to_db_request(defaultRaspPi1).then(function() {
+				send_add_to_db_request(defaultRaspPi2).then(function() {
+					chai.request(API_ENDPOINT)
+					.post('/admin_data')
+					.end(function(err, res) {
+						expect(err).to.be.null;
+	     				expect(res).to.have.status(200);
+	     				assert.deepEqual(res.body, {1: [], 2: []})
+	     				clear_db().then(done())
+					})
+				})
+			})
+		})
+
+		it ('should return empty 2D JSON object with RaspPi and current sessions', function(done) {
+			send_add_to_db_request(defaultRaspPi1).then(function() {
+				send_add_to_db_request(defaultRaspPi2).then(function() {
+					send_add_to_db_request(defaultSession1).then(function() {
+						send_add_to_db_request(defaultSession2).then(function() {
+							send_add_to_db_request(defaultSession3).then(function() {
+								chai.request(API_ENDPOINT)
+								.post('/admin_data')
+								.end(function(err, res) {
+									expect(err).to.be.null;
+	     							expect(res).to.have.status(200);
+	     							assert.deepEqual(res.body, {1: [], 2: []})
+	     							clear_db().then(done())
+								})
+							})
+						})
+					})
+				})
+			})
+		})
+
+		it ('should return 3D JSON object with RaspPi and ended sessions', function(done) {
+			send_add_to_db_request(defaultRaspPi1).then(function() {
+				send_add_to_db_request(defaultRaspPi2).then(function() {
+					send_add_to_db_request(defaultSession1).then(function() {
+						send_add_to_db_request(defaultSession2).then(function() {
+							send_add_to_db_request(defaultSession3).then(function() {
+								utils.endSession(defaultSession1.values.machineID).then(function() {
+									utils.endSession(defaultSession3.values.machineID).then(function() {
+										chai.request(API_ENDPOINT)
+										.post('/admin_data')
+										.end(function(err, res) {
+											expect(err).to.be.null;
+	     									expect(res).to.have.status(200);
+	     									assert.lengthOf(res.body[defaultRaspPi1.values.machineID], 2);
+	     									assert.lengthOf(res.body[defaultRaspPi2.values.machineID], 1);
+	     									assert.equal(res.body[defaultRaspPi1.values.machineID][0].avg_rpm, 0);
+	     									assert.equal(res.body[defaultRaspPi1.values.machineID][1].avg_rpm, 0);
+	     									assert.equal(res.body[defaultRaspPi2.values.machineID][0].avg_rpm, 0);
+	     									assert.isAbove(res.body[defaultRaspPi1.values.machineID][0].duration, 0.0);
+	     									assert.isBelow(res.body[defaultRaspPi1.values.machineID][0].duration, 1.0);
+	     									assert.isAbove(res.body[defaultRaspPi1.values.machineID][1].duration, 0.0);
+	     									assert.isBelow(res.body[defaultRaspPi1.values.machineID][1].duration, 1.0);
+	     									assert.isAbove(res.body[defaultRaspPi2.values.machineID][0].duration, 0.0);
+	     									assert.isBelow(res.body[defaultRaspPi2.values.machineID][0].duration, 1.0);
+	     									clear_db().then(done())
+										})
+									})
+								})
+							})
+						})
+					})
+				})
+			})
+		})
+
+
+		it ('should return filled 3D JSON object with RaspPi, ended sessions and bike data', function(done) {
+			send_add_to_db_request(defaultRaspPi1).then(function() {
+				send_add_to_db_request(defaultRaspPi2).then(function() {
+					send_add_to_db_request(defaultSession1).then(function() {
+						send_add_to_db_request(defaultSession2).then(function() {
+							send_add_to_db_request(defaultSession3).then(function() {
+								send_add_to_db_request(defaultRPM1).then(function() {
+									send_add_to_db_request(defaultRPM2).then(function() {
+										send_add_to_db_request(defaultRPM3).then(function() {
+											utils.endSession(defaultSession1.values.machineID).then(function() {
+												utils.endSession(defaultSession3.values.machineID).then(function() {
+													chai.request(API_ENDPOINT)
+													.post('/admin_data')
+													.end(function(err, res) {
+														expect(err).to.be.null;
+				     									expect(res).to.have.status(200);
+				     									console.log(res.body)
+				     									assert.lengthOf(res.body[defaultRaspPi1.values.machineID], 2);
+	     												assert.lengthOf(res.body[defaultRaspPi2.values.machineID], 1);
+				     									assert.equal(res.body[defaultRaspPi1.values.machineID][0].avg_rpm, 75);
+				     									assert.equal(res.body[defaultRaspPi1.values.machineID][1].avg_rpm, 0);
+				     									assert.equal(res.body[defaultRaspPi2.values.machineID][0].avg_rpm, 90);
+				     									assert.isAbove(res.body[defaultRaspPi1.values.machineID][0].duration, 0.0);
+				     									assert.isBelow(res.body[defaultRaspPi1.values.machineID][0].duration, 1.0);
+				     									assert.isAbove(res.body[defaultRaspPi1.values.machineID][1].duration, 0.0);
+				     									assert.isBelow(res.body[defaultRaspPi1.values.machineID][1].duration, 1.0);
+				     									assert.isAbove(res.body[defaultRaspPi2.values.machineID][0].duration, 0.0);
+				     									assert.isBelow(res.body[defaultRaspPi2.values.machineID][0].duration, 1.0);
+				     									clear_db().then(done())
+													})
+												})
+											})
+										})
+									})
+								})			
+							})
+						})
+					})
+				})
+			})
+		})
+	})
+})
 	
 
 

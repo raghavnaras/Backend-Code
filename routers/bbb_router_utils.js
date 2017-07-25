@@ -212,6 +212,21 @@ function findStartTimeOfLatestEndedSessionUsingUserID(userID) {
 	});
 }
 
+function findAllPis() {
+	return RaspberryPi.findAll();
+}
+
+function findEndedSessionsOnMachine(machineID) {
+	return SessionData.findAll({
+		where: {
+			machineID: machineID,
+			stampEnd: {
+				$ne: null
+			}
+		}
+	})
+}
+
 
 
 
@@ -235,4 +250,7 @@ module.exports = {
 	findCurrentSessionUsingUserID: findCurrentSessionUsingUserID,
 	findEndedSessionsUsingUserID: findEndedSessionsUsingUserID,
 	findStartTimeOfLatestEndedSessionUsingUserID: findStartTimeOfLatestEndedSessionUsingUserID,
+	findAllPis: findAllPis,
+	findEndedSessionsOnMachine: findEndedSessionsOnMachine
 }
+
