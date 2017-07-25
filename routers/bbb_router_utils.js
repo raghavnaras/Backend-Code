@@ -126,6 +126,16 @@ function clearTestTables() {
 	}
 }
 
+function updatePingTime(serialNumber, time) {
+	return RaspberryPi.update({
+		lastPing: time
+	}, {
+		where: {
+			serialNumber: serialNumber
+		}
+	});
+}
+
 // Helper functions for reading model instances
 
 function findBikeData(sessionID) {
@@ -241,6 +251,7 @@ module.exports = {
 	endSession: endSession,
 	clearDataBaseTable: clearDataBaseTable,
 	clearTestTables: clearTestTables,
+	updatePingTime: updatePingTime,
 	findBikeData: findBikeData,
 	findRecentBikeData: findRecentBikeData,
 	findRaspPiUsingSerial: findRaspPiUsingSerial,

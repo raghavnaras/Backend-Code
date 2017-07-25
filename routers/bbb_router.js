@@ -192,11 +192,17 @@ router.post("/get_last_workout", function(req, res){
 	})
 })
 
-router.get("/test_connection", function(req, res) {
-	res.send({status: "success"});
-});
-
 // POST REQUESTS
+
+router.post("/test_connection", function(req, res) {
+	utils.updatePingTime(req.body.serialNumber, moment(new Date().getTime()).tz("America/Chicago").format("ddd, YYYY-MM-DD HH:mm:ss")).then(function(pair) {
+		if (pair[0] == 1) {
+			res.send({status: "success"});
+		} else {
+			res.send({status: "failure"})
+		}
+	})
+});
 
 router.post("/verifysecretcode", function(req,res){
 	utils.findUserUsingEmail(req.body.email).then(function(user) {
