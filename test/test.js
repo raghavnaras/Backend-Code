@@ -31,7 +31,7 @@ var defaultRPM2 = {table: "BikeData", values: {rpm: 100, bikeID: 1, sessionID: 1
 var defaultRPM3 = {table: "BikeData", values: {rpm: 90, bikeID: 2, sessionID: 3}}
 
 describe('DB Modification Functions', function() {
-	describe('should add test data to DB', function() {
+	describe('/add_test_data', function() {
 		it('should add bike data to DB', function(done) {
 			chai.request(API_ENDPOINT)
 				.post('/add_test_data')
