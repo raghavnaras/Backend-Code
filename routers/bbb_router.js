@@ -19,6 +19,7 @@ var bodyParser = require('body-parser');
 var bcrypt = require('bcryptjs');
 var moment = require('moment-timezone');
 var utils = require('./bbb_router_utils.js')
+var config = require('../dev-config');
 
 var app = express();
 
@@ -30,7 +31,7 @@ aws.config.update({
 var ses = new aws.SES({"accessKeyId": "", "secretAccessKey":"","region":"us-west-2"})
 
 
-var test = false
+var test = config.db.test
 
 // sets up authorization where it matters
 // TODO: Condense this into a function that excludes certain paths
@@ -133,6 +134,35 @@ router.post("/average_duration", function(req, res){
 	})
 })
 
+router.post("/deleteaccount", function(req,res){
+    User.findOne({
+		where: {
+			id: req.body.id
+		}
+	}).then(function(user){
+     bcrypt.compare(req.body.password, String(user.pswd), function(err, response) {
+				if (response){
+                   User.destroy({
+                    where: {
+                       id: req.body.id
+                    }
+                })
+                Tag.destroy({
+                    where: {
+                       userID: req.body.id
+                    }
+                })
+                SessionData.destroy({
+                    where: {
+                       userID: req.body.id
+                    }
+                })
+            res.send({status: "success"})
+                }
+    })
+})
+})
+
 router.post("/workout_duration", function(req, res){
 	utils.findCurrentSessionUsingUserID(req.body.userID).then(function(ses) {
 		if (ses) {
@@ -151,7 +181,7 @@ router.post("/workout_duration", function(req, res){
 
 router.post("/check_active_session", function(req, res){
 	utils.findCurrentSessionUsingUserID(req.body.userID).then(function(session){
-		res.send({active: (session ? false : true)})
+		res.send({active: (session ? true : false)})
 	})
 })
 
@@ -167,11 +197,27 @@ router.post("/get_last_workout", function(req, res){
 	})
 })
 
-router.get("/test_connection", function(req, res) {
-	res.send({status: "success"});
+// POST REQUESTS
+
+router.post("/test_connection", function(req, res) {
+	utils.updatePingTime(req.body.serialNumber).then(function(pair) {
+		if (pair[0] == 1) {
+			res.send({status: "success"});
+		} else {
+			res.send({status: "No Pi"})
+		}
+	})
 });
 
-// POST REQUESTS
+router.post("/reboot", function(req, res) {
+	utils.updateRebootTime(req.body.serialNumber).then(function(pair) {
+		if (pair[0] == 1) {
+			res.send({status: "success"})
+		} else {
+			res.send({status: "No Pi"});
+		}
+	})
+})
 
 router.post("/verifysecretcode", function(req,res){
 	utils.findUserUsingEmail(req.body.email).then(function(user) {
@@ -373,8 +419,9 @@ router.post("/start_workout", function(req, res) {
 				if (session) {
 					res.send({status: "Exists", message: "Session is in progress."})
 				} else {
-					utils.createSession(RaspPi.machineID, null, null);
-					res.send({status: "Created", message: "Session has been created."})
+					utils.createSession(RaspPi.machineID, null, null).then(function() {
+						res.send({status: "Created", message: "Session has been created."})
+					})
 				}
 			})
 		} else {
@@ -553,9 +600,49 @@ router.post("/history", function(req,res){
 		});
 	})
 })
+// session_data.id = session.sessionID
+// session_data.machineID = session.machineID
+// session_data.userID = session.userID
+router.post("/admin_data", function(req, res) {
+	utils.findAllPis().then(function(bikes) {
+		admin_data = {} // Outermost JSON object to send
+		Promise.all( // Wait on data for all bikes to be added before sending the response
+			bikes.map(function(bike) {
+				admin_data[(bike.machineID)] = [] // Array of sessions for each bike
+				return utils.findEndedSessionsOnMachine(bike.machineID).then(function(sessions) {
+					return Promise.all( // Wait on all session to be added for bike before moving on
+						sessions.map(function(session) {
+							return utils.findBikeData(session.sessionID).then(function(data) {
+								var total = 0
+								for (datum in data) {
+									total += data[datum].rpm
+								}
+								session_data = {}
+								session_data.avg_rpm = (data.length == 0) ? 0 : total / data.length
+								session_data.duration = (parseInt(session.stampEnd) - parseInt(session.stampStart)) / 1000.0
+								session_data.date = moment(parseInt(session.stampStart)).tz("America/Chicago").format("YYYY-MM-DD HH:mm:ss:SSS");
+								session_data.day = moment(parseInt(session.stampStart)).tz("America/Chicago").format("dddd")
+
+								admin_data[(bike.machineID)].push(session_data) // Added session data to array for bike
+							})
+						})
+					).then(function() {
+						admin_data[(bike.machineID)].sort(function(a, b) { // Sort each array of sessions for each bike by start time
+							var d1 = new Date(a.date).getTime();
+							var d2 = new Date(b.date).getTime();
+							return d2 < d1;
+						})
+					})
+				})
+			})
+		).then(function() {
+			res.send(admin_data);
+		})
+	})
+})
 
 
-// TEST ROUTES
+// TESTING ROUTES
 
 router.post("/add_test_data", function(req, res) {
 	if (test) {
@@ -600,16 +687,15 @@ router.post("/add_test_data", function(req, res) {
 	}
 })
 
+
 router.post("/clear_test_tables", function(req, res) {
 	if (test) {
-		Promise.all([
-			utils.clearDataBaseTable(BikeData),
-			utils.clearDataBaseTable(RaspberryPi),
-			utils.clearDataBaseTable(SessionData),
-			utils.clearDataBaseTable(Tag),
-			utils.clearDataBaseTable(User)
-		]).then(function() {
-			res.send({status: "success"})
+		utils.clearTestTables().then(function(promise) {
+			if (promise) {
+				res.send({status: "success"})
+			} else {
+				res.send({status: "failure"})
+			}
 		})
 	} else {
 		res.send({status: "failure"})

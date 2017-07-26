@@ -12,11 +12,9 @@
     "socket.io": "^1.7.2"
   },
   "main": "server.js",
-  "author": "Aidan Curtis",
-  "license": "MIT",
   "scripts": {
     "start": "node server.js",
-    "test": "mocha"
+    "test": "mocha --timeout 5000"
   },
   "devDependencies": {
     "mocha": "*",

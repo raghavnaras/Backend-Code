@@ -6,8 +6,14 @@ var Tag = models.Tag;
 var User = models.User;
 var sequelize = require('sequelize');
 var bodyParser = require('body-parser');
+var moment = require('moment-timezone');
+var config = require('../dev-config');
 
+<<<<<<< HEAD
 var test = false;
+=======
+var test = config.db.test
+>>>>>>> 024c54e381fa720353dc698b084e268a98fb7162
 
 
 // Helper functions for creating model instances
@@ -116,13 +122,35 @@ function clearDataBaseTable(model) {
 function clearTestTables() {
 	if (test) {
 		return Promise.all([
-			BikeData.truncate(),
-			RaspberryPi.truncate(),
-			SessionData.truncate(),
-			Tag.truncate(),
-			User.truncate()
+			clearDataBaseTable(BikeData),
+			clearDataBaseTable(RaspberryPi),
+			clearDataBaseTable(SessionData),
+			clearDataBaseTable(Tag),
+			clearDataBaseTable(User)
 		])
+	} else {
+		return null
 	}
+}
+
+function updatePingTime(serialNumber) {
+	return RaspberryPi.update({
+		lastPing: moment(new Date().getTime()).tz("America/Chicago").format("ddd, YYYY-MM-DD h:mm:ss A")
+	}, {
+		where: {
+			serialNumber: serialNumber
+		}
+	});
+}
+
+function updateRebootTime(serialNumber) {
+	return RaspberryPi.update({
+		lastReboot: moment(new Date().getTime()).tz("America/Chicago").format("ddd, YYYY-MM-DD h:mm:ss A")
+	}, {
+		where: {
+			serialNumber: serialNumber
+		}
+	});
 }
 
 // Helper functions for reading model instances
@@ -211,6 +239,22 @@ function findStartTimeOfLatestEndedSessionUsingUserID(userID) {
 	});
 }
 
+function findAllPis() {
+	return RaspberryPi.findAll();
+}
+
+function findEndedSessionsOnMachine(machineID) {
+	return SessionData.findAll({
+		where: {
+			machineID: machineID,
+			stampEnd: {
+				$ne: null
+			}
+		}
+	})
+}
+
+
 
 
 
@@ -225,6 +269,8 @@ module.exports = {
 	endSession: endSession,
 	clearDataBaseTable: clearDataBaseTable,
 	clearTestTables: clearTestTables,
+	updatePingTime: updatePingTime,
+	updateRebootTime: updateRebootTime,
 	findBikeData: findBikeData,
 	findRecentBikeData: findRecentBikeData,
 	findRaspPiUsingSerial: findRaspPiUsingSerial,
@@ -234,4 +280,11 @@ module.exports = {
 	findCurrentSessionUsingUserID: findCurrentSessionUsingUserID,
 	findEndedSessionsUsingUserID: findEndedSessionsUsingUserID,
 	findStartTimeOfLatestEndedSessionUsingUserID: findStartTimeOfLatestEndedSessionUsingUserID,
+<<<<<<< HEAD
 }
+=======
+	findAllPis: findAllPis,
+	findEndedSessionsOnMachine: findEndedSessionsOnMachine
+}
+
+>>>>>>> 024c54e381fa720353dc698b084e268a98fb7162
