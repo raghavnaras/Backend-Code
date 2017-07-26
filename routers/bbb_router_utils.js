@@ -6,6 +6,7 @@ var Tag = models.Tag;
 var User = models.User;
 var sequelize = require('sequelize');
 var bodyParser = require('body-parser');
+var moment = require('moment-timezone');
 var config = require('../dev-config');
 
 var test = config.db.test
@@ -128,9 +129,19 @@ function clearTestTables() {
 	}
 }
 
-function updatePingTime(serialNumber, time) {
+function updatePingTime(serialNumber) {
 	return RaspberryPi.update({
-		lastPing: time
+		lastPing: moment(new Date().getTime()).tz("America/Chicago").format("ddd, YYYY-MM-DD h:mm:ss A")
+	}, {
+		where: {
+			serialNumber: serialNumber
+		}
+	});
+}
+
+function updateRebootTime(serialNumber) {
+	return RaspberryPi.update({
+		lastReboot: moment(new Date().getTime()).tz("America/Chicago").format("ddd, YYYY-MM-DD h:mm:ss A")
 	}, {
 		where: {
 			serialNumber: serialNumber
@@ -255,6 +266,7 @@ module.exports = {
 	clearDataBaseTable: clearDataBaseTable,
 	clearTestTables: clearTestTables,
 	updatePingTime: updatePingTime,
+	updateRebootTime: updateRebootTime,
 	findBikeData: findBikeData,
 	findRecentBikeData: findRecentBikeData,
 	findRaspPiUsingSerial: findRaspPiUsingSerial,

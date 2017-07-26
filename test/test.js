@@ -137,7 +137,7 @@ describe('Server Connections', function() {
 			})
 		});
 
-		it('should return status and update last ping', function(done) {
+		it('should return status and update last ping time', function(done) {
 			send_add_to_db_request(defaultRaspPi1).then(function() {
 				utils.findRaspPiUsingSerial(defaultRaspPi1.values.serialNumber).then(function(RaspPi) {
 					assert.exists(RaspPi);
@@ -161,6 +161,45 @@ describe('Server Connections', function() {
 			})	
 		});
   	});
+
+  	describe('/reboot', function() {
+  		it('should return appropriate status if no such pi', function(done) {
+  			chai.request(API_ENDPOINT)
+			.post('/reboot')
+			.end(function (err, res) {
+				expect(err).to.be.null;
+				expect(res).to.have.status(200);
+				assert.equal(res.body.status, "No Pi");
+				done();
+			})
+  		})
+
+  		it('should return status and update last reboot time', function(done) {
+			send_add_to_db_request(defaultRaspPi1).then(function() {
+				utils.findRaspPiUsingSerial(defaultRaspPi1.values.serialNumber).then(function(RaspPi) {
+					assert.exists(RaspPi);
+					assert.isNull(RaspPi.lastReboot);
+				}).then(function() {
+					chai.request(API_ENDPOINT)
+					.post('/reboot')
+					.send({serialNumber: defaultRaspPi1.values.serialNumber})
+					.end(function (err, res) {
+						expect(err).to.be.null;
+						expect(res).to.have.status(200);
+						assert.equal(res.body.status, "success");
+						utils.findRaspPiUsingSerial(defaultRaspPi1.values.serialNumber).then(function(RaspPi) {
+							assert.exists(RaspPi);
+							assert.isNotNull(RaspPi.lastReboot)
+							assert.approximately(moment(new Date().getTime()).tz("America/Chicago").valueOf(), new Date(RaspPi.lastReboot).getTime(), 2000)
+							clear_db().then(done());
+						})
+					})
+				})	
+			})	
+		});
+
+
+  	})
 
 	describe('/check_active_session', function() {
 
