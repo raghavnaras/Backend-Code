@@ -550,14 +550,15 @@ router.post("/bike", function(req, res){
 		if (RaspPi) {
 			utils.findCurrentSessionUsingMachineID(RaspPi.machineID).then(function(session) {
 				if (session) {
-					utils.createBikeData(req.body.rpm, RaspPi.machineID, session.sessionID);
-					res.send({status: "success"});
+					utils.createBikeData(req.body.rpm, RaspPi.machineID, session.sessionID).then(function(data) {
+						res.send({status: (data ? "success" : "failure")})
+					})
 				} else {
 					res.send({status: "failure"});
 				}
 			})
 		} else {
-			res.send({status: "failure"});
+			res.send({status: "No Pi"});
 		}
 	});
 });
