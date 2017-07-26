@@ -131,6 +131,23 @@ router.post("/average_duration", function(req, res){
 	})
 })
 
+router.post("/deleteworkout", function(req,res){
+    SessionData.findOne({
+        where: {
+            sessionID: req.body.sessionid
+        }
+    }).then(function(session){
+        if (session){
+            SessionData.destroy({
+                where: {
+                    sessionID: req.body.sessionid
+                }
+            })
+            res.send({status: "success"})
+        }
+    })
+})
+
 router.post("/deleteaccount", function(req,res){
     User.findOne({
 		where: {
@@ -586,6 +603,7 @@ router.post("/history", function(req,res){
 					var dateTime = moment(parseInt(session.stampStart)).tz("America/Chicago").format("ddd MMM DD YYYY, h:mm A");
 					history.date = dateTime;
 					history.start = session.stampStart;
+                    history.sessionid = session.sessionID
 
 					history_list.push(history);
 					return
