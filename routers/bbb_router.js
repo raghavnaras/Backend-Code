@@ -571,7 +571,7 @@ router.post("/bike", function(req, res){
 						res.send({status: (data ? "success" : "failure")})
 					})
 				} else {
-					res.send({status: "failure"});
+					res.send({status: "No Session"});
 				}
 			})
 		} else {

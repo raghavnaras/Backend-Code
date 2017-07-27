@@ -377,6 +377,68 @@ describe('Server Connections', function() {
 			})
 		})
 	})
+
+	describe('/bike', function() {
+		it('should return appropriate status and fail if no rasp pi', function(done) {
+			chai.request(API_ENDPOINT)
+			.post('/bike')
+			.send({rpm: 5, serialNumber: 1})
+			.end(function(err, res) {
+				expect(err).to.be.null;
+	     		expect(res).to.have.status(200);
+	     		assert.equal(res.body.status, "No Pi")
+	     		clear_db().then(done())
+			})
+		})
+
+		it('should return appropriate status and fail if only ended sessions', function(done) {
+			send_add_to_db_request(defaultRaspPi1).then(function() {
+				send_add_to_db_request(defaultSession1).then(function() {
+					utils.endSession(defaultSession1.values.machineID).then(function() {
+						chai.request(API_ENDPOINT)
+						.post('/bike')
+						.send({rpm: 101, serialNumber: defaultRaspPi1.values.serialNumber})
+						.end(function(err, res) {
+							expect(err).to.be.null;
+	     					expect(res).to.have.status(200);
+	     					assert.equal(res.body.status, "No Session")
+	     					utils.findEndedSessionsOnMachine(defaultSession1.values.machineID).then(function(session) {
+	     						assert.exists(session);
+	     					}).then(function() {
+	     						utils.findBikeData(1).then(function(data) {
+	     							assert.equal(data.length, 0);
+	     							clear_db().then(done())
+	     						})
+	     					})
+						})
+					})
+				})
+			})
+		})
+
+		it('should return appropriate status and add bike data if active session exists', function(done) {
+			send_add_to_db_request(defaultRaspPi1).then(function() {
+				send_add_to_db_request(defaultSession1).then(function() {
+					chai.request(API_ENDPOINT)
+					.post('/bike')
+					.send({rpm: 101, serialNumber: defaultRaspPi1.values.serialNumber})
+					.end(function(err, res) {
+						expect(err).to.be.null;
+     					expect(res).to.have.status(200);
+     					assert.equal(res.body.status, "success")
+     					utils.findBikeData(1).then(function(data) {
+     						assert.equal(data.length, 1);
+     						assert.equal(data[0].rpm, 101);
+     						assert.approximately(data[0].stamp, moment(new Date().getTime()).tz("America/Chicago").valueOf(), 2000)
+     						assert.equal(data[0].bikeID, defaultRaspPi1.values.machineID)
+     						assert.equal(data[0].sessionID, 1);
+     						clear_db().then(done())
+     					})
+					})
+				})
+			})
+		})
+	})
 });
 
 describe('Admin Routes', function() {
