@@ -246,7 +246,7 @@ router.post("/verifysecretcode", function(req,res){
 router.post("/setup_account", function(req, res) {
 	utils.findUserUsingEmail(req.body.email).then(function(user) {
 		if (user) {
-			res.send({status: "409"})
+			res.sendStatus(409);
 		}
 		else {
 			bcrypt.genSalt(10, function(err, salt) {
@@ -258,12 +258,11 @@ router.post("/setup_account", function(req, res) {
 								token: token,
 								userName: user.name,
 								userID: user.id,
-								email: user.email,
-								status: "success"
+								email: user.email
 							});
 						}
 						else{
-							res.send({status: "failure"})
+							res.sendStatus(500)
 						}
 					})
 				});
@@ -414,7 +413,11 @@ router.post("/logout", function(req, res){
 			id: req.body.userID
 		}
 	}).then(function(user) {
-		res.send({status: user ? "success" : "failure"});
+		if (user) {
+			res.sendStatus(200);
+		} else {
+			res.sendStatus(401);
+		}
 	})
 });
 
