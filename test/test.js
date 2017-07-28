@@ -3,6 +3,7 @@ var chaiHTTP = require('chai-http');
 var utils = require('../routers/bbb_router_utils.js')
 var moment = require('moment-timezone');
 var API_ENDPOINT = "http://127.0.0.1:8000/bbb";
+var bcrypt = require('bcryptjs');
 // var API_ENDPOINT = "http://52.34.141.31:8000/bbb"
 
 chai.use(chaiHTTP);
@@ -29,99 +30,100 @@ var defaultSession3 = {table: "SessionData", values: {machineID: 2, RFID: 70, us
 var defaultRPM1 = {table: "BikeData", values: {rpm: 50, bikeID: 1, sessionID: 1}}
 var defaultRPM2 = {table: "BikeData", values: {rpm: 100, bikeID: 1, sessionID: 1}}
 var defaultRPM3 = {table: "BikeData", values: {rpm: 90, bikeID: 2, sessionID: 3}}
+var defaultUser = {table: 'User', values: {id: 1, name: 'Test', email: 'test@rice.edu', pswd: 'ashu1234'}}
 
-describe('DB Modification Functions', function() {
-	describe('/add_test_data', function() {
-		it('should add bike data to DB', function(done) {
-			chai.request(API_ENDPOINT)
-				.post('/add_test_data')
-				.send({table: "BikeData", values: {rpm: 9000.1, bikeID: 3, sessionID: 2}})
-				.end(function(err, res) {
-					expect(err).to.be.null;
-					expect(res).to.have.status(200);
-					assert.equal(res.body.status, "success");
-					done()
-				})
-			// utils.createBikeData(9000.1, 3, 2).then(function() {
-			// 	done();
-			// });
+// describe('DB Modification Functions', function() {
+// 	describe('/add_test_data', function() {
+// 		it('should add bike data to DB', function(done) {
+// 			chai.request(API_ENDPOINT)
+// 				.post('/add_test_data')
+// 				.send({table: "BikeData", values: {rpm: 9000.1, bikeID: 3, sessionID: 2}})
+// 				.end(function(err, res) {
+// 					expect(err).to.be.null;
+// 					expect(res).to.have.status(200);
+// 					assert.equal(res.body.status, "success");
+// 					done()
+// 				})
+// 			// utils.createBikeData(9000.1, 3, 2).then(function() {
+// 			// 	done();
+// 			// });
 
-		})
+// 		})
 
-		it('should add Raspberry Pi to DB', function(done) {
-			chai.request(API_ENDPOINT)
-				.post('/add_test_data')
-				.send({table: "RaspberryPi", values: {serialNumber: 447553254, machineID: 6, machineType: "Bike"}})
-				.end(function(err, res) {
-					expect(err).to.be.null;
-					expect(res).to.have.status(200);
-					assert.equal(res.body.status, "success");
-					done()
-				})
-			// utils.createRaspberryPi(447553254, 6, "Bike").then(function() {
-			// 	done();
-			// });
-		})
+// 		it('should add Raspberry Pi to DB', function(done) {
+// 			chai.request(API_ENDPOINT)
+// 				.post('/add_test_data')
+// 				.send({table: "RaspberryPi", values: {serialNumber: 447553254, machineID: 6, machineType: "Bike"}})
+// 				.end(function(err, res) {
+// 					expect(err).to.be.null;
+// 					expect(res).to.have.status(200);
+// 					assert.equal(res.body.status, "success");
+// 					done()
+// 				})
+// 			// utils.createRaspberryPi(447553254, 6, "Bike").then(function() {
+// 			// 	done();
+// 			// });
+// 		})
 
-		it('should add session data to DB', function(done) {
-			chai.request(API_ENDPOINT)
-				.post('/add_test_data')
-				.send({table: "SessionData", values: {machineID: 9001, RFID: 120000, userID: 5}})
-				.end(function(err, res) {
-					expect(err).to.be.null;
-					expect(res).to.have.status(200);
-					done()
-				})
-			// utils.createSession(9001, 120000, 5).then(function() {
-			// 	done();
-			// });
-		})
-		it('should add tag to DB', function(done) {
-			chai.request(API_ENDPOINT)
-				.post('/add_test_data')
-				.send({table: "Tag", values: {RFID: 120000, tagName: "Ginyu", userID: 5, machineID: 9001, registered: false}})
-				.end(function(err, res) {
-					expect(err).to.be.null;
-					expect(res).to.have.status(200);
-					assert.equal(res.body.status, "success");
-					done()
-				})
-			// utils.createTag(120000, "Ginyu", 5, 9001, false).then(function() {
-			// 	done();
-			// });
-		})
-		it('should add user to DB', function(done) {
-			chai.request(API_ENDPOINT)
-				.post('/add_test_data')
-				.send({table: "User", values: {name: "Frieza", email: "fc@rice.edu", pswd: "fucksaiyans"}})
-				.end(function(err, res) {
-					expect(err).to.be.null;
-					expect(res).to.have.status(200);
-					assert.equal(res.body.status, "success");
-					done()
-				})
-			// utils.createUser("Frieza", "fc@rice.edu", "fucksaiyans", null, null, null, null, null, null).then(function() {
-			// 	done();
-			// });
-		})
-	})
+// 		it('should add session data to DB', function(done) {
+// 			chai.request(API_ENDPOINT)
+// 				.post('/add_test_data')
+// 				.send({table: "SessionData", values: {machineID: 9001, RFID: 120000, userID: 5}})
+// 				.end(function(err, res) {
+// 					expect(err).to.be.null;
+// 					expect(res).to.have.status(200);
+// 					done()
+// 				})
+// 			// utils.createSession(9001, 120000, 5).then(function() {
+// 			// 	done();
+// 			// });
+// 		})
+// 		it('should add tag to DB', function(done) {
+// 			chai.request(API_ENDPOINT)
+// 				.post('/add_test_data')
+// 				.send({table: "Tag", values: {RFID: 120000, tagName: "Ginyu", userID: 5, machineID: 9001, registered: false}})
+// 				.end(function(err, res) {
+// 					expect(err).to.be.null;
+// 					expect(res).to.have.status(200);
+// 					assert.equal(res.body.status, "success");
+// 					done()
+// 				})
+// 			// utils.createTag(120000, "Ginyu", 5, 9001, false).then(function() {
+// 			// 	done();
+// 			// });
+// 		})
+// 		it('should add user to DB', function(done) {
+// 			chai.request(API_ENDPOINT)
+// 				.post('/add_test_data')
+// 				.send({table: "User", values: {name: "Frieza", email: "fc@rice.edu", pswd: "fucksaiyans"}})
+// 				.end(function(err, res) {
+// 					expect(err).to.be.null;
+// 					expect(res).to.have.status(200);
+// 					assert.equal(res.body.status, "success");
+// 					done()
+// 				})
+// 			// utils.createUser("Frieza", "fc@rice.edu", "fucksaiyans", null, null, null, null, null, null).then(function() {
+// 			// 	done();
+// 			// });
+// 		})
+// 	})
 
-	describe('/clear_test_tables', function() {
-		it('should empty the tables in the test DB',function(done) {
-			chai.request(API_ENDPOINT)
-				.post('/clear_test_tables')
-				.end(function(err, res) {
-					expect(err).to.be.null;
-					expect(res).to.have.status(200);
-					assert.equal(res.body.status, "success");
-					done();
-				})
-			// utils.clearTestTables().then(function() {
-			// 	done()
-			// });
-		})
-	})
-})
+// 	describe('/clear_test_tables', function() {
+// 		it('should empty the tables in the test DB',function(done) {
+// 			chai.request(API_ENDPOINT)
+// 				.post('/clear_test_tables')
+// 				.end(function(err, res) {
+// 					expect(err).to.be.null;
+// 					expect(res).to.have.status(200);
+// 					assert.equal(res.body.status, "success");
+// 					done();
+// 				})
+// 			// utils.clearTestTables().then(function() {
+// 			// 	done()
+// 			// });
+// 		})
+// 	})
+// })
 
 // test_connection
 describe('Server Connections', function() {
@@ -197,8 +199,6 @@ describe('Server Connections', function() {
 				})	
 			})	
 		});
-
-
   	})
 
 	describe('/check_active_session', function() {
@@ -234,7 +234,6 @@ describe('Server Connections', function() {
 				})
 			})
 		})
-
 	})
 
 	describe('/start_workout', function() {
@@ -297,7 +296,6 @@ describe('Server Connections', function() {
 				})	
 			})
 		})
-
 	})
 
 	describe('/end_workout', function() {
@@ -439,133 +437,177 @@ describe('Server Connections', function() {
 			})
 		})
 	})
-});
 
-describe('Admin Routes', function() {
-	describe('/admin_data', function() {
-		it('should return an empty JSON object with no data in any table', function(done) {
-			chai.request(API_ENDPOINT)
-				.post('/admin_data')
-				.end(function(err, res) {
+	describe('/login', function() {
+		it('should return a nonempty json token for a standard user login', function(done) {
+			send_add_to_db_request(defaultUser).then(function() {
+				chai.request(API_ENDPOINT)
+				.post('/login')
+				.send({email: defaultUser.values.email, password: defaultUser.values.pswd})
+				.end(function (err, res) {
 					expect(err).to.be.null;
-	     			expect(res).to.have.status(200);
-	     			assert.deepEqual(res.body, {})
-	     			clear_db().then(done())
-				})
+					expect(res).to.have.status(200);
+					assert.isNotEmpty(res.body.token);
+					clear_db().then(done())
+				})			
+			})				
 		})
 
-		it('should return empty 2D JSON object with just RaspPi tables', function(done) {
-			send_add_to_db_request(defaultRaspPi1).then(function() {
-				send_add_to_db_request(defaultRaspPi2).then(function() {
-					chai.request(API_ENDPOINT)
-					.post('/admin_data')
-					.end(function(err, res) {
-						expect(err).to.be.null;
-	     				expect(res).to.have.status(200);
-	     				assert.deepEqual(res.body, {1: [], 2: []})
-	     				clear_db().then(done())
-					})
-				})
-			})
+		it('should send 403 if there isn\'t a user', function(done) {
+			chai.request(API_ENDPOINT)
+			.post('/login')
+			.send({email: defaultUser.values.email, password: defaultUser.values.pswd})
+			.end(function (err, res) {
+				expect(res).to.have.status(403);
+				assert.notExists(res.body.token);
+				done();
+			})		
 		})
 
-		it ('should return empty 2D JSON object with RaspPi and current sessions', function(done) {
-			send_add_to_db_request(defaultRaspPi1).then(function() {
-				send_add_to_db_request(defaultRaspPi2).then(function() {
-					send_add_to_db_request(defaultSession1).then(function() {
-						send_add_to_db_request(defaultSession2).then(function() {
-							send_add_to_db_request(defaultSession3).then(function() {
-								chai.request(API_ENDPOINT)
-								.post('/admin_data')
-								.end(function(err, res) {
-									expect(err).to.be.null;
-	     							expect(res).to.have.status(200);
-	     							assert.deepEqual(res.body, {1: [], 2: []})
-	     							clear_db().then(done())
-								})
-							})
-						})
-					})
-				})
-			})
-		})
-
-		it ('should return 3D JSON object with RaspPi and ended sessions', function(done) {
-			send_add_to_db_request(defaultRaspPi1).then(function() {
-				send_add_to_db_request(defaultRaspPi2).then(function() {
-					send_add_to_db_request(defaultSession1).then(function() {
-						send_add_to_db_request(defaultSession2).then(function() {
-							send_add_to_db_request(defaultSession3).then(function() {
-								utils.endSession(defaultSession1.values.machineID).then(function() {
-									utils.endSession(defaultSession3.values.machineID).then(function() {
-										chai.request(API_ENDPOINT)
-										.post('/admin_data')
-										.end(function(err, res) {
-											expect(err).to.be.null;
-	     									expect(res).to.have.status(200);
-	     									assert.lengthOf(res.body[defaultRaspPi1.values.machineID], 2);
-	     									assert.lengthOf(res.body[defaultRaspPi2.values.machineID], 1);
-	     									assert.equal(res.body[defaultRaspPi1.values.machineID][0].avg_rpm, 0);
-	     									assert.equal(res.body[defaultRaspPi1.values.machineID][1].avg_rpm, 0);
-	     									assert.equal(res.body[defaultRaspPi2.values.machineID][0].avg_rpm, 0);
-	     									assert.isAbove(res.body[defaultRaspPi1.values.machineID][0].duration, 0.0);
-	     									assert.isBelow(res.body[defaultRaspPi1.values.machineID][0].duration, 1.0);
-	     									assert.isAbove(res.body[defaultRaspPi1.values.machineID][1].duration, 0.0);
-	     									assert.isBelow(res.body[defaultRaspPi1.values.machineID][1].duration, 1.0);
-	     									assert.isAbove(res.body[defaultRaspPi2.values.machineID][0].duration, 0.0);
-	     									assert.isBelow(res.body[defaultRaspPi2.values.machineID][0].duration, 1.0);
-	     									clear_db().then(done())
-										})
-									})
-								})
-							})
-						})
-					})
-				})
-			})
-		})
-
-
-		it ('should return filled 3D JSON object with RaspPi, ended sessions and bike data', function(done) {
-			send_add_to_db_request(defaultRaspPi1).then(function() {
-				send_add_to_db_request(defaultRaspPi2).then(function() {
-					send_add_to_db_request(defaultSession1).then(function() {
-						send_add_to_db_request(defaultSession2).then(function() {
-							send_add_to_db_request(defaultSession3).then(function() {
-								send_add_to_db_request(defaultRPM1).then(function() {
-									send_add_to_db_request(defaultRPM2).then(function() {
-										send_add_to_db_request(defaultRPM3).then(function() {
-											utils.endSession(defaultSession1.values.machineID).then(function() {
-												utils.endSession(defaultSession3.values.machineID).then(function() {
-													chai.request(API_ENDPOINT)
-													.post('/admin_data')
-													.end(function(err, res) {
-														expect(err).to.be.null;
-				     									expect(res).to.have.status(200);
-				     									// console.log(res.body)
-				     									assert.lengthOf(res.body[defaultRaspPi1.values.machineID], 2);
-	     												assert.lengthOf(res.body[defaultRaspPi2.values.machineID], 1);
-				     									assert.equal(res.body[defaultRaspPi1.values.machineID][0].avg_rpm, 75);
-				     									assert.equal(res.body[defaultRaspPi1.values.machineID][1].avg_rpm, 0);
-				     									assert.equal(res.body[defaultRaspPi2.values.machineID][0].avg_rpm, 90);
-				     									assert.isAbove(res.body[defaultRaspPi1.values.machineID][0].duration, 0.0);
-				     									assert.isBelow(res.body[defaultRaspPi1.values.machineID][0].duration, 1.0);
-				     									assert.isAbove(res.body[defaultRaspPi1.values.machineID][1].duration, 0.0);
-				     									assert.isBelow(res.body[defaultRaspPi1.values.machineID][1].duration, 1.0);
-				     									assert.isAbove(res.body[defaultRaspPi2.values.machineID][0].duration, 0.0);
-				     									assert.isBelow(res.body[defaultRaspPi2.values.machineID][0].duration, 1.0);
-				     									clear_db().then(done())
-													})
-												})
-											})
-										})
-									})
-								})			
-							})
-						})
-					})
-				})
-			})
+		it('should send 401 if there is a password mismatch', function(done) {
+			send_add_to_db_request(defaultUser).then(function() {
+				chai.request(API_ENDPOINT)
+				.post('/login')
+				.send({email: defaultUser.values.email, password: 'tHiSiSdEfInItElYnOtThEpAsSwOrD'})
+				.end(function (err, res) {
+					expect(res).to.have.status(401);
+					assert.notExists(res.body.token);
+					clear_db().then(done())
+				})			
+			})	
 		})
 	})
-})
+
+	describe('setup_account', function() {
+		
+	})
+});
+
+// describe('Admin Routes', function() {
+// 	describe('/admin_data', function() {
+// 		it('should return an empty JSON object with no data in any table', function(done) {
+// 			chai.request(API_ENDPOINT)
+// 				.post('/admin_data')
+// 				.end(function(err, res) {
+// 					expect(err).to.be.null;
+// 	     			expect(res).to.have.status(200);
+// 	     			assert.deepEqual(res.body, {})
+// 	     			clear_db().then(done())
+// 				})
+// 		})
+
+// 		it('should return empty 2D JSON object with just RaspPi tables', function(done) {
+// 			send_add_to_db_request(defaultRaspPi1).then(function() {
+// 				send_add_to_db_request(defaultRaspPi2).then(function() {
+// 					chai.request(API_ENDPOINT)
+// 					.post('/admin_data')
+// 					.end(function(err, res) {
+// 						expect(err).to.be.null;
+// 	     				expect(res).to.have.status(200);
+// 	     				assert.deepEqual(res.body, {1: [], 2: []})
+// 	     				clear_db().then(done())
+// 					})
+// 				})
+// 			})
+// 		})
+
+// 		it ('should return empty 2D JSON object with RaspPi and current sessions', function(done) {
+// 			send_add_to_db_request(defaultRaspPi1).then(function() {
+// 				send_add_to_db_request(defaultRaspPi2).then(function() {
+// 					send_add_to_db_request(defaultSession1).then(function() {
+// 						send_add_to_db_request(defaultSession2).then(function() {
+// 							send_add_to_db_request(defaultSession3).then(function() {
+// 								chai.request(API_ENDPOINT)
+// 								.post('/admin_data')
+// 								.end(function(err, res) {
+// 									expect(err).to.be.null;
+// 	     							expect(res).to.have.status(200);
+// 	     							assert.deepEqual(res.body, {1: [], 2: []})
+// 	     							clear_db().then(done())
+// 								})
+// 							})
+// 						})
+// 					})
+// 				})
+// 			})
+// 		})
+
+// 		it ('should return 3D JSON object with RaspPi and ended sessions', function(done) {
+// 			send_add_to_db_request(defaultRaspPi1).then(function() {
+// 				send_add_to_db_request(defaultRaspPi2).then(function() {
+// 					send_add_to_db_request(defaultSession1).then(function() {
+// 						send_add_to_db_request(defaultSession2).then(function() {
+// 							send_add_to_db_request(defaultSession3).then(function() {
+// 								utils.endSession(defaultSession1.values.machineID).then(function() {
+// 									utils.endSession(defaultSession3.values.machineID).then(function() {
+// 										chai.request(API_ENDPOINT)
+// 										.post('/admin_data')
+// 										.end(function(err, res) {
+// 											expect(err).to.be.null;
+// 	     									expect(res).to.have.status(200);
+// 	     									assert.lengthOf(res.body[defaultRaspPi1.values.machineID], 2);
+// 	     									assert.lengthOf(res.body[defaultRaspPi2.values.machineID], 1);
+// 	     									assert.equal(res.body[defaultRaspPi1.values.machineID][0].avg_rpm, 0);
+// 	     									assert.equal(res.body[defaultRaspPi1.values.machineID][1].avg_rpm, 0);
+// 	     									assert.equal(res.body[defaultRaspPi2.values.machineID][0].avg_rpm, 0);
+// 	     									assert.isAbove(res.body[defaultRaspPi1.values.machineID][0].duration, 0.0);
+// 	     									assert.isBelow(res.body[defaultRaspPi1.values.machineID][0].duration, 1.0);
+// 	     									assert.isAbove(res.body[defaultRaspPi1.values.machineID][1].duration, 0.0);
+// 	     									assert.isBelow(res.body[defaultRaspPi1.values.machineID][1].duration, 1.0);
+// 	     									assert.isAbove(res.body[defaultRaspPi2.values.machineID][0].duration, 0.0);
+// 	     									assert.isBelow(res.body[defaultRaspPi2.values.machineID][0].duration, 1.0);
+// 	     									clear_db().then(done())
+// 										})
+// 									})
+// 								})
+// 							})
+// 						})
+// 					})
+// 				})
+// 			})
+// 		})
+
+
+// 		it ('should return filled 3D JSON object with RaspPi, ended sessions and bike data', function(done) {
+// 			send_add_to_db_request(defaultRaspPi1).then(function() {
+// 				send_add_to_db_request(defaultRaspPi2).then(function() {
+// 					send_add_to_db_request(defaultSession1).then(function() {
+// 						send_add_to_db_request(defaultSession2).then(function() {
+// 							send_add_to_db_request(defaultSession3).then(function() {
+// 								send_add_to_db_request(defaultRPM1).then(function() {
+// 									send_add_to_db_request(defaultRPM2).then(function() {
+// 										send_add_to_db_request(defaultRPM3).then(function() {
+// 											utils.endSession(defaultSession1.values.machineID).then(function() {
+// 												utils.endSession(defaultSession3.values.machineID).then(function() {
+// 													chai.request(API_ENDPOINT)
+// 													.post('/admin_data')
+// 													.end(function(err, res) {
+// 														expect(err).to.be.null;
+// 				     									expect(res).to.have.status(200);
+// 				     									// console.log(res.body)
+// 				     									assert.lengthOf(res.body[defaultRaspPi1.values.machineID], 2);
+// 	     												assert.lengthOf(res.body[defaultRaspPi2.values.machineID], 1);
+// 				     									assert.equal(res.body[defaultRaspPi1.values.machineID][0].avg_rpm, 75);
+// 				     									assert.equal(res.body[defaultRaspPi1.values.machineID][1].avg_rpm, 0);
+// 				     									assert.equal(res.body[defaultRaspPi2.values.machineID][0].avg_rpm, 90);
+// 				     									assert.isAbove(res.body[defaultRaspPi1.values.machineID][0].duration, 0.0);
+// 				     									assert.isBelow(res.body[defaultRaspPi1.values.machineID][0].duration, 1.0);
+// 				     									assert.isAbove(res.body[defaultRaspPi1.values.machineID][1].duration, 0.0);
+// 				     									assert.isBelow(res.body[defaultRaspPi1.values.machineID][1].duration, 1.0);
+// 				     									assert.isAbove(res.body[defaultRaspPi2.values.machineID][0].duration, 0.0);
+// 				     									assert.isBelow(res.body[defaultRaspPi2.values.machineID][0].duration, 1.0);
+// 				     									clear_db().then(done())
+// 													})
+// 												})
+// 											})
+// 										})
+// 									})
+// 								})			
+// 							})
+// 						})
+// 					})
+// 				})
+// 			})
+// 		})
+// 	})
+// })

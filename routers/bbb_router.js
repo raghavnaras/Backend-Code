@@ -244,30 +244,31 @@ router.post("/verifysecretcode", function(req,res){
 })
 
 router.post("/setup_account", function(req, res) {
-    utils.findUserUsingEmail(req.body.email).then(function(user) {
+	utils.findUserUsingEmail(req.body.email).then(function(user) {
 		if (user) {
-            res.send({status: "409"})
-        }
-	else {bcrypt.genSalt(10, function(err, salt) {
-		bcrypt.hash(req.body.password, salt, function(err, hash) {
-			utils.createUser(req.body.name, req.body.email, hash, null, null, null, null, null, null).then(function(user){
-                if (user){
-                    var token = jwt.sign({userName: user.name, userID: user.id, email: user.email}, 'ashu1234');
-                	res.send({
-                		token: token,
-                		userName: user.name,
-                		userID: user.id,
-                		email: user.email,
-                        status: "success"
-				    });
-                }
-                else{
-                    res.send({status: "failure"})
-                }
-			})
-		});
-	})};
-})
+			res.send({status: "409"})
+		}
+		else {
+			bcrypt.genSalt(10, function(err, salt) {
+				bcrypt.hash(req.body.password, salt, function(err, hash) {
+					utils.createUser(req.body.name, req.body.email, hash, null, null, null, null, null, null).then(function(user){
+						if (user){
+							var token = jwt.sign({userName: user.name, userID: user.id, email: user.email}, 'ashu1234');
+							res.send({
+								token: token,
+								userName: user.name,
+								userID: user.id,
+								email: user.email,
+								status: "success"
+							});
+						}
+						else{
+							res.send({status: "failure"})
+						}
+					})
+				});
+			})};
+		})
 });
 
 
@@ -384,18 +385,13 @@ router.post("/changepassword", function(req, res){
 router.post("/login", function(req, res) {
 	utils.findUserUsingEmail(req.body.email).then(function(user) {
 		if (!user) {
-			console.log("MADE IT HERE 1");
-			return res.send({status: 403});
+			return res.status(403).send({status: 403});
 		}
 		if (user) {
-			console.log("MADE IT HERE 2");
 			bcrypt.compare(req.body.password, String(user.pswd), function(err, response) {
 				if (response){
-					console.log("MADE IT HERE 3");
-					// console.log("Login UserID: " + user.id);
                 	// var expires = moment().add('days', 7).valueOf();
                 	var token = jwt.sign({userName: user.name, userID: user.id, email: user.email}, 'ashu1234', {noTimestamp: true});
-                	console.log("MADE IT HERE 4");
                 	res.json({
                 		token: token,
                 		userName: user.name,
@@ -405,12 +401,10 @@ router.post("/login", function(req, res) {
 				    });
                 }
                 else {
-                	res.send({status: 401});
+                	res.status(401).send({status: 401});
                 }
             })
 		}
-	}).error(function(error) {
-		res.send({status: 401});
 	})
 });
 
@@ -687,9 +681,13 @@ router.post("/add_test_data", function(req, res) {
 				// res.send({status: "success"})
 				break
 			case "User":
-				utils.createUser(values.name, values.email, values.pswd, values.gender, values.weight, values.age, values.height, values.RFID, values.resetpasswordcode).then(function() {
-					res.send({status: "success"})
-				})
+				bcrypt.genSalt(10, function(err, salt) {
+					bcrypt.hash(values.pswd, salt, function(err, hash) {
+						utils.createUser(values.name, values.email, hash, values.gender, values.weight, values.age, values.height, values.RFID, values.resetpasswordcode).then(function() {
+							res.send({status: "success"})
+						})
+					})
+				})						
 				// res.send({status: "success"})
 				break
 			default:
