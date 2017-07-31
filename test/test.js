@@ -549,7 +549,7 @@ if (testServ) {
 		// })
 
 		describe('/process_tag', function(done) {
-			var defaultNFCRequest = {serialNumber: defaultRaspPi1.values.serialNumber, RFID: 69, machineID: defaultRaspPi1.values.machineID};
+			var defaultNFCRequest = {serialNumber: defaultRaspPi1.values.serialNumber, RFID: defaultTag1.values.RFID};
 
 			it('should return 401 if Pi doesn\'t exist', function(done) {				
 				chai.request(API_ENDPOINT)
@@ -573,7 +573,7 @@ if (testServ) {
 						assert.equal(res.body.status, 'Tag created');
 						utils.findTag(defaultNFCRequest.RFID).then(function(tag) {
 							assert.equal(tag.RFID, defaultNFCRequest.RFID)
-							assert.equal(tag.machineID, defaultNFCRequest.machineID)
+							assert.equal(tag.machineID, defaultRaspPi1.values.machineID)
 							assert.exists(tag.registered)
 							clear_db().then(done())
 						})
@@ -590,11 +590,41 @@ if (testServ) {
 						.end(function (err, res) {
 							expect(err).to.be.null;
 							expect(res).to.have.status(200);
-							assert.equal(res.body.status, 'No Pi');
-							done();
+							assert.equal(res.body.status, 'success');
+							utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.machineID).then(function(session) {
+								assert.equal(session.sessionID, 1)
+								assert.equal(session.RFID, defaultNFCRequest.RFID)
+								assert.equal(session.machineID, defaultRaspPi1.values.machineID)
+								assert.approximately(parseInt(session.stampStart), moment(new Date().getTime()).tz("America/Chicago").valueOf(), 2000)
+								clear_db().then(done())
+							})
 						})
 					})
-				}
+				})
+			})
+
+			it('should update the session if valid Pi, tag exists, and session found without tag', function(done) {
+				send_add_to_db_request(defaultRaspPi1).then(function() {
+					send_add_to_db_request(defaultTag1).then(function() {
+						send_add_to_db_request(defaultSession4).then(function() {
+							chai.request(API_ENDPOINT)
+							.post('/process_tag')
+							.send(defaultNFCRequest)
+							.end(function (err, res) {
+								expect(err).to.be.null;
+								expect(res).to.have.status(200);
+								assert.equal(res.body.status, 'updated');
+								utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.machineID).then(function(session) {
+									assert.equal(session.sessionID, 1)
+									assert.equal(session.RFID, defaultNFCRequest.RFID)
+									assert.equal(session.machineID, defaultRaspPi1.values.machineID)
+									assert.approximately(parseInt(session.stampStart), moment(new Date().getTime()).tz("America/Chicago").valueOf(), 2000)
+									clear_db().then(done())
+								})
+							})
+						})
+					})
+				})
 			})
 		})
 	});
