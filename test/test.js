@@ -527,8 +527,8 @@ if (testServ) {
 						expect(err).to.be.null;
 						expect(res).to.have.status(200);
 						clear_db().then(done())
-					})			
-				})	
+					})
+				})
 			})
 
 			it('should send 401 if the user is not found', function(done) {				
@@ -539,9 +539,11 @@ if (testServ) {
 				.end(function (err, res) {
 					expect(res).to.have.status(401);
 					done()
-				})			
+				})
 			})
 		})
+
+		describe('')
 	});
 }
 	
