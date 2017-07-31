@@ -525,7 +525,7 @@ router.post("/process_tag", function(req, res) {
 					utils.createTag(req.body.RFID, null, null, RaspPi.machineID, false);
 					res.send({status: "Tag created"});
 				} else {
-					res.send({status: "No Pi", message: "Could not find machine (RaspPi)."})
+					res.status(401).send({status: "No Pi", message: "Could not find machine (RaspPi)."})
 				}
 			})
 		}

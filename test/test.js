@@ -516,34 +516,67 @@ if (testServ) {
 		// 	})
 		// })
 
-		describe('/logout', function() {
-			it('should send 200 if the user is found', function(done) {
-				send_add_to_db_request(defaultUser).then(function() {
+		// describe('/logout', function() {
+		// 	it('should send 200 if the user is found', function(done) {
+		// 		send_add_to_db_request(defaultUser).then(function() {
+		// 			chai.request(API_ENDPOINT)
+		// 			.post('/logout')
+		// 			.set('authorization', defaultToken)
+		// 			.send({userID: defaultUser.values.id})
+		// 			.end(function (err, res) {
+		// 				expect(err).to.be.null;
+		// 				expect(res).to.have.status(200);
+		// 				clear_db().then(done())
+		// 			})
+		// 		})
+		// 	})
+
+		// 	it('should send 401 if the user is not found', function(done) {				
+		// 		chai.request(API_ENDPOINT)
+		// 		.post('/logout')
+		// 		.set('authorization', defaultToken)
+		// 		.send({userID: defaultUser.values.id})
+		// 		.end(function (err, res) {
+		// 			expect(res).to.have.status(401);
+		// 			done()
+		// 		})
+		// 	})
+		// })
+
+		describe('/process_tag', function(done) {
+			var defaultNFCRequest = {serialNumber: 100, RFID: 69, machineID: 1};
+			it('should add a new tag if that tag does not exist and the RaspPi does exist', function(done) {
+				send_add_to_db_request(defaultRaspPi1).then(function() {
 					chai.request(API_ENDPOINT)
-					.post('/logout')
+					.post('/process_tag')
 					.set('authorization', defaultToken)
-					.send({userID: defaultUser.values.id})
+					.send(defaultNFCRequest)
 					.end(function (err, res) {
 						expect(err).to.be.null;
 						expect(res).to.have.status(200);
-						clear_db().then(done())
+						assert.equal(res.body.status, 'Tag created');
+						utils.findTag(defaultNFCRequest.RFID).then(function(tag) {
+							assert.equal(tag.RFID, defaultNFCRequest.RFID);
+							assert.equal(tag.machineID, defaultNFCRequest.machineID);
+							assert.equal(tag.serialNumber, defaultNFCRequest.serialNumber);
+							clear_db.then(done());
+						})
 					})
 				})
 			})
 
-			it('should send 401 if the user is not found', function(done) {				
+			it('should throw an error if there isn\'t a tag found nor a RaspPi', function(done) {				
 				chai.request(API_ENDPOINT)
-				.post('/logout')
+				.post('/process_tag')
 				.set('authorization', defaultToken)
-				.send({userID: defaultUser.values.id})
+				.send(defaultNFCRequest)
 				.end(function (err, res) {
 					expect(res).to.have.status(401);
-					done()
-				})
+					assert.equal(res.body.status, 'No Pi');
+					done();
+				})				
 			})
 		})
-
-		describe('')
 	});
 }
 	
