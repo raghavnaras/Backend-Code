@@ -56,6 +56,7 @@ router.get("/users", function(req, res){
 		res.send(list);
 	})
 });
+
 router.get("/data", function(req, res){
 	BikeData.findAll().then(function (list) {
 		res.setHeader('Content-Type', 'application/json');
