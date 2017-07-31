@@ -37,6 +37,7 @@ var defaultRPM1 = {table: "BikeData", values: {rpm: 50, bikeID: 1, sessionID: 1}
 var defaultRPM2 = {table: "BikeData", values: {rpm: 100, bikeID: 1, sessionID: 1}}
 var defaultRPM3 = {table: "BikeData", values: {rpm: 90, bikeID: 2, sessionID: 3}}
 var defaultUser = {table: 'User', values: {id: 1, name: 'Test', email: 'test@rice.edu', pswd: 'ashu1234'}}
+var defaultTag1 = {table: "Tag", values: {RFID: 69, machineID: 1, registered: false}}
 
 var defaultToken = jwt.sign(defaultUser.values, 'ashu1234');
 
