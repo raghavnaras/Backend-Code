@@ -470,10 +470,11 @@ router.post("/end_workout", function(req, res) {
 
 router.post("/process_tag", function(req, res) {
 	utils.findTag(req.body.RFID).then(function(tag) {
-		//if that tag exists
-		if (tag) {
-				//finds the current machine
-				utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
+		//finds the current machine
+		utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
+			if (RaspPi) {
+				//if that tag exists
+				if (tag) {
 					//*** scope of current machine ***
 					//finds current session
 					utils.findCurrentSessionUsingMachineID(RaspPi.machineID).then(function(session) {
@@ -518,18 +519,17 @@ router.post("/process_tag", function(req, res) {
 							})
 						}
 					})
-				})
-		} else {
-			// TODO: Should tag still be created if there is another session in progress on this machine's Pi?
-			utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
-				if (RaspPi) {
-					utils.createTag(req.body.RFID, null, null, RaspPi.machineID, false);
-					res.send({status: "Tag created"});
 				} else {
-					res.send({status: "No Pi", message: "Could not find machine (RaspPi)."})
+					// TODO: Should tag still be created if there is another session in progress on this machine's Pi?
+					utils.createTag(req.body.RFID, null, null, RaspPi.machineID, false).then(function(tag) {
+						res.send({status: (tag ? "Tag created" : "Could not create Tag")})
+					})
 				}
-			})
-		}
+			} else {
+				res.send({status: "No Pi", message: "Could not find machine (RaspPi)."})
+			}
+		})
+				
 	})
 })
 
