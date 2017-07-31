@@ -33,6 +33,7 @@ var defaultRaspPi2 = {table: "RaspberryPi", values: {serialNumber: 101, machineI
 var defaultSession1 = {table: "SessionData", values: {machineID: 1, RFID: 69, userID: 1}}
 var defaultSession2 = {table: "SessionData", values: {machineID: 1, RFID: 70, userID: 2}}
 var defaultSession3 = {table: "SessionData", values: {machineID: 2, RFID: 70, userID: 2}}
+var defaultSession4 = {table: "SessionData", values: {machineID: 1}}
 var defaultRPM1 = {table: "BikeData", values: {rpm: 50, bikeID: 1, sessionID: 1}}
 var defaultRPM2 = {table: "BikeData", values: {rpm: 100, bikeID: 1, sessionID: 1}}
 var defaultRPM3 = {table: "BikeData", values: {rpm: 90, bikeID: 2, sessionID: 3}}
