@@ -81,7 +81,7 @@ function registerTag(tagName, userID, machineID) {
 		}, {
 			where: {
 				machineID: machineID,
-				registered: false,
+				registered: 0,
 				createdAt: latestCreatedTime
 			}
 		})

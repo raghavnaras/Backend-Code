@@ -549,146 +549,149 @@ if (testServ) {
 		// 	})
 		// })
 
-		describe('/process_tag', function(done) {
-			var defaultNFCRequest = {serialNumber: defaultRaspPi1.values.serialNumber, RFID: defaultTag1.values.RFID};
+		// describe('/process_tag', function(done) {
+		// 	var defaultNFCRequest = {serialNumber: defaultRaspPi1.values.serialNumber, RFID: defaultTag1.values.RFID};
 
-			it('should return 401 if Pi doesn\'t exist', function(done) {				
-				chai.request(API_ENDPOINT)
-				.post('/process_tag')
-				.send(defaultNFCRequest)
-				.end(function (err, res) {
-					expect(res).to.have.status(401);
-					assert.equal(res.body.status, 'No Pi');
-					done();
-				})
-			})
+		// 	it('should return 401 if Pi doesn\'t exist', function(done) {				
+		// 		chai.request(API_ENDPOINT)
+		// 		.post('/process_tag')
+		// 		.send(defaultNFCRequest)
+		// 		.end(function (err, res) {
+		// 			expect(res).to.have.status(401);
+		// 			assert.equal(res.body.status, 'No Pi');
+		// 			done();
+		// 		})
+		// 	})
 
-			it('should add a tag when a valid Pi exists but not tag is found', function(done) {
-				send_add_to_db_request(defaultRaspPi1).then(function() {
-					chai.request(API_ENDPOINT)
-					.post('/process_tag')
-					.send(defaultNFCRequest)
-					.end(function (err, res) {
-						expect(err).to.be.null;
-						expect(res).to.have.status(200);
-						assert.equal(res.body.status, 'Tag created');
-						utils.findTag(defaultNFCRequest.RFID).then(function(tag) {
-							assert.equal(tag.RFID, defaultNFCRequest.RFID)
-							assert.equal(tag.machineID, defaultRaspPi1.values.machineID)
-							assert.exists(tag.registered)
-							clear_db().then(done())
-						})
-					})
-				})
-			})
+		// 	it('should add a tag when a valid Pi exists but not tag is found', function(done) {
+		// 		send_add_to_db_request(defaultRaspPi1).then(function() {
+		// 			chai.request(API_ENDPOINT)
+		// 			.post('/process_tag')
+		// 			.send(defaultNFCRequest)
+		// 			.end(function (err, res) {
+		// 				expect(err).to.be.null;
+		// 				expect(res).to.have.status(200);
+		// 				assert.equal(res.body.status, 'Tag created');
+		// 				utils.findTag(defaultNFCRequest.RFID).then(function(tag) {
+		// 					assert.equal(tag.RFID, defaultNFCRequest.RFID)
+		// 					assert.equal(tag.machineID, defaultRaspPi1.values.machineID)
+		// 					assert.exists(tag.registered)
+		// 					clear_db().then(done())
+		// 				})
+		// 			})
+		// 		})
+		// 	})
 
-			it('should add a new session if valid Pi, tag exists, and no session found', function(done) {
-				send_add_to_db_request(defaultRaspPi1).then(function() {
-					send_add_to_db_request(defaultTag1).then(function() {
-						chai.request(API_ENDPOINT)
-						.post('/process_tag')
-						.send(defaultNFCRequest)
-						.end(function (err, res) {
-							expect(err).to.be.null;
-							expect(res).to.have.status(200);
-							assert.equal(res.body.status, 'success');
-							utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.machineID).then(function(session) {
-								assert.equal(session.sessionID, 1)
-								assert.equal(session.RFID, defaultNFCRequest.RFID)
-								assert.equal(session.machineID, defaultRaspPi1.values.machineID)
-								assert.approximately(parseInt(session.stampStart), moment(new Date().getTime()).tz("America/Chicago").valueOf(), 2000)
-								clear_db().then(done())
-							})
-						})
-					})
-				})
-			})
+		// 	it('should add a new session if valid Pi, tag exists, and no session found', function(done) {
+		// 		send_add_to_db_request(defaultRaspPi1).then(function() {
+		// 			send_add_to_db_request(defaultTag1).then(function() {
+		// 				chai.request(API_ENDPOINT)
+		// 				.post('/process_tag')
+		// 				.send(defaultNFCRequest)
+		// 				.end(function (err, res) {
+		// 					expect(err).to.be.null;
+		// 					expect(res).to.have.status(200);
+		// 					assert.equal(res.body.status, 'success');
+		// 					utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.machineID).then(function(session) {
+		// 						assert.equal(session.sessionID, 1)
+		// 						assert.equal(session.RFID, defaultNFCRequest.RFID)
+		// 						assert.equal(session.machineID, defaultRaspPi1.values.machineID)
+		// 						assert.approximately(parseInt(session.stampStart), moment(new Date().getTime()).tz("America/Chicago").valueOf(), 2000)
+		// 						clear_db().then(done())
+		// 					})
+		// 				})
+		// 			})
+		// 		})
+		// 	})
 
-			it('should update the session if valid Pi, tag exists, and session found without tag', function(done) {
-				send_add_to_db_request(defaultRaspPi1).then(function() {
-					send_add_to_db_request(defaultTag1).then(function() {
-						send_add_to_db_request(defaultSession4).then(function() {
-							chai.request(API_ENDPOINT)
-							.post('/process_tag')
-							.send(defaultNFCRequest)
-							.end(function (err, res) {
-								expect(err).to.be.null;
-								expect(res).to.have.status(200);
-								assert.equal(res.body.status, 'updated');
-								utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.machineID).then(function(session) {
-									assert.equal(session.sessionID, 1)
-									assert.equal(session.RFID, defaultNFCRequest.RFID)
-									assert.equal(session.machineID, defaultRaspPi1.values.machineID)
-									assert.approximately(parseInt(session.stampStart), moment(new Date().getTime()).tz("America/Chicago").valueOf(), 2000)
-									clear_db().then(done())
-								})
-							})
-						})
-					})
-				})
-			})
+		// 	it('should update the session if valid Pi, tag exists, and session found without tag', function(done) {
+		// 		send_add_to_db_request(defaultRaspPi1).then(function() {
+		// 			send_add_to_db_request(defaultTag1).then(function() {
+		// 				send_add_to_db_request(defaultSession4).then(function() {
+		// 					chai.request(API_ENDPOINT)
+		// 					.post('/process_tag')
+		// 					.send(defaultNFCRequest)
+		// 					.end(function (err, res) {
+		// 						expect(err).to.be.null;
+		// 						expect(res).to.have.status(200);
+		// 						assert.equal(res.body.status, 'updated');
+		// 						utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.machineID).then(function(session) {
+		// 							assert.equal(session.sessionID, 1)
+		// 							assert.equal(session.RFID, defaultNFCRequest.RFID)
+		// 							assert.equal(session.machineID, defaultRaspPi1.values.machineID)
+		// 							assert.approximately(parseInt(session.stampStart), moment(new Date().getTime()).tz("America/Chicago").valueOf(), 2000)
+		// 							clear_db().then(done())
+		// 						})
+		// 					})
+		// 				})
+		// 			})
+		// 		})
+		// 	})
 
-			it('should create new session if data in old session more than 15 seconds old', function(done) {
-				this.timeout(15000)
-				send_add_to_db_request(defaultRaspPi1).then(function() {
-					send_add_to_db_request(defaultTag1).then(function() {
-						send_add_to_db_request(defaultSession2).then(function() {
-							send_add_to_db_request(defaultRPM1).then(function() {
-								setTimeout(function() {
-									chai.request(API_ENDPOINT)
-									.post('/process_tag')
-									.send(defaultNFCRequest)
-									.end(function (err, res) {
-										expect(err).to.be.null;
-										expect(res).to.have.status(200);
-										assert.equal(res.body.status, 'success');
-										utils.findEndedSessionsOnMachine(defaultRaspPi1.values.machineID).then(function(sessions) {
-											assert.lengthOf(sessions, 1)
-											assert.equal(sessions[0].sessionID, 1);
-											assert.equal(sessions[0].RFID, defaultSession2.values.RFID);
-											assert.approximately(parseInt(sessions[0].stampEnd), moment(new Date().getTime()).tz("America/Chicago").valueOf(), 2000)
-											utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.machineID).then(function(session) {
-												assert.equal(session.sessionID, 2)
-												assert.equal(session.RFID, defaultTag1.values.RFID);
-												assert.equal(session.machineID, defaultRaspPi1.values.machineID)
-												assert.approximately(parseInt(session.stampStart), moment(new Date().getTime()).tz("America/Chicago").valueOf(), 2000)
-												clear_db().then(done())
-											})
-										})
-									})
-								}, 11000)
-							})
-						})
-					})
-				})
-			})
+		// 	it('should create new session if data in old session more than 15 seconds old', function(done) {
+		// 		this.timeout(15000)
+		// 		send_add_to_db_request(defaultRaspPi1).then(function() {
+		// 			send_add_to_db_request(defaultTag1).then(function() {
+		// 				send_add_to_db_request(defaultSession2).then(function() {
+		// 					send_add_to_db_request(defaultRPM1).then(function() {
+		// 						setTimeout(function() {
+		// 							chai.request(API_ENDPOINT)
+		// 							.post('/process_tag')
+		// 							.send(defaultNFCRequest)
+		// 							.end(function (err, res) {
+		// 								expect(err).to.be.null;
+		// 								expect(res).to.have.status(200);
+		// 								assert.equal(res.body.status, 'success');
+		// 								utils.findEndedSessionsOnMachine(defaultRaspPi1.values.machineID).then(function(sessions) {
+		// 									assert.lengthOf(sessions, 1)
+		// 									assert.equal(sessions[0].sessionID, 1);
+		// 									assert.equal(sessions[0].RFID, defaultSession2.values.RFID);
+		// 									assert.approximately(parseInt(sessions[0].stampEnd), moment(new Date().getTime()).tz("America/Chicago").valueOf(), 2000)
+		// 									utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.machineID).then(function(session) {
+		// 										assert.equal(session.sessionID, 2)
+		// 										assert.equal(session.RFID, defaultTag1.values.RFID);
+		// 										assert.equal(session.machineID, defaultRaspPi1.values.machineID)
+		// 										assert.approximately(parseInt(session.stampStart), moment(new Date().getTime()).tz("America/Chicago").valueOf(), 2000)
+		// 										clear_db().then(done())
+		// 									})
+		// 								})
+		// 							})
+		// 						}, 11000)
+		// 					})
+		// 				})
+		// 			})
+		// 		})
+		// 	})
 
-			it('should do nothing if current session has same RFID as scanned tag', function(done) {
-				send_add_to_db_request(defaultRaspPi1).then(function() {
-					send_add_to_db_request(defaultTag1).then(function() {
-						send_add_to_db_request(defaultSession1).then(function() {
-							chai.request(API_ENDPOINT)
-							.post('/process_tag')
-							.send(defaultNFCRequest)
-							.end(function (err, res) {
-								expect(err).to.be.null;
-								expect(res).to.have.status(200);
-								assert.equal(res.body.status, 'failure');
-								assert.equal(res.body.message, 'Same tag has been scanned again.');
-								utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.machineID).then(function(session) {
-									assert.equal(session.sessionID, 1);
-									utils.findEndedSessionsOnMachine(defaultRaspPi1.values.machineID).then(function(endedSessions) {
-										assert.empty(endedSessions)
-										clear_db().then(done())
-									})
-								})
-							})
-						})
-					})
-				})
-			})
-		})
-		
+		// 	it('should do nothing if current session has same RFID as scanned tag', function(done) {
+		// 		send_add_to_db_request(defaultRaspPi1).then(function() {
+		// 			send_add_to_db_request(defaultTag1).then(function() {
+		// 				send_add_to_db_request(defaultSession1).then(function() {
+		// 					chai.request(API_ENDPOINT)
+		// 					.post('/process_tag')
+		// 					.send(defaultNFCRequest)
+		// 					.end(function (err, res) {
+		// 						expect(err).to.be.null;
+		// 						expect(res).to.have.status(200);
+		// 						assert.equal(res.body.status, 'failure');
+		// 						assert.equal(res.body.message, 'Same tag has been scanned again.');
+		// 						utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.machineID).then(function(session) {
+		// 							assert.equal(session.sessionID, 1);
+		// 							utils.findEndedSessionsOnMachine(defaultRaspPi1.values.machineID).then(function(endedSessions) {
+		// 								assert.empty(endedSessions)
+		// 								clear_db().then(done())
+		// 							})
+		// 						})
+		// 					})
+		// 				})
+		// 			})
+		// 		})
+		// 	})
+		// })
+
+		describe('check_tag', function() {
+			
+		})	
 	});
 }
 	
