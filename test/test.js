@@ -662,6 +662,31 @@ if (testServ) {
 					})
 				})
 			})
+
+			it('should do nothing if current session has same RFID as scanned tag', function(done) {
+				send_add_to_db_request(defaultRaspPi1).then(function() {
+					send_add_to_db_request(defaultTag1).then(function() {
+						send_add_to_db_request(defaultSession1).then(function() {
+							chai.request(API_ENDPOINT)
+							.post('/process_tag')
+							.send(defaultNFCRequest)
+							.end(function (err, res) {
+								expect(err).to.be.null;
+								expect(res).to.have.status(200);
+								assert.equal(res.body.status, 'failure');
+								assert.equal(res.body.message, 'Same tag has been scanned again.');
+								utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.machineID).then(function(session) {
+									assert.equal(session.sessionID, 1);
+									utils.findEndedSessionsOnMachine(defaultRaspPi1.values.machineID).then(function(endedSessions) {
+										assert.empty(endedSessions)
+										clear_db().then(done())
+									})
+								})
+							})
+						})
+					})
+				})
+			})
 		})
 	});
 }
