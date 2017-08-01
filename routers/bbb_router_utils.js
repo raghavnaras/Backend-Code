@@ -71,7 +71,8 @@ function createUser(name, email, pswd, gender, weight, age, height, RFID, resetp
 function registerTag(tagName, userID, machineID) {
 	return Tag.max('createdAt', {
 		where: {
-			registered: 0
+			registered: 0,
+			machineID: machineID
 		}
 	}).then(function(latestCreatedTime) {
 		return Tag.update({
