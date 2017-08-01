@@ -73,7 +73,7 @@ function registerTag(tagName, userID, machineID) {
 		where: {
 			registered: 0
 		}
-	}).then(function(recent) {
+	}).then(function(latestCreatedTime) {
 		return Tag.update({
 			registered: true,
 			tagName: tagName,
@@ -82,7 +82,7 @@ function registerTag(tagName, userID, machineID) {
 			where: {
 				machineID: machineID,
 				registered: false,
-				createdAt: recent
+				createdAt: latestCreatedTime
 			}
 		})
 	})
