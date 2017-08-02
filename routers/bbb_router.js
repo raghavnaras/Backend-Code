@@ -551,6 +551,7 @@ router.post("/check_rpm", function(req, res) {
  
 router.post("/check_tag", function(req, res) {
 	utils.registerTag(req.body.tagName, req.body.userID, req.body.machineID).then(function(pair) {
+		console.log("Pair Value: " + pair[0])
 		if (pair[0] == 1) {
 			res.send({status: "success"})
 		} else  {

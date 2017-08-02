@@ -39,6 +39,7 @@ var defaultRPM2 = {table: "BikeData", values: {rpm: 100, bikeID: 1, sessionID: 1
 var defaultRPM3 = {table: "BikeData", values: {rpm: 90, bikeID: 2, sessionID: 3}}
 var defaultUser = {table: 'User', values: {id: 1, name: 'Test', email: 'test@rice.edu', pswd: 'ashu1234'}}
 var defaultTag1 = {table: "Tag", values: {RFID: 69, machineID: 1, registered: false}}
+var defaultTag2 = {table: "Tag", values: {RFID: 70, machineID: 1, registered: false}}
 
 var defaultToken = jwt.sign(defaultUser.values, 'ashu1234');
 
@@ -720,6 +721,37 @@ if (testServ) {
 							clear_db().then(done())
 						})
 					})
+				})
+			})
+
+			it('should only update the latest tag on the same machine', function(done) {
+				send_add_to_db_request(defaultTag1).then(function() {
+					setTimeout(function() {
+						send_add_to_db_request(defaultTag2).then(function() {
+							chai.request(API_ENDPOINT)
+							.post('/check_tag')
+							.set('authorization', defaultToken)
+							.send(defaultTagRequest)
+							.end(function(err, res) {
+								expect(err).to.be.null;
+								expect(res).to.have.status(200);
+								assert.equal(res.body.status, 'success');
+								utils.findTag(defaultTag2.values.RFID).then(function(tag2) {
+									assert.equal(tag2.tagName, "Frieza's ID")
+									assert.equal(tag2.userID, 1)
+									assert.equal(tag2.machineID, 1)
+									assert.isTrue(tag2.registered)
+									utils.findTag(defaultTag1.values.RFID).then(function(tag1) {
+										assert.isNull(tag1.tagName)
+										assert.isNull(tag1.userID)
+										assert.isFalse(tag1.registered)
+										assert.equal(tag1.machineID, 1)
+										clear_db().then(done())
+									})
+								})
+							})
+						})
+					}, 1000)	
 				})
 			})
 		})	
