@@ -559,7 +559,7 @@ if (testServ) {
 				.end(function (err, res) {
 					expect(res).to.have.status(401);
 					assert.equal(res.body.status, 'No Pi');
-					done();
+					clear_db().then(done());
 				})
 			})
 
@@ -627,6 +627,8 @@ if (testServ) {
 					})
 				})
 			})
+
+			
 		})
 	});
 }
