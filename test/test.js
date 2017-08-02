@@ -690,7 +690,38 @@ if (testServ) {
 		// })
 
 		describe('check_tag', function() {
-			
+			defaultTagRequest = {tagName: "Frieza's ID", userID: 1, machineID: 1}
+			it('should return 403 status if called without token', function(done) {
+				chai.request(API_ENDPOINT)
+				.post('/check_tag')
+				.send(defaultTagRequest)
+				.end(function(err, res) {
+					expect(err).to.not.be.null;
+					expect(res).to.have.status(403);
+					clear_db().then(done())
+				})
+			})
+
+			it('should update tag info with valid inputs', function(done) {
+				send_add_to_db_request(defaultTag1).then(function() {
+					chai.request(API_ENDPOINT)
+					.post('/check_tag')
+					.set('authorization', defaultToken)
+					.send(defaultTagRequest)
+					.end(function(err, res) {
+						expect(err).to.be.null;
+						expect(res).to.have.status(200);
+						assert.equal(res.body.status, 'success');
+						utils.findTag(defaultTag1.values.RFID).then(function(tag) {
+							assert.equal(tag.tagName, "Frieza's ID")
+							assert.equal(tag.userID, 1)
+							assert.equal(tag.machineID, 1)
+							assert.isTrue(tag.registered)
+							clear_db().then(done())
+						})
+					})
+				})
+			})
 		})	
 	});
 }
