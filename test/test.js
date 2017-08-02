@@ -706,12 +706,10 @@ if (testServ) {
 									expect(res).to.have.status(200);
 									assert.equal(res.body.status, 'failure');
 									utils.findEndedSessionsOnMachine(defaultRaspPi1.values.machineID).then(function(sessions) {
-										assert.lengthOf(sessions, 1)
-										assert.equal(sessions[0].sessionID, 1)
-										assert.approximately(parseInt(sessions[0].stampEnd), moment(new Date().getTime()).tz("America/Chicago").valueOf(), 2000)
+										assert.isEmpty(sessions)
 										utils.findCurrentSessionUsingMachineID(defaultRaspPi1.values.machineID).then(function(session) {
-											assert.equal(session.sessionID, 2)
-											assert.equal(session.RFID, defaultTag2.values.RFID);
+											assert.equal(session.sessionID, 1)
+											assert.equal(session.RFID, defaultSession1.values.RFID);
 											assert.equal(session.machineID, defaultRaspPi1.values.machineID)
 											assert.approximately(parseInt(session.stampStart), moment(new Date().getTime()).tz("America/Chicago").valueOf(), 2000)
 											clear_db().then(done())
