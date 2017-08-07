@@ -34,6 +34,7 @@ var defaultSession1 = {table: "SessionData", values: {machineID: 1, RFID: 69, us
 var defaultSession2 = {table: "SessionData", values: {machineID: 1, RFID: 70, userID: 2}}
 var defaultSession3 = {table: "SessionData", values: {machineID: 2, RFID: 70, userID: 2}}
 var defaultSession4 = {table: "SessionData", values: {machineID: 1}}
+
 var defaultRPM1 = {table: "BikeData", values: {rpm: 50, bikeID: 1, sessionID: 1}}
 var defaultRPM2 = {table: "BikeData", values: {rpm: 100, bikeID: 1, sessionID: 1}}
 var defaultRPM3 = {table: "BikeData", values: {rpm: 90, bikeID: 2, sessionID: 3}}
@@ -814,8 +815,40 @@ if (testServ) {
 			})
 		})
 
-	});
+		describe('/get_last_workout', function() {			
+			var defaultSession5 = {machineID: 2, RFID: 70, userID: 2, stampStart: 1, stampEnd: 2}
+			var defaultSession6 = {machineID: 2, RFID: 70, userID: 2, stampStart: 3, stampEnd: 4}
+			var defaultSession7 = {machineID: 2, RFID: 70, userID: 2, stampStart: 5, stampEnd: 6}
+			var defaultSession8 = {machineID: 2, RFID: 70, userID: 2, stampStart: 7, stampEnd: 8}
+			var defaultSession9 = {machineID: 2, RFID: 70, userID: 2, stampStart: 9, stampEnd: 10}
+
+			it('should return the most recent workout\'s stampstart', function(done) {
+				utils.createSessionWithTimes(defaultSession5).then(function() {
+					utils.createSessionWithTimes(defaultSession6).then(function() {
+						utils.createSessionWithTimes(defaultSession7).then(function() {
+							utils.createSessionWithTimes(defaultSession8).then(function() {
+								utils.createSessionWithTimes(defaultSession9).then(function() {
+									chai.request(API_ENDPOINT)
+									.post('/get_last_workout')
+									.set('authorization', defaultToken)
+									.send({userID: defaultSession5.userID})
+									.end(function(err, res) {
+										expect(err).to.be.null;
+										expect(res).to.have.status(200);
+										assert.equal(res.body.status, 'success');
+										assert.equal(res.body.date, moment(parseInt(defaultSession9.stampStart)).tz("America/Chicago").format("dddd MMMM Do, h:mm A"));
+										clear_db().then(done());
+									})
+								})	
+							})	
+						})	
+					})	
+				})											
+			})
+		})
+	})
 }
+
 	
 if (testAdmin) {
 	describe('Admin Routes', function() {

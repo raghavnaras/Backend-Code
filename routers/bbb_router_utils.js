@@ -33,6 +33,16 @@ function createRaspberryPi(serialNumber, machineID, machineType) {
 	})
 }
 
+function createSessionWithTimes(sessionObject) {
+	return SessionData.create({
+		RFID: sessionObject.RFID,
+		userID: sessionObject.userID,
+		machineID: sessionObject.machineID,
+		stampStart: sessionObject.stampStart,
+		stampEnd: sessionObject.stampEnd
+	})
+}
+
 function createSession(machineID, RFID, userID) {
 	return SessionData.create({
 		RFID: RFID,
@@ -258,6 +268,7 @@ function findEndedSessionsOnMachine(machineID) {
 module.exports = {
 	createBikeData: createBikeData,
 	createRaspberryPi: createRaspberryPi,
+	createSessionWithTimes: createSessionWithTimes,
 	createSession: createSession,
 	createTag: createTag,
 	createUser: createUser,
