@@ -40,6 +40,7 @@ var defaultRPM3 = {table: "BikeData", values: {rpm: 90, bikeID: 2, sessionID: 3}
 var defaultUser = {table: 'User', values: {id: 1, name: 'Test', email: 'test@rice.edu', pswd: 'ashu1234'}}
 var defaultTag1 = {table: "Tag", values: {RFID: 69, machineID: 1, registered: false}}
 var defaultTag2 = {table: "Tag", values: {RFID: 70, machineID: 1, registered: false}}
+var defaultTag3 = {table: "Tag", values: {RFID: 71, machineID: 2, registered: false}}
 
 var defaultToken = jwt.sign(defaultUser.values, 'ashu1234');
 
@@ -782,7 +783,7 @@ if (testServ) {
 				})
 			})
 
-			it('should only update the latest tag on the same machine', function(done) {
+			it('should only update the latest tag', function(done) {
 				send_add_to_db_request(defaultTag1).then(function() {
 					setTimeout(function() {
 						send_add_to_db_request(defaultTag2).then(function() {
@@ -795,8 +796,8 @@ if (testServ) {
 								expect(res).to.have.status(200);
 								assert.equal(res.body.status, 'success');
 								utils.findTag(defaultTag2.values.RFID).then(function(tag2) {
-									assert.equal(tag2.tagName, "Frieza's ID")
-									assert.equal(tag2.userID, 1)
+									assert.equal(tag2.tagName, defaultTagRequest.tagName)
+									assert.equal(tag2.userID, defaultTagRequest.userID)
 									assert.equal(tag2.machineID, 1)
 									assert.isTrue(tag2.registered)
 									utils.findTag(defaultTag1.values.RFID).then(function(tag1) {
@@ -812,6 +813,37 @@ if (testServ) {
 					}, 1000)	
 				})
 			})
+
+			it('should only update the tag on the same machine', function(done) {
+				send_add_to_db_request(defaultTag1).then(function() {
+					setTimeout(function() {
+						send_add_to_db_request(defaultTag3).then(function() {
+							chai.request(API_ENDPOINT)
+							.post('/check_tag')
+							.set('authorization', defaultToken)
+							.send(defaultTagRequest)
+							.end(function(err, res) {
+								expect(err).to.be.null;
+								expect(res).to.have.status(200);
+								assert.equal(res.body.status, 'success');
+								utils.findTag(defaultTag3.values.RFID).then(function(tag3) {
+									assert.isNull(tag3.tagName)
+									assert.isNull(tag3.userID)
+									assert.equal(tag3.machineID, 2)
+									assert.isFalse(tag3.registered)
+									utils.findTag(defaultTag1.values.RFID).then(function(tag1) {
+										assert.equal(tag1.tagName, defaultTagRequest.tagName)
+										assert.equal(tag1.userID, defaultTagRequest.userID)
+										assert.equal(tag1.machineID, 1)
+										assert.isTrue(tag1.registered)
+										clear_db().then(done())
+									})
+								})
+							})
+						})
+					}, 1000)
+				})
+			} )
 		})
 
 	});
