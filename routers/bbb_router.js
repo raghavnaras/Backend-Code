@@ -149,6 +149,29 @@ router.post("/deleteworkout", function(req,res){
     })
 })
 
+router.post("/changeprofilepicture", function(req,res){
+    User.findOne({
+        where: {
+            email: req.body.email
+        }
+    }).then(function(user){
+        if (user){
+            User.update({
+                profilepicture: req.body.image
+				}, {
+				where: {
+                email: req.body.email
+				}
+            })
+            res.send({status: "success"})
+        }
+        else{
+            res.send({status: "failure"})
+        }
+
+    })
+})
+
 router.post("/deleteaccount", function(req,res){
     User.findOne({
 		where: {
@@ -252,14 +275,15 @@ router.post("/setup_account", function(req, res) {
 		else {
 			bcrypt.genSalt(10, function(err, salt) {
 				bcrypt.hash(req.body.password, salt, function(err, hash) {
-					utils.createUser(req.body.name, req.body.email, hash, null, null, null, null, null, null).then(function(user){
+					utils.createUser(req.body.name, req.body.email, hash, null, null, null, null, null, null,"img/default.png").then(function(user){
 						if (user){
 							var token = jwt.sign({userName: user.name, userID: user.id, email: user.email}, 'ashu1234');
 							res.send({
 								token: token,
 								userName: user.name,
 								userID: user.id,
-								email: user.email
+								email: user.email,
+                                image: user.profilepicture
 							});
 						}
 						else{
@@ -396,7 +420,8 @@ router.post("/login", function(req, res) {
                 		token: token,
                 		userName: user.name,
                 		userID: user.id,
-                		email: user.email
+                		email: user.email,
+                        image: user.profilepicture
 				    	// expires: expires
 				    });
                 }

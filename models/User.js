@@ -13,7 +13,8 @@ module.exports = function(sql, Sql) {
             age: {type: Sql.FLOAT},
             height: {type: Sql.FLOAT},
             RFID: {type: Sql.STRING},
-            resetpasswordcode: {type: Sql.STRING}
+            resetpasswordcode: {type: Sql.STRING},
+            profilepicture: {type: Sql.STRING}
         }, {
             timestamps: false, 
             freezeTableName: true
