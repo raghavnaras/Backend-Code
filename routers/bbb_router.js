@@ -62,13 +62,32 @@ router.get("/data", function(req, res){
 });
 
 
+//This is for the portal to keep track of which bikes are active
+router.post("/bikeStats", function(req,res){
+	BikeData.findAll({where: {bikeID: req.body.id}}).then(function(bikedata){
+		returning = {}
+
+		//getting last workout
+
+
+		//getting total workout time in last 24 hours
+
+
+		//getting total workout time in last week
+
+		returning['rpm'] = bikedata.reduce(function(total, datum){ return (datum.rpm == 0) ? total : total+datum.rpm/bikedata.length})
+		return returning
+	})
+})
 
 router.get("/getBikes", function(req, res){
 	BikeData.aggregate('bikeID','DISTINCT', { plain: false }).then(function(bikes){
-		console.log(bikes.map(function(bb){return bb.DISTINCT}))
 		res.send(bikes.map(function(bb){return bb.DISTINCT}))
 	})
 })
+//------END----------------
+
+
 // get the last three bike data points of a user in a current session
 router.post("/data/last", function(req, res){
 	utils.findCurrentSessionUsingUserID(req.body.userID).then(function(session) {
