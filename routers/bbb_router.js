@@ -64,7 +64,7 @@ router.get("/data", function(req, res){
 
 
 router.get("/getBikes", function(req, res){
-	BikeData.aggregate('bikeID', { plain: false }).then(function(bikes){
+	BikeData.aggregate('bikeID').then(function(bikes){
 		console.log(bikes)
 		res.send(bikes)
 	})
