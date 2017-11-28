@@ -77,7 +77,7 @@ router.post("/bikeStats", function(req,res){
 		//getting total workout time in last week
 
 	
-		returning['rpm'] = bikedata.reduce(function(total, datum){ return (datum.rpm == 0) ? total : total+parseFloat(datum.rpm)/bikedata.length})
+		returning['rpm'] = parseFloat(bikedata.reduce(function(total, datum){ return (parseFloat(datum.rpm) == 0) ? parseFloat(total) : parseFloat(total)+parseFloat(datum.rpm)/parseFloat(bikedata.length)}))
 		res.send(returning)
 	})
 })
