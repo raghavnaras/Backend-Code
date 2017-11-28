@@ -64,9 +64,9 @@ router.get("/data", function(req, res){
 
 
 router.get("/getBikes", function(req, res){
-	BikeData.aggregate('bikeID').then(function(bikes){
-		console.log(bikes)
-		res.send(bikes)
+	BikeData.aggregate('bikeID','DISTINCT', { plain: false }).then(function(bikes){
+		console.log(bikes.map(function(bb){return bb.DISTINCT}))
+		res.send(bikes.map(function(bb){return bb.DISTINCT}))
 	})
 })
 // get the last three bike data points of a user in a current session
