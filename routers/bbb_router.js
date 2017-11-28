@@ -1,8 +1,5 @@
 // Routers, Models, and Packages
 
-// "Life is unfair, and then you die, motherfucker!" - Jacob Burger & Hamza Nauman
-// Rushi Bhalani's idea ^
-
 var express = require('express');
 var jwt = require ('jsonwebtoken');
 var router = express.Router();
@@ -64,6 +61,14 @@ router.get("/data", function(req, res){
 	})
 });
 
+
+
+router.get("/getBikes", function(req, res){
+	BikeData.aggregate('bikeID','DISTINCT', { plain: false }).then(function(req, res){
+		console.log(req.body)
+		res.send(req.body)
+	})
+})
 // get the last three bike data points of a user in a current session
 router.post("/data/last", function(req, res){
 	utils.findCurrentSessionUsingUserID(req.body.userID).then(function(session) {
