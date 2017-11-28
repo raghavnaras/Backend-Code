@@ -64,6 +64,7 @@ router.get("/data", function(req, res){
 
 //This is for the portal to keep track of which bikes are active
 router.post("/bikeStats", function(req,res){
+	console.log(req.body.id)
 	BikeData.findAll({where: {bikeID: req.body.id}}).then(function(bikedata){
 		returning = {}
 
