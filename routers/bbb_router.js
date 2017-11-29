@@ -65,7 +65,7 @@ router.get("/data", function(req, res){
 //This is for the portal to keep track of which bikes are active
 router.post("/bikeStats", function(req,res){
 	console.log(req.body.id)
-	BikeData.findAll({where: {bikeID: req.body.id}}).then(function(bikedata){
+	BikeData.findAll({where: {bikeID: req.body.id}, limit: 10, order: 'stamp asc'}).then(function(bikedata){
 		returning = {}
 
 		//getting last workout
@@ -76,7 +76,7 @@ router.post("/bikeStats", function(req,res){
 
 		//getting total workout time in last week	
 		// returning['rpm'] = bikedata.reduce(function(total, datum){ return (parseFloat(datum.rpm) == 0) ? parseFloat(total) : parseFloat(total)+parseFloat(datum.rpm)/parseFloat(bikedata.length)}, 0)
-		returning['num'] = bikedata.length
+		returning['last'] = bikedata[0].stamp
 		res.send(returning)
 	})
 })
