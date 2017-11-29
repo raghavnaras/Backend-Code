@@ -62,32 +62,7 @@ router.get("/data", function(req, res){
 });
 
 
-//This is for the portal to keep track of which bikes are active
-router.post("/bikeStats", function(req,res){
-	console.log(req.body.id)
-	BikeData.findAll({where: {bikeID: req.body.id}, limit: 10, order: 'stamp asc'}).then(function(bikedata){
-		returning = {}
 
-		//getting last workout
-
-
-		//getting total workout time in last 24 hours
-
-
-		//getting total workout time in last week	
-		// returning['rpm'] = bikedata.reduce(function(total, datum){ return (parseFloat(datum.rpm) == 0) ? parseFloat(total) : parseFloat(total)+parseFloat(datum.rpm)/parseFloat(bikedata.length)}, 0)
-		returning['last'] = bikedata[0].stamp.toHHMMSS()
-		returning['id'] = req.body.id
-		res.send(returning)
-	})
-})
-
-router.get("/getBikes", function(req, res){
-	BikeData.aggregate('bikeID','DISTINCT', { plain: false }).then(function(bikes){
-		res.send(bikes.map(function(bb){return bb.DISTINCT}))
-	})
-})
-//------END----------------
 
 
 // get the last three bike data points of a user in a current session
@@ -139,6 +114,34 @@ String.prototype.toHHMMSS = function () {
     if (seconds < 10) {seconds = "0" + seconds;}
     return (hours + ':' + minutes + ':' + seconds);
 }
+
+//This is for the portal to keep track of which bikes are active
+router.post("/bikeStats", function(req,res){
+	console.log(req.body.id)
+	BikeData.findAll({where: {bikeID: req.body.id}, limit: 10, order: 'stamp asc'}).then(function(bikedata){
+		returning = {}
+
+		//getting last workout
+
+
+		//getting total workout time in last 24 hours
+
+
+		//getting total workout time in last week	
+		// returning['rpm'] = bikedata.reduce(function(total, datum){ return (parseFloat(datum.rpm) == 0) ? parseFloat(total) : parseFloat(total)+parseFloat(datum.rpm)/parseFloat(bikedata.length)}, 0)
+		returning['last'] = String(bikedata[0].stamp).toHHMMSS()
+		returning['id'] = req.body.id
+		res.send(returning)
+	})
+})
+
+router.get("/getBikes", function(req, res){
+	BikeData.aggregate('bikeID','DISTINCT', { plain: false }).then(function(bikes){
+		res.send(bikes.map(function(bb){return bb.DISTINCT}))
+	})
+})
+//------END----------------
+
 
 router.post("/average_duration", function(req, res){
 	utils.findEndedSessionsUsingUserID(req.body.userID).then(function(sessions){
