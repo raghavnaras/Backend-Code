@@ -142,12 +142,17 @@ router.post("/bikeStats", function(req,res){
 
 
 		//getting total workout time in last week	
-		returning['day'] = 0
 		returning['week'] = 0
 		returning['rpm'] = parseInt(bikedata.reduce(function(total, datum){ return (parseFloat(datum.rpm) == 0) ? parseFloat(total) : parseFloat(total)+parseFloat(datum.rpm)/parseFloat(bikedata.length)}, 0)*100)/100.0
 		returning['last'] = timeConverter(parseInt(bikedata[0].stamp))
 		returning['id'] = req.body.id
-		res.send(returning)
+
+
+		var dayago = Math.round((new Date()).getTime() - 1000*60*60*24
+		SessionData.findAll({where: {machienID: req.body.id, stampStart: {$geq: dayago}}}).then(function(sessions){
+			returning['day'] = sessions.length
+			res.send(returning)
+		})
 	})
 })
 
