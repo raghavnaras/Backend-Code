@@ -148,7 +148,7 @@ router.post("/bikeStats", function(req,res){
 		returning['id'] = req.body.id
 
 
-		var dayago = Math.round((new Date()).getTime() - 1000*60*60*24
+		var dayago = (new Date()).getTime() - 1000*60*60*24
 		SessionData.findAll({where: {machienID: req.body.id, stampStart: {$geq: dayago}}}).then(function(sessions){
 			returning['day'] = sessions.length
 			res.send(returning)
