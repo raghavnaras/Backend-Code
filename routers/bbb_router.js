@@ -131,28 +131,21 @@ String.prototype.toHHMMSS = function () {
 
 //This is for the portal to keep track of which bikes are active
 router.post("/bikeStats", function(req,res){
-	console.log(req.body.id)
 	BikeData.findAll({where: {bikeID: req.body.id}, limit: 100, order: 'stamp desc'}).then(function(bikedata){
-		returning = {}
-
-		//getting last workout
-
-
-		//getting total workout time in last 24 hours
-
-
-		//getting total workout time in last week	
-		returning['week'] = 0
-		returning['rpm'] = parseInt(bikedata.reduce(function(total, datum){ return (parseFloat(datum.rpm) == 0) ? parseFloat(total) : parseFloat(total)+parseFloat(datum.rpm)/parseFloat(bikedata.length)}, 0)*100)/100.0
-		returning['last'] = timeConverter(parseInt(bikedata[0].stamp))
-		returning['id'] = req.body.id
-
 
 		var dayago = (new Date()).getTime() - 1000*60*60*24
-		console.log(String(dayago))
-		SessionData.findAll({where: {machienID: req.body.id, stampStart: {$geq: String(dayago)}}}).then(function(sessions){
-			returning['day'] = sessions.length
-			res.send(returning)
+		SessionData.findAll({where: {machineID: req.body.id, stampStart: {$gte: String(dayago)}}}).then(function(sessions1){
+
+			var weekago = (new Date()).getTime() - 7*1000*60*60*24
+			SessionData.findAll({where: {machineID: req.body.id, stampStart: {$gte: String(weekago)}}}).then(function(sessions2){
+				returning = {}
+				returning['day'] = sessions1.length
+				returning['week'] = sessions2.length
+				returning['rpm'] = parseInt(bikedata.reduce(function(total, datum){ return (parseFloat(datum.rpm) == 0) ? parseFloat(total) : parseFloat(total)+parseFloat(datum.rpm)/parseFloat(bikedata.length)}, 0)*100)/100.0
+				returning['last'] = timeConverter(parseInt(bikedata[0].stamp))
+				returning['id'] = req.body.id
+				res.send(returning)
+			})
 		})
 	})
 })
