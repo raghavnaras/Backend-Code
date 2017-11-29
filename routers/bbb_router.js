@@ -100,6 +100,20 @@ router.post("/data/last", function(req, res){
 
 // Helper Functions
 
+
+function timeConverter(UNIX_timestamp){
+  var a = new Date(UNIX_timestamp);
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var year = a.getFullYear();
+  var month = months[a.getMonth()];
+  var date = a.getDate();
+  var hour = a.getHours();
+  var min = a.getMinutes();
+  var sec = a.getSeconds();
+  var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+  return time;
+}
+
 // TODO: Move this function to "bbb_router_utils.js" if possible
 String.prototype.toHHMMSS = function () {
     //console.log(this)
@@ -129,8 +143,8 @@ router.post("/bikeStats", function(req,res){
 
 		//getting total workout time in last week	
 		// returning['rpm'] = bikedata.reduce(function(total, datum){ return (parseFloat(datum.rpm) == 0) ? parseFloat(total) : parseFloat(total)+parseFloat(datum.rpm)/parseFloat(bikedata.length)}, 0)
-		var t = new Date( parseInt(bikedata[0].stamp));
-		returning['last'] = t.format("dd.mm.yyyy hh:MM:ss")
+
+		returning['last'] = timeConverter(parseInt(bikedata[0].stamp))
 		returning['id'] = req.body.id
 		res.send(returning)
 	})
