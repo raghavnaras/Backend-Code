@@ -74,10 +74,9 @@ router.post("/bikeStats", function(req,res){
 		//getting total workout time in last 24 hours
 
 
-		//getting total workout time in last week
-		console.log( bikedata.reduce(function(total, datum){ return (parseFloat(datum.rpm) == 0) ? parseFloat(total) : parseFloat(total)+parseFloat(datum.rpm)/parseFloat(bikedata.length)}, 0) )
-	
-		returning['rpm'] = bikedata.reduce(function(total, datum){ return (parseFloat(datum.rpm) == 0) ? parseFloat(total) : parseFloat(total)+parseFloat(datum.rpm)/parseFloat(bikedata.length)}, 0)
+		//getting total workout time in last week	
+		// returning['rpm'] = bikedata.reduce(function(total, datum){ return (parseFloat(datum.rpm) == 0) ? parseFloat(total) : parseFloat(total)+parseFloat(datum.rpm)/parseFloat(bikedata.length)}, 0)
+		returning['num'] = bikedata.length
 		res.send(returning)
 	})
 })
