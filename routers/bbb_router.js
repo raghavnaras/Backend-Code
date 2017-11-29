@@ -132,7 +132,7 @@ String.prototype.toHHMMSS = function () {
 //This is for the portal to keep track of which bikes are active
 router.post("/bikeStats", function(req,res){
 	console.log(req.body.id)
-	BikeData.findAll({where: {bikeID: req.body.id}, limit: 10, order: 'stamp asc'}).then(function(bikedata){
+	BikeData.findAll({where: {bikeID: req.body.id}, limit: 10, order: 'stamp desc'}).then(function(bikedata){
 		returning = {}
 
 		//getting last workout
