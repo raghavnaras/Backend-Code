@@ -133,19 +133,21 @@ String.prototype.toHHMMSS = function () {
 router.post("/bikeStats", function(req,res){
 	BikeData.findAll({where: {bikeID: req.body.id}, limit: 100, order: 'stamp desc'}).then(function(bikedata){
 
-		var dayago = (new Date()).getTime() - 1000*60*60*24
-		SessionData.findAll({where: {machineID: req.body.id, stampStart: {$gte: String(dayago)}}}).then(function(sessions1){
-
+		SessionData.findAll({where: {machineID: req.body.id}}).then(function(sessions){
+			var dayago = (new Date()).getTime() - 1000*60*60*24
 			var weekago = (new Date()).getTime() - 7*1000*60*60*24
-			SessionData.findAll({where: {machineID: req.body.id, stampStart: {$gte: String(weekago)}}}).then(function(sessions2){
-				returning = {}
-				returning['day'] = sessions1.length
-				returning['week'] = sessions2.length
-				returning['rpm'] = parseInt(bikedata.reduce(function(total, datum){ return (parseFloat(datum.rpm) == 0) ? parseFloat(total) : parseFloat(total)+parseFloat(datum.rpm)/parseFloat(bikedata.length)}, 0)*100)/100.0
-				returning['last'] = timeConverter(parseInt(bikedata[0].stamp))
-				returning['id'] = req.body.id
-				res.send(returning)
-			})
+
+			returning = {}
+			returning['total'] = sessions.length			
+			returning['day'] = sessions.filter(function(term){
+
+				return parseInt(term.stampStart) > dayago
+			}).length
+			returning['week'] = sessions.filter(function(term){return parseInt(term.stampStart) > weekago}).length
+			returning['rpm'] = parseInt(bikedata.reduce(function(total, datum){ return (parseFloat(datum.rpm) == 0) ? parseFloat(total) : parseFloat(total)+parseFloat(datum.rpm)/parseFloat(bikedata.length)}, 0)*100)/100.0
+			returning['last'] = timeConverter(parseInt(bikedata[0].stamp)-6*60*60*1000)
+			returning['id'] = req.body.id
+			res.send(returning)
 		})
 	})
 })
