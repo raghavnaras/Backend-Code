@@ -145,7 +145,7 @@ router.post("/bikeStats", function(req,res){
 			}).length
 			returning['week'] = sessions.filter(function(term){return parseInt(term.stampStart) > weekago}).length
 			returning['rpm'] = parseInt(bikedata.reduce(function(total, datum){ return (parseFloat(datum.rpm) == 0) ? parseFloat(total) : parseFloat(total)+parseFloat(datum.rpm)/parseFloat(bikedata.length)}, 0)*100)/100.0
-			returning['last'] = timeConverter(parseInt(bikedata[0].stamp)-6*60*60*1000)
+			returning['last'] = timeConverter(parseInt(bikedata[0].stamp)-8*60*60*1000)
 			returning['id'] = req.body.id
 			res.send(returning)
 		})
