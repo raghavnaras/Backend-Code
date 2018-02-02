@@ -6,10 +6,10 @@ var db = {};
 db.test = false; // testing boolean
 db.user = 'digitalgym';
 db.password = 'ashu1234';
-db.schema = db.test ? 'DigitalGymTest' : 'DigitalGym';
+db.schema = db.test ? 'DigitalGymTest' : 'digitalgym';
 
 var opts = {
-    host: 'digitalgym.cq4d8vjo7uoe.us-west-2.rds.amazonaws.com',
+    host: 'digitalgymdb.csyvcx9rt2qc.us-west-1.rds.amazonaws.com',
     dialect: 'mysql',
     logging: false,
     pool: {
