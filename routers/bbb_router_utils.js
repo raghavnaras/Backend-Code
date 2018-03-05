@@ -14,9 +14,9 @@ var test = config.db.test
 
 // Helper functions for creating model instances
 
-function createBikeData(rpm, bikeID, sessionID) {
+function createBikeData(rpm, bikeID, sessionID, time) {
 	return BikeData.create({
-		stamp: new Date().getTime(),
+		stamp: time,
 		rpm: rpm,
 		bikeID: bikeID,
 		sessionID: sessionID
