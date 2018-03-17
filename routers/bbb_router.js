@@ -464,6 +464,7 @@ router.post("/login", function(req, res) {
                 	// var expires = moment().add('days', 7).valueOf();
                 	var token = jwt.sign({userName: user.name, userID: user.id, email: user.email}, 'ashu1234', {noTimestamp: true});
                 	res.json({
+                		success: true, 
                 		token: token,
                 		userName: user.name,
                 		userID: user.id,
