@@ -4,8 +4,13 @@ var router = require('./routers/bbb_router.js');
 var models = require('./models');
 
 var bodyParser = require('body-parser');
+var morgan = require('morgan')
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+
+app.use(morgan('dev'))
 
 
 app.use(function (req, res, next) {
@@ -19,6 +24,7 @@ app.use(function (req, res, next) {
     next();
     // console.log("Server after next()")
 });
+
 
 app.use("/bbb", router);
 

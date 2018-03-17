@@ -316,7 +316,7 @@ router.post("/verifysecretcode", function(req,res){
 router.post("/setup_account", function(req, res) {
 	utils.findUserUsingEmail(req.body.email).then(function(user) {
 		if (user) {
-			res.sendStatus(409);
+			res.send({success: false, message: "A user with this email already exists."});
 		}
 		else {
 			bcrypt.genSalt(10, function(err, salt) {
@@ -325,15 +325,16 @@ router.post("/setup_account", function(req, res) {
 						if (user){
 							var token = jwt.sign({userName: user.name, userID: user.id, email: user.email}, 'ashu1234');
 							res.send({
+								success: true,
 								token: token,
-								userName: user.name,
-								userID: user.id,
+								name: user.name,
+								id: user.id,
 								email: user.email,
                                 image: user.profilepicture
 							});
 						}
 						else{
-							res.sendStatus(500)
+							res.send({success: false, message: "Was not able to create account."})
 						}
 					})
 				});
