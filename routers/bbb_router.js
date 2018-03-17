@@ -456,7 +456,7 @@ router.post("/changepassword", function(req, res){
 router.post("/login", function(req, res) {
 	utils.findUserUsingEmail(req.body.email).then(function(user) {
 		if (!user) {
-			return res.status(403).send({status: 403});
+			return res.send({success: false, message: "Incorrect email/password combination"});
 		}
 		if (user) {
 			bcrypt.compare(req.body.password, String(user.pswd), function(err, response) {
@@ -473,7 +473,7 @@ router.post("/login", function(req, res) {
 				    });
                 }
                 else {
-                	res.status(401).send({status: 401});
+                	res.send({success: false, message: "Incorrect email/password combination"})
                 }
             })
 		}
