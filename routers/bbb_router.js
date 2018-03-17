@@ -466,8 +466,8 @@ router.post("/login", function(req, res) {
                 	res.json({
                 		success: true, 
                 		token: token,
-                		userName: user.name,
-                		userID: user.id,
+                		name: user.name,
+                		id: user.id,
                 		email: user.email,
                         image: user.profilepicture
 				    	// expires: expires
