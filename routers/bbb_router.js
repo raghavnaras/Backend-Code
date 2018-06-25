@@ -621,6 +621,26 @@ router.post("/check_rpm", function(req, res) {
 		})
 	}, 30000)
 })
+
+router.post("/get_rpm_userID", function(req, res) {
+	utils.findCurrentSessionUsingUserID(req.body.userID).then(function(sesh)) {
+		if (sesh) {
+			utils.findBikeData(session.sessionID).then(function(getrots)) {
+				if (getrots.value != null) {
+					var token = jwt.sign({bikeRpm: Rpm.id})
+					res.send {(
+						token: token,
+						Rpm: rpm.id
+					)}
+				}
+			}
+		}
+		else {
+			res.send({success: false, rpm: ""})
+		}
+	} 
+	
+}
  
 router.post("/check_tag", function(req, res) {
 	utils.registerTag(req.body.tagName, req.body.userID, req.body.machineID).then(function(pair) {
