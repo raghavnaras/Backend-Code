@@ -61,6 +61,26 @@ router.get("/data", function(req, res){
 	})
 });
 
+router.get ("/check_rpm", function(req, res) {
+	res.send({status: "received"})
+	setTimeout(function() {
+		utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
+			utils.findCurrentSessionUsingMachineID(RaspPi.machineID).then(function(session) {
+				if (session) {
+					utils.findRecentBikeData(session.sessionID, 30).then(function(data) {
+						if (!data) {
+							utils.endSession(RaspPi.machineID)
+						}
+					})
+				}
+				if(!session) {
+					res.send({message: "No live session found"})
+				}
+			})
+		})
+	}, 30000)
+})
+
 
 router.get("/rpmfrombikeid", function(req,res) {
 	utils.findCurrentSessionUsingMachineID(req.body.bikeID).then(function(session) {
@@ -623,7 +643,7 @@ router.post("/process_tag", function(req, res) {
 	})		
 })
 
-router.post("/check_rpm", function(req, res) {
+/*router.post("/check_rpm", function(req, res) {
 	res.send({status: "received"})
 	setTimeout(function() {
 		utils.findRaspPiUsingSerial(req.body.serialNumber).then(function(RaspPi) {
@@ -639,6 +659,7 @@ router.post("/check_rpm", function(req, res) {
 		})
 	}, 30000)
 })
+*/
 
  
 router.post("/check_tag", function(req, res) {
